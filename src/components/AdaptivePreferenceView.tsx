@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, MoveVertical, AlertCircle, Scale, Zap, Leaf, Shield, Ban } from 'lucide-react';
+import { ArrowLeft, MoveVertical, AlertCircle, Scale, Zap, Leaf, Shield, Ban, Calculator, Brain } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { DecisionOption, MainScenario } from '../types';
 
@@ -90,6 +90,24 @@ interface AdaptivePreferenceViewProps {
   mainScenario: MainScenario;
 }
 
+const simulationMetrics = [
+  { id: 'livesSaved', label: 'Lives Saved' },
+  { id: 'casualties', label: 'Casualties' },
+  { id: 'resources', label: 'Resources' },
+  { id: 'infrastructure', label: 'Infrastructure' },
+  { id: 'biodiversity', label: 'Biodiversity' },
+  { id: 'properties', label: 'Properties' },
+  { id: 'nuclear', label: 'Nuclear Safety' }
+];
+
+const moralValues = [
+  { id: 'safety', label: 'Safety' },
+  { id: 'efficiency', label: 'Efficiency' },
+  { id: 'sustainability', label: 'Sustainability' },
+  { id: 'fairness', label: 'Fairness' },
+  { id: 'nonmaleficence', label: 'Nonmaleficence' }
+];
+
 const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({ 
   onBack, 
   selectedOption
@@ -102,18 +120,20 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
     "Fairness",
     "Nonmaleficence"
   ]);
+  const [preferenceType, setPreferenceType] = useState<'metrics' | 'values' | null>(null);
+  const [rankingItems, setRankingItems] = useState<Array<{ id: string; label: string }>>(simulationMetrics);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const items = Array.from(valueOrder);
+    const items = Array.from(rankingItems);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    setValueOrder(items);
+    setRankingItems(items);
   };
 
-  const { comparsionTableCulomnContent } = selectedOption;
+  const { comparisonTableColumnContent } = selectedOption;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 flex-1 flex flex-col">
@@ -132,101 +152,110 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
         
         <ComparisonTable
           firstColumn={{
-            title: comparsionTableCulomnContent.firstColumnTitle,
-            selectedPreference: comparsionTableCulomnContent.firstColumnSelectedPreference,
-            value: comparsionTableCulomnContent.firstValue,
-            affected: comparsionTableCulomnContent.firstColumnAffected,
-            risk: comparsionTableCulomnContent.firstColumnRisk,
-            userChoice: comparsionTableCulomnContent.firstColumnuserChoice
+            title: comparisonTableColumnContent.firstColumnTitle,
+            selectedPreference: comparisonTableColumnContent.firstColumnSelectedPreference,
+            value: comparisonTableColumnContent.firstValue,
+            affected: comparisonTableColumnContent.firstColumnAffected,
+            risk: comparisonTableColumnContent.firstColumnRisk,
+            userChoice: comparisonTableColumnContent.firstColumnuserChoice
           }}
           secondColumn={{
-            title: comparsionTableCulomnContent.secondColumnTitle,
-            selectedPreference: comparsionTableCulomnContent.secondColumnSelectedPreference,
-            value: comparsionTableCulomnContent.secondValue,
-            affected: comparsionTableCulomnContent.secondColumnaffected,
-            risk: comparsionTableCulomnContent.secondColumnRisk,
-            userChoice: comparsionTableCulomnContent.secondColumnuserChoice
+            title: comparisonTableColumnContent.secondColumnTitle,
+            selectedPreference: comparisonTableColumnContent.secondColumnSelectedPreference,
+            value: comparisonTableColumnContent.secondValue,
+            affected: comparisonTableColumnContent.secondColumnaffected,
+            risk: comparisonTableColumnContent.secondColumnRisk,
+            userChoice: comparisonTableColumnContent.secondColumnuserChoice
           }}
         />
       </div>
 
+      {/* Preference Alignment Focus Section */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Value Priority Selection
+          Preference Alignment Focus
         </h3>
-        <p className="text-gray-600 mb-4">
-          Which of the five values do you prioritize the most after reviewing both scenarios?
+        <p className="text-gray-600 mb-6">
+          After comparing both scenarios, what matters more to you when making decisions?
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {valueOrder.map((value) => (
-            <button
-              key={value}
-              onClick={() => setSelectedValue(value)}
-              className={`p-3 rounded-lg border transition-all duration-200 flex items-center justify-center gap-2 ${
-                selectedValue === value
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700"
-              }`}
-            >
-              {valueIcons[value]}
-              <span>{value}</span>
-            </button>
-          ))}
+        
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <button
+            onClick={() => {
+              setPreferenceType('metrics');
+              setRankingItems(simulationMetrics);
+            }}
+            className={`p-4 rounded-lg border transition-all duration-200 flex flex-col items-center gap-2
+              ${preferenceType === 'metrics' 
+                ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700'}`}
+          >
+            <Calculator size={24} />
+            <span className="font-medium">Simulation Metrics</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              setPreferenceType('values');
+              setRankingItems(moralValues);
+            }}
+            className={`p-4 rounded-lg border transition-all duration-200 flex flex-col items-center gap-2
+              ${preferenceType === 'values' 
+                ? 'border-purple-500 bg-purple-50 text-purple-700' 
+                : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-700'}`}
+          >
+            <Brain size={24} />
+            <span className="font-medium">Moral Values</span>
+          </button>
         </div>
+
+        {preferenceType && (
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h4 className="text-base font-medium text-gray-800 mb-4">
+              Rank from 1 (most important) to {rankingItems.length} (least important)
+            </h4>
+            
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="rankingList">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-2"
+                  >
+                    {rankingItems.map((item, index) => (
+                      <Draggable key={item.id} draggableId={item.id} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center gap-4"
+                          >
+                            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold">
+                              {index + 1}
+                            </div>
+                            <span className="flex-1 font-medium text-gray-700">{item.label}</span>
+                            <MoveVertical size={20} className="text-gray-400" />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Rank Your Values</h3>
-          <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
-            <MoveVertical size={14} />
-            Drag to reorder
-          </div>
-        </div>
-        
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="valueList">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="space-y-2"
-                >
-                  {valueOrder.map((value, index) => (
-                    <Draggable key={value} draggableId={value} index={index}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center gap-3"
-                        >
-                          <span className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 text-sm font-medium">
-                            {index + 1}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {valueIcons[value]}
-                            <span className="text-gray-800">{value}</span>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
-
-        <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="text-yellow-500 mt-0.5" size={16} />
-            <p className="text-sm text-yellow-800">
-              Your value rankings will be used to personalize future scenario recommendations and decision options.
-            </p>
-          </div>
+      <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+        <div className="flex items-start gap-2">
+          <AlertCircle className="text-yellow-500 mt-0.5" size={16} />
+          <p className="text-sm text-yellow-800">
+            Your rankings will help us understand your decision-making priorities and improve future scenario recommendations.
+          </p>
         </div>
       </div>
     </div>
