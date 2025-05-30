@@ -106,11 +106,6 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
           </button>
         </div>
 
-        <MetricsDisplay 
-          metrics={currentMetrics}
-          animatingMetrics={[]}
-        />
-
         <div className="bg-white rounded-lg shadow-md p-4 flex-1 flex flex-col">
           <h2 className="text-lg font-semibold mb-1 text-gray-700">{scenario.title}</h2>
           <p className="text-sm text-gray-600 mb-4">{scenario.description}</p>
