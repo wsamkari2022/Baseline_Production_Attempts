@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Users, Skull, Droplets, Building, Trees as Tree, Factory } from 'lucide-react';
 import { DecisionOption } from '../types';
 
 interface RankedOptionsViewProps {
@@ -21,6 +21,16 @@ interface RankedOptionsViewProps {
   };
 }
 
+const metricButtons = [
+  { id: 'livesSaved', label: 'Lives Saved', icon: Users, color: 'text-green-600' },
+  { id: 'casualties', label: 'Casualties', icon: Skull, color: 'text-red-600' },
+  { id: 'resources', label: 'Resources', icon: Droplets, color: 'text-blue-600' },
+  { id: 'infrastructure', label: 'Infrastructure', icon: Building, color: 'text-gray-600' },
+  { id: 'biodiversity', label: 'Biodiversity', icon: Tree, color: 'text-green-600' },
+  { id: 'properties', label: 'Properties', icon: Building, color: 'text-blue-600' },
+  { id: 'nuclear', label: 'Nuclear', icon: Factory, color: 'text-purple-600' }
+];
+
 const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
   scenario,
   onBack,
@@ -30,6 +40,7 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
   const [selectedOption, setSelectedOption] = useState<DecisionOption | null>(null);
   const [rankedOptions, setRankedOptions] = useState<DecisionOption[]>([]);
   const [preferenceMessage, setPreferenceMessage] = useState('');
+  const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
 
   useEffect(() => {
     const preferenceType = localStorage.getItem('preferenceTypeFlag');
@@ -38,7 +49,6 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
     
     const rankings = preferenceType === 'true' ? metricsRanking : valuesRanking;
     
-    // Create preference message
     const topPriorities = rankings.slice(0, 3).map(r => r.label).join(', ');
     setPreferenceMessage(
       preferenceType === 'true'
@@ -46,12 +56,11 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
         : `Based on your moral values priorities (${topPriorities}), the following options are ranked according to their alignment with these core values:`
     );
 
-    // Sort options based on the selected preference type and rankings
     const sortedOptions = [...scenario.options].sort((a, b) => {
       if (preferenceType === 'true') {
         const aScore = calculateMetricsScore(a, rankings);
         const bScore = calculateMetricsScore(b, rankings);
-        return bScore - aScore; // Higher score is better
+        return bScore - aScore;
       } else {
         const aScore = calculateValuesScore(a, rankings);
         const bScore = calculateValuesScore(b, rankings);
@@ -71,31 +80,24 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
       
       switch (metric.id) {
         case 'livesSaved':
-          // Higher is better for lives saved
           score += option.impact.livesSaved * weight;
           break;
         case 'casualties':
-          // Lower is better for casualties
           score += (2000 - option.impact.humanCasualties) * weight;
           break;
         case 'resources':
-          // Lower resource consumption is better
           score += (100 + option.impact.firefightingResource) * weight;
           break;
         case 'infrastructure':
-          // Lower infrastructure damage is better
           score += (100 + option.impact.infrastructureCondition) * weight;
           break;
         case 'biodiversity':
-          // Lower biodiversity impact is better
           score += (100 + option.impact.biodiversityCondition) * weight;
           break;
         case 'properties':
-          // Lower property damage is better
           score += (100 + option.impact.propertiesCondition) * weight;
           break;
         case 'nuclear':
-          // Lower nuclear risk is better
           score += (100 + option.impact.nuclearPowerStation) * weight;
           break;
       }
@@ -113,6 +115,27 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
       }
     });
     return score;
+  };
+
+  const getMetricValue = (option: DecisionOption, metricId: string) => {
+    switch (metricId) {
+      case 'livesSaved':
+        return `+${option.impact.livesSaved}`;
+      case 'casualties':
+        return `+${option.impact.humanCasualties}`;
+      case 'resources':
+        return `${option.impact.firefightingResource}%`;
+      case 'infrastructure':
+        return `${option.impact.infrastructureCondition}%`;
+      case 'biodiversity':
+        return `${option.impact.biodiversityCondition}%`;
+      case 'properties':
+        return `${option.impact.propertiesCondition}%`;
+      case 'nuclear':
+        return `${option.impact.nuclearPowerStation}%`;
+      default:
+        return '';
+    }
   };
 
   return (
@@ -136,6 +159,27 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
             <p className="text-blue-800">{preferenceMessage}</p>
           </div>
 
+          {/* Metric Buttons */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {metricButtons.map((metric) => {
+              const Icon = metric.icon;
+              return (
+                <button
+                  key={metric.id}
+                  onClick={() => setSelectedMetric(selectedMetric === metric.id ? null : metric.id)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors duration-200 ${
+                    selectedMetric === metric.id
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <Icon size={16} className={metric.color} />
+                  {metric.label}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="space-y-4">
             {rankedOptions.map((option, index) => (
               <div
@@ -152,6 +196,11 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
                     {index + 1}
                   </span>
                   <h3 className="font-medium text-gray-900">{option.title}</h3>
+                  {selectedMetric && (
+                    <span className={`ml-auto font-medium ${metricButtons.find(m => m.id === selectedMetric)?.color}`}>
+                      {getMetricValue(option, selectedMetric)}
+                    </span>
+                  )}
                 </div>
                 <p className="text-gray-600 text-sm">{option.description}</p>
               </div>
