@@ -1,0 +1,412 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Flame, Check, BarChart2, Lightbulb, X } from 'lucide-react';
+import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
+import MetricsDisplay from './components/MetricsDisplay';
+import DecisionOption from './components/DecisionOption';
+import ExpertAnalysis from './components/ExpertAnalysis';
+import RadarChart from './components/RadarChart';
+import AlternativeDecisionModal from './components/AlternativeDecisionModal';
+import CVRQuestionModal from './components/CVRQuestionModal';
+import AdaptivePreferenceView from './components/AdaptivePreferenceView';
+import { SimulationMetrics, DecisionOption as DecisionOptionType } from './types';
+import { scenarios } from './data/scenarios';
+
+// Register Chart.js components
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+
+const SimulationMainPage: React.FC = () => {
+  // Core simulation metrics
+  const [metrics, setMetrics] = useState<SimulationMetrics>({
+    livesSaved: 0,
+    humanCasualties: 0,
+    firefightingResource: 100,
+    infrastructureCondition: 100,
+    biodiversityCondition: 100,
+    propertiesCondition: 100,
+    nuclearPowerStation: 100,
+  });
+
+  // State management
+  const [topStableValues, setTopStableValues] = useState<string[]>([]);
+  const [animatingMetrics, setAnimatingMetrics] = useState<string[]>([]);
+  const [selectedDecision, setSelectedDecision] = useState<DecisionOptionType | null>(null);
+  const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
+  const [showRadarChart, setShowRadarChart] = useState(false);
+  const [showAlternativesModal, setShowAlternativesModal] = useState(false);
+  const [showCVRModal, setShowCVRModal] = useState(false);
+  const [showAdaptivePreference, setShowAdaptivePreference] = useState(false);
+  const [addedAlternatives, setAddedAlternatives] = useState<DecisionOptionType[]>([]);
+  const [toggledOptions, setToggledOptions] = useState<{[key: string]: boolean}>({});
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    const savedValues = localStorage.getItem('finalValues');
+    if (savedValues) {
+      try {
+        const values = JSON.parse(savedValues);
+        const stableValues = values
+          .slice(0, 2)
+          .map((v: { name: string }) => v.name.toLowerCase());
+        
+        setTopStableValues(stableValues);
+      } catch (error) {
+        console.error('Error parsing matched stable values:', error);
+      }
+    }
+  }, []);
+
+  const currentScenario = scenarios[currentScenarioIndex];
+
+  const getInitialOptions = useCallback(() => {
+    if (!currentScenario || !topStableValues.length) return currentScenario.options.slice(0, 2);
+    
+    const matchingOptions = currentScenario.options.filter(option => 
+      topStableValues.includes(option.label.toLowerCase())
+    );
+
+    return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
+  }, [currentScenario, topStableValues]);
+
+  const getAlternativeOptions = useCallback(() => {
+    if (!currentScenario) return [];
+    
+    const initialOptionIds = getInitialOptions().map(opt => opt.id);
+    const addedOptionIds = addedAlternatives.map(opt => opt.id);
+    
+    return currentScenario.options
+      .filter(option => !initialOptionIds.includes(option.id) && !addedOptionIds.includes(option.id))
+      .map(option => ({ ...option, isAlternative: true }));
+  }, [currentScenario, getInitialOptions, addedAlternatives]);
+
+  useEffect(() => {
+    const initialOptions = getInitialOptions();
+    const initialToggledOptions: {[key: string]: boolean} = {};
+    [...initialOptions, ...addedAlternatives].forEach(option => {
+      initialToggledOptions[option.id] = true;
+    });
+    setToggledOptions(initialToggledOptions);
+  }, [currentScenarioIndex, getInitialOptions, addedAlternatives]);
+
+  const handleDecisionSelect = (decision: DecisionOptionType) => {
+    if (decision.isAlternative && decision.cvrQuestion) {
+      setSelectedDecision(decision);
+      setShowCVRModal(true);
+    } else {
+      setSelectedDecision(decision);
+    }
+  };
+
+  const handleCVRAnswer = (answer: boolean) => {
+    setShowCVRModal(false);
+    
+    if (answer) {
+      // User confirmed their choice, proceed with the decision
+      // The selected decision is already set
+    } else {
+      // User rejected their choice, show adaptive preference view
+      // Do not set selectedDecision to null here as AdaptivePreferenceView needs it
+      setShowAdaptivePreference(true);
+    }
+  };
+
+  const handleAddAlternative = (option: DecisionOptionType) => {
+    setAddedAlternatives(prev => [...prev, { ...option, isAlternative: true }]);
+    setShowAlternativesModal(false);
+  };
+
+  const handleConfirmDecision = () => {
+    if (!selectedDecision) return;
+    
+    const newMetrics = {
+      livesSaved: metrics.livesSaved + selectedDecision.impact.livesSaved,
+      humanCasualties: metrics.humanCasualties + selectedDecision.impact.humanCasualties,
+      firefightingResource: Math.max(0, metrics.firefightingResource + selectedDecision.impact.firefightingResource),
+      infrastructureCondition: Math.max(0, metrics.infrastructureCondition + selectedDecision.impact.infrastructureCondition),
+      biodiversityCondition: Math.max(0, metrics.biodiversityCondition + selectedDecision.impact.biodiversityCondition),
+      propertiesCondition: Math.max(0, metrics.propertiesCondition + selectedDecision.impact.propertiesCondition),
+      nuclearPowerStation: Math.max(0, metrics.nuclearPowerStation + selectedDecision.impact.nuclearPowerStation),
+    };
+
+    const changing = Object.keys(metrics).filter(
+      (key) => metrics[key as keyof SimulationMetrics] !== newMetrics[key as keyof SimulationMetrics]
+    );
+    
+    setAnimatingMetrics(changing);
+    setMetrics(newMetrics);
+    
+    setTimeout(() => {
+      setAnimatingMetrics([]);
+    }, 1000);
+    
+    setSelectedDecision(null);
+    
+    if (currentScenarioIndex < scenarios.length - 1) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setCurrentScenarioIndex(prev => prev + 1);
+        setAddedAlternatives([]);
+      }, 1500);
+    }
+  };
+
+  const handleToggleOption = useCallback((optionId: string) => {
+    setToggledOptions(prev => ({
+      ...prev,
+      [optionId]: !prev[optionId]
+    }));
+  }, []);
+
+  const prepareRadarChartData = useCallback(() => {
+    const labels = [
+      'Fire Containment',
+      'Firefighter Risk',
+      'Resource Use',
+      'Infrastructure Damage',
+      'Biodiversity Impact',
+      'Ethical Fairness'
+    ];
+
+    const visibleOptions = [...getInitialOptions(), ...addedAlternatives];
+    const datasets = visibleOptions
+      .filter(option => toggledOptions[option.id])
+      .map((option, index) => {
+        const colors = [
+          'rgba(255, 99, 132, 0.5)',
+          'rgba(54, 162, 235, 0.5)',
+          'rgba(255, 206, 86, 0.5)',
+          'rgba(75, 192, 192, 0.5)',
+          'rgba(153, 102, 255, 0.5)',
+        ];
+
+        const borderColors = [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+        ];
+
+        return {
+          label: option.title,
+          data: option.radarData ? [
+            option.radarData.fireContainment,
+            option.radarData.firefighterRisk,
+            option.radarData.resourceUse,
+            option.radarData.infrastructureDamage,
+            option.radarData.biodiversityImpact,
+            option.radarData.ethicalFairness
+          ] : [],
+          backgroundColor: colors[index % colors.length],
+          borderColor: borderColors[index % borderColors.length],
+          borderWidth: 2,
+        };
+      });
+
+    return { labels, datasets };
+  }, [getInitialOptions, addedAlternatives, toggledOptions]);
+
+  const radarOptions = {
+    scales: {
+      r: {
+        min: 0,
+        max: 100,
+        ticks: {
+          stepSize: 20,
+          showLabelBackdrop: false,
+          font: { size: 10 }
+        },
+        pointLabels: { font: { size: 12 } },
+        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+        angleLines: { color: 'rgba(0, 0, 0, 0.1)' }
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            return `${context.dataset.label}: ${context.raw}`;
+          }
+        }
+      },
+      legend: {
+        position: 'bottom' as const,
+        labels: { font: { size: 12 }, padding: 20 }
+      }
+    },
+    maintainAspectRatio: false
+  };
+
+  if (!currentScenario) return null;
+
+  const availableAlternatives = getAlternativeOptions();
+
+  if (showAdaptivePreference) {
+    return (
+      <div className="h-screen bg-gray-50 p-4 flex flex-col">
+        <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col">
+          <div className="flex justify-between items-center mb-3">
+            <h1 className="text-2xl font-bold text-gray-800">
+              Wildfire Crisis Simulation
+            </h1>
+            <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+              Scenario {currentScenario.id} of {scenarios.length}
+            </div>
+          </div>
+          
+          <MetricsDisplay metrics={metrics} animatingMetrics={animatingMetrics} />
+          
+          <AdaptivePreferenceView 
+            onBack={() => setShowAdaptivePreference(false)} 
+            selectedOption={selectedDecision}
+            mainScenario={currentScenario}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen bg-gray-50 p-4 flex flex-col">
+      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col">
+        <div className="flex justify-between items-center mb-3">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Wildfire Crisis Simulation
+          </h1>
+          <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+            Scenario {currentScenario.id} of {scenarios.length}
+          </div>
+        </div>
+        
+        <MetricsDisplay metrics={metrics} animatingMetrics={animatingMetrics} />
+        
+        <div className="bg-white rounded-lg shadow-md p-4 flex-1 flex flex-col overflow-hidden">
+          <h2 className="text-lg font-semibold mb-1 text-gray-700">Current Scenario</h2>
+          <h3 className="text-base font-medium mb-1 text-gray-800">{currentScenario.title}</h3>
+          <p className="text-sm text-gray-600 mb-3">{currentScenario.description}</p>
+          
+          {!selectedDecision ? (
+            <>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-base font-medium text-gray-800">Select Your Decision</h3>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setShowAlternativesModal(true)}
+                    className={`flex items-center text-center text-sm px-3 py-1.5 rounded-md transition-colors duration-200 ${
+                      availableAlternatives.length === 0
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : addedAlternatives.length > 0
+                        ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+                        : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                    }`}
+                    disabled={availableAlternatives.length === 0}
+                  >
+                    <Lightbulb size={16} className="mr-1.5" />
+                    {addedAlternatives.length > 0 
+                      ? `Alternative Options (${addedAlternatives.length})` 
+                      : 'Explore Alternatives'
+                    }
+                  </button>
+                  <button 
+                    onClick={() => setShowRadarChart(true)}
+                    className="flex items-center text-center text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md transition-colors duration-200"
+                  >
+                    <BarChart2 size={16} className="mr-1.5" />
+                    View Trade-Off Comparison
+                  </button>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                {[...getInitialOptions(), ...addedAlternatives].map((option) => (
+                  <DecisionOption
+                    key={option.id}
+                    option={option}
+                    onSelect={handleDecisionSelect}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col">
+              <div className="flex items-center mb-3">
+                <h3 className="text-base font-medium text-gray-800 mr-2">Selected Decision:</h3>
+                <span className={`px-2 py-1 rounded-md text-sm font-medium ${
+                  selectedDecision.isAlternative 
+                    ? 'bg-blue-100 text-blue-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {selectedDecision.title}
+                </span>
+                <button 
+                  onClick={() => setSelectedDecision(null)}
+                  className="ml-auto flex items-center text-gray-500 hover:text-gray-700 text-sm"
+                >
+                  <X size={14} className="mr-1" />
+                  Change Selection
+                </button>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg mb-3 flex-1 overflow-hidden">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Expert Analysis</h4>
+                <ExpertAnalysis decision={selectedDecision} />
+              </div>
+              
+              <button
+                onClick={handleConfirmDecision}
+                className="mt-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors duration-200"
+              >
+                <Check size={16} className="mr-1" />
+                Confirm Decision
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <RadarChart
+        showRadarChart={showRadarChart}
+        onClose={() => setShowRadarChart(false)}
+        currentScenario={{
+          options: [...getInitialOptions(), ...addedAlternatives],
+          alternativeOptions: []
+        }}
+        toggledOptions={toggledOptions}
+        toggleOption={handleToggleOption}
+        prepareRadarChartData={prepareRadarChartData}
+        radarOptions={radarOptions}
+      />
+
+      <AlternativeDecisionModal
+        isOpen={showAlternativesModal}
+        onClose={() => setShowAlternativesModal(false)}
+        alternativeOptions={availableAlternatives}
+        onAddAlternative={handleAddAlternative}
+      />
+
+      {selectedDecision?.cvrQuestion && (
+        <CVRQuestionModal
+          isOpen={showCVRModal}
+          onClose={() => {
+            setShowCVRModal(false);
+            setSelectedDecision(null);
+          }}
+          question={selectedDecision.cvrQuestion}
+          onAnswer={handleCVRAnswer}
+        />
+      )}
+
+      {isTransitioning && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-pulse">
+          <div className="text-center">
+            <Flame className="mx-auto text-orange-500 mb-4\" size={48} />
+            <h2 className="text-white text-2xl font-bold mb-2">Scenario Complete</h2>
+            <p className="text-gray-300">Preparing next challenge...</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SimulationMainPage;
