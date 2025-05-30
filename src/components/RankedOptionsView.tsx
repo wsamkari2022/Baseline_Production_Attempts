@@ -41,6 +41,7 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
   const [rankedOptions, setRankedOptions] = useState<DecisionOption[]>([]);
   const [preferenceMessage, setPreferenceMessage] = useState('');
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [previewMetrics, setPreviewMetrics] = useState(currentMetrics);
 
   useEffect(() => {
     const preferenceType = localStorage.getItem('preferenceTypeFlag');
@@ -108,6 +109,24 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
     setRankedOptions(sortedOptions);
   }, [scenario]);
 
+  useEffect(() => {
+    if (selectedOption) {
+      // Calculate preview metrics when an option is selected
+      const newMetrics = {
+        livesSaved: currentMetrics.livesSaved + selectedOption.impact.livesSaved,
+        humanCasualties: currentMetrics.humanCasualties + selectedOption.impact.humanCasualties,
+        firefightingResource: Math.max(0, currentMetrics.firefightingResource + selectedOption.impact.firefightingResource),
+        infrastructureCondition: Math.max(0, currentMetrics.infrastructureCondition + selectedOption.impact.infrastructureCondition),
+        biodiversityCondition: Math.max(0, currentMetrics.biodiversityCondition + selectedOption.impact.biodiversityCondition),
+        propertiesCondition: Math.max(0, currentMetrics.propertiesCondition + selectedOption.impact.propertiesCondition),
+        nuclearPowerStation: Math.max(0, currentMetrics.nuclearPowerStation + selectedOption.impact.nuclearPowerStation),
+      };
+      setPreviewMetrics(newMetrics);
+    } else {
+      setPreviewMetrics(currentMetrics);
+    }
+  }, [selectedOption, currentMetrics]);
+
   const calculateValuesScore = (option: DecisionOption, rankings: any[]) => {
     let score = 0;
     const weights = rankings.map((_, index) => rankings.length - index);
@@ -138,6 +157,14 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
         return `${option.impact.nuclearPowerStation}%`;
       default:
         return '';
+    }
+  };
+
+  const handleConfirm = () => {
+    if (selectedOption) {
+      // Store the current metrics for the next scenario
+      localStorage.setItem('currentMetrics', JSON.stringify(previewMetrics));
+      onConfirm(selectedOption);
     }
   };
 
@@ -212,7 +239,7 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
 
           {selectedOption && (
             <button
-              onClick={() => onConfirm(selectedOption)}
+              onClick={handleConfirm}
               className="mt-6 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors duration-200"
             >
               <Check size={16} className="mr-1" />
