@@ -14,19 +14,19 @@ import { scenarios } from './data/scenarios';
 // Register Chart.js components
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
+const defaultMetrics: SimulationMetrics = {
+  livesSaved: 0,
+  humanCasualties: 0,
+  firefightingResource: 100,
+  infrastructureCondition: 100,
+  biodiversityCondition: 100,
+  propertiesCondition: 100,
+  nuclearPowerStation: 100,
+};
+
 const SimulationMainPage: React.FC = () => {
   // Core simulation metrics
-  const [metrics, setMetrics] = useState<SimulationMetrics>({
-    livesSaved: 0,
-    humanCasualties: 0,
-    firefightingResource: 100,
-    infrastructureCondition: 100,
-    biodiversityCondition: 100,
-    propertiesCondition: 100,
-    nuclearPowerStation: 100,
-  });
-
-  // State management
+  const [metrics, setMetrics] = useState<SimulationMetrics>(defaultMetrics);
   const [topStableValues, setTopStableValues] = useState<string[]>([]);
   const [animatingMetrics, setAnimatingMetrics] = useState<string[]>([]);
   const [selectedDecision, setSelectedDecision] = useState<DecisionOptionType | null>(null);
@@ -40,6 +40,9 @@ const SimulationMainPage: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
+    // Clear any previously stored metrics
+    localStorage.removeItem('currentMetrics');
+    
     const savedValues = localStorage.getItem('finalValues');
     if (savedValues) {
       try {
@@ -51,17 +54,6 @@ const SimulationMainPage: React.FC = () => {
         setTopStableValues(stableValues);
       } catch (error) {
         console.error('Error parsing matched stable values:', error);
-      }
-    }
-
-    // Load saved metrics if they exist
-    const savedMetrics = localStorage.getItem('currentMetrics');
-    if (savedMetrics) {
-      try {
-        const parsedMetrics = JSON.parse(savedMetrics);
-        setMetrics(parsedMetrics);
-      } catch (error) {
-        console.error('Error parsing saved metrics:', error);
       }
     }
   }, []);
@@ -403,7 +395,7 @@ const SimulationMainPage: React.FC = () => {
       {isTransitioning && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-pulse">
           <div className="text-center">
-            <Flame className="mx-auto text-orange-500 mb-4\" size={48} />
+            <Flame className="mx-auto text-orange-500 mb-4" size={48} />
             <h2 className="text-white text-2xl font-bold mb-2">Scenario Complete</h2>
             <p className="text-gray-300">Preparing next challenge...</p>
           </div>
