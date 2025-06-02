@@ -918,5 +918,444 @@ export const scenarios: Scenario[] = [
       }
   
     ]
+  },
+  {
+    id: 3,
+    title: 'Wildfire Threatens Biodiversity Reserve',
+    description:
+      'A massive wildfire is advancing toward one of the world’s most diverse ecosystems, home to countless endangered species. Nearby, small villages and critical infrastructure are also in the fire’s path. Responders must weigh saving human lives, critical services, and biodiversity.',
+    options: [
+{
+        id: 'evacuate-residents-priority',
+        title: 'Evacuate All Nearby Villages 🚨',
+        label: 'safety',
+        description:
+          'Mobilize all available forces to evacuate human populations near the biodiversity reserve. This ensures minimal civilian casualties but risks severe damage to the ecosystem and critical research stations.',
+        impact: {
+          livesSaved: 1900,
+          humanCasualties: 100,
+          firefightingResource: -50,
+          infrastructureCondition: -40,
+          biodiversityCondition: -70,
+          propertiesCondition: -45,
+          nuclearPowerStation: 0
+        },
+        riskInfo: [
+          '1900 villagers successfully evacuated before fire reached settlements',
+          '100 casualties, including 20 firefighters due to rapid extraction efforts',
+          'Biodiversity core zone burned extensively due to redirection of resources',
+          'Several rare species possibly extinct or displaced',
+          'Critical scientific stations lost to fire damage'
+        ],
+        comparisonTableColumnContent: {
+          firstColumnTitle: 'Wildfire Threatens Biodiversity Reserve',
+          firstColumnSelectedPreference: 'Evacuate All Nearby Villages',
+          firstValue: 'Safety',
+          firstColumnAffected: 2000,
+          firstColumnRisk: '100 deaths, firefighters exposed, reserve destroyed',
+          firstColumnuserChoice: 'Accepted',
+          secondColumnTitle: 'Emergency Civilian Relocation',
+          secondColumnSelectedPreference: 'Focus entirely on saving human lives, even at environmental cost',
+          secondValue: 'Safety',
+          secondColumnaffected: 2000,
+          secondColumnRisk: '100 deaths, irreversible ecological loss',
+          secondColumnuserChoice: 'Rejected'
+        },
+        expertOpinions: {
+          safety: {
+            summary: 'Maximizes human life preservation, meeting immediate ethical duty.',
+            recommendation: 'Accept',
+            comparison: 'Top choice for casualty reduction.',
+            confidence: 'High confidence from evacuation timeline simulations (≈ 85%–95%)'
+          },
+          efficiency: {
+            summary: 'Resource-draining but outcome-effective in saving lives.',
+            recommendation: 'Accept',
+            comparison: 'High input, high return for civilian safety.',
+            confidence: 'Moderate confidence from wildfire response models (≈ 70%–80%)'
+          },
+          sustainability: {
+            summary: 'Severe biodiversity loss from reallocation of fire suppression resources.',
+            recommendation: 'Reject',
+            comparison: 'Worst case for long-term environmental stewardship.',
+            confidence: 'High confidence from ecological resilience projections (≈ 85%–100%)'
+          },
+          fairness: {
+            summary: 'Prioritizes human life over irreplaceable ecological value, ethically nuanced.',
+            recommendation: 'Neutral',
+            comparison: 'Raises intergenerational equity concerns.',
+            confidence: 'Moderate confidence from ethical studies (≈ 65%–75%)'
+          },
+          nonmaleficence: {
+            summary: 'Avoids harm to humans but enables irreversible harm to non-human life.',
+            recommendation: 'Reject',
+            comparison: 'Protective in short term, damaging in long-term lens.',
+            confidence: 'Moderate confidence from harm projection analytics (≈ 70%–80%)'
+          }
+        },
+        radarData: {
+          fireContainment: 50,
+          firefighterRisk: 40,
+          resourceUse: 80,
+          infrastructureDamage: 40,
+          biodiversityImpact: 85,
+          ethicalFairness: 55,
+          populationSafety: 90
+        },
+        cvrQuestion: {
+          descriptionTile: '🚐 Emergency Civilian Relocation',
+          description:
+            'Villages surrounding the reserve are evacuated in full force, but this diverts resources away from the fire’s edge, leading to ecological devastation.',
+          question:
+            'Would you prioritize the safe relocation of all people near the biodiversity zone, accepting the irreversible loss of endangered species and habitats?',
+          value: 'Safety'
+        }
+      },
+{
+        id: 'logistics-balance-deployment',
+        title: 'Balance Fire Suppression with Evacuation 🚒',
+        label: 'efficiency',
+        description:
+          'Split emergency resources between containment efforts around the reserve and limited village evacuations. This approach minimizes overall destruction but risks moderate casualties and partial loss of biodiversity.',
+        impact: {
+          livesSaved: 1400,
+          humanCasualties: 600,
+          firefightingResource: -35,
+          infrastructureCondition: -30,
+          biodiversityCondition: -40,
+          propertiesCondition: -30,
+          nuclearPowerStation: 0
+        },
+        riskInfo: [
+          '1400 residents evacuated with minimal route overlap',
+          '600 casualties including 30 firefighters in split zones',
+          'Partial preservation of biodiversity buffer zones',
+          'Reserve partially burned but critical habitats retained',
+          'Resources used strategically across multiple objectives'
+        ],
+        comparisonTableColumnContent: {
+          firstColumnTitle: 'Wildfire Threatens Biodiversity Reserve',
+          firstColumnSelectedPreference: 'Balance Fire Suppression with Evacuation',
+          firstValue: 'Efficiency',
+          firstColumnAffected: 2000,
+          firstColumnRisk: '600 deaths, reserve partially protected, infrastructure moderately damaged',
+          firstColumnuserChoice: 'Accepted',
+          secondColumnTitle: 'Dual-Zone Containment Plan',
+          secondColumnSelectedPreference: 'Divide resources to control fire and save some lives',
+          secondValue: 'Efficiency',
+          secondColumnaffected: 2000,
+          secondColumnRisk: '600 casualties, strategic but not optimal outcome',
+          secondColumnuserChoice: 'Rejected'
+        },
+        expertOpinions: {
+          safety: {
+            summary: 'Partial preservation of life with increased responder danger.',
+            recommendation: 'Neutral',
+            comparison: 'Better than environmental-first, worse than full evacuation.',
+            confidence: 'Moderate confidence from rescue simulations (≈ 65%–75%)'
+          },
+          efficiency: {
+            summary: 'Strong resource optimization with multi-target focus.',
+            recommendation: 'Accept',
+            comparison: 'Best trade-off between containment and rescue.',
+            confidence: 'High confidence from logistic response metrics (≈ 80%–90%)'
+          },
+          sustainability: {
+            summary: 'Acceptable ecological preservation under limited fire spread.',
+            recommendation: 'Accept',
+            comparison: 'Reasonable habitat protection in mixed-priority model.',
+            confidence: 'Moderate confidence from biodiversity containment projections (≈ 65%–75%)'
+          },
+          fairness: {
+            summary: 'Balanced approach sacrifices some lives and habitats for broader impact.',
+            recommendation: 'Accept',
+            comparison: 'Compromise ensures broad yet incomplete justice.',
+            confidence: 'Moderate confidence from distributive impact models (≈ 65%–75%)'
+          },
+          nonmaleficence: {
+            summary: 'Minimizes harm across targets but still results in loss.',
+            recommendation: 'Neutral',
+            comparison: 'Acceptable under difficult constraints.',
+            confidence: 'Moderate confidence from conflict mitigation studies (≈ 70%–80%)'
+          }
+        },
+        radarData: {
+          fireContainment: 70,
+          firefighterRisk: 50,
+          resourceUse: 60,
+          infrastructureDamage: 30,
+          biodiversityImpact: 45,
+          ethicalFairness: 65,
+          populationSafety: 70
+        },
+        cvrQuestion: {
+          descriptionTile: '⚖️ Dual-Zone Containment Plan',
+          description:
+            'A strategy to split firefighting forces across the biodiversity edge and village paths reduces major loss but sacrifices some civilians and ecological zones.',
+          question:
+            'Would you divide your response between saving lives and nature, knowing neither effort will be fully successful?',
+          value: 'Efficiency'
+        }
+      },
+ {
+        id: 'preserve-ecological-integrity',
+        title: 'Prioritize Ecological Defense 🌲',
+        label: 'sustainability',
+        description:
+          'Deploy firefighting resources to defend biodiversity hotspots and natural heritage areas. This decision limits damage to the ecosystem but delays human evacuation and increases casualties.',
+        impact: {
+          livesSaved: 800,
+          humanCasualties: 1200,
+          firefightingResource: -45,
+          infrastructureCondition: -20,
+          biodiversityCondition: -10,
+          propertiesCondition: -25,
+          nuclearPowerStation: 0
+        },
+        riskInfo: [
+          'Biodiversity reserve largely preserved, containing vital species',
+          '1200 casualties including 45 firefighters in delayed evacuations',
+          'Smaller villages evacuated too late or overrun by fire',
+          'Cultural heritage trees and wetlands protected',
+          'Reserve could aid post-wildfire ecosystem recovery'
+        ],
+        comparisonTableColumnContent: {
+          firstColumnTitle: 'Wildfire Threatens Biodiversity Reserve',
+          firstColumnSelectedPreference: 'Prioritize Ecological Defense',
+          firstValue: 'Sustainability',
+          firstColumnAffected: 2000,
+          firstColumnRisk: '1200 deaths, reserve intact, poor response timing',
+          firstColumnuserChoice: 'Accepted',
+          secondColumnTitle: 'Biodiversity Shielding Protocol',
+          secondColumnSelectedPreference: 'Defend natural habitats, risking delayed evacuation',
+          secondValue: 'Sustainability',
+          secondColumnaffected: 2000,
+          secondColumnRisk: '1200 casualties, habitat conservation success',
+          secondColumnuserChoice: 'Rejected'
+        },
+        expertOpinions: {
+          safety: {
+            summary: 'Human safety heavily compromised by ecological prioritization.',
+            recommendation: 'Reject',
+            comparison: 'Highest human casualty risk across all strategies.',
+            confidence: 'High confidence from casualty escalation forecasts (≈ 85%–95%)'
+          },
+          efficiency: {
+            summary: 'Firefighting efforts diverted from population centers.',
+            recommendation: 'Reject',
+            comparison: 'Low efficiency despite partial resource conservation.',
+            confidence: 'Moderate confidence from coordination analytics (≈ 65%–75%)'
+          },
+          sustainability: {
+            summary: 'Achieves maximum biodiversity conservation in dire circumstances.',
+            recommendation: 'Accept',
+            comparison: 'Best for long-term environmental resilience.',
+            confidence: 'High confidence from habitat preservation simulations (≈ 90%–100%)'
+          },
+          fairness: {
+            summary: 'Neglects human populations in favor of ecosystem protection.',
+            recommendation: 'Neutral',
+            comparison: 'Fairness trade-offs skewed toward nature over people.',
+            confidence: 'Moderate confidence from justice impact modeling (≈ 60%–70%)'
+          },
+          nonmaleficence: {
+            summary: 'Reduces long-term environmental harm but increases immediate suffering.',
+            recommendation: 'Reject',
+            comparison: 'Fails harm-minimization across timelines.',
+            confidence: 'Moderate confidence from ethical scenario evaluations (≈ 65%–75%)'
+          }
+        },
+        radarData: {
+          fireContainment: 60,
+          firefighterRisk: 70,
+          resourceUse: 65,
+          infrastructureDamage: 20,
+          biodiversityImpact: 15,
+          ethicalFairness: 40,
+          populationSafety: 40
+        },
+        cvrQuestion: {
+          descriptionTile: '🌿 Biodiversity Shielding Protocol',
+          description:
+            'Protecting the ecological core delayed human evacuation and emergency infrastructure defense, increasing lives lost while sustaining the environmental heritage.',
+          question:
+            'Would you focus on preserving endangered species and forest legacy if it meant risking lives due to slower evacuation procedures?',
+          value: 'Sustainability'
+        }
+      },
+ {
+        id: 'equitable-response-allocation',
+        title: 'Ensure Equitable Protection Across Communities ⚖️',
+        label: 'fairness',
+        description:
+          'Distribute firefighting and evacuation efforts evenly between small rural villages and ecological assets, ensuring no community or habitat is deprioritized. This leads to moderate outcomes across all dimensions but avoids ethical favoritism.',
+        impact: {
+          livesSaved: 1200,
+          humanCasualties: 800,
+          firefightingResource: -40,
+          infrastructureCondition: -35,
+          biodiversityCondition: -30,
+          propertiesCondition: -30,
+          nuclearPowerStation: 0
+        },
+        riskInfo: [
+          '1200 lives saved through balanced rescue deployments',
+          '800 casualties including 35 firefighters due to evenly stretched resources',
+          'No group prioritized over another, maintaining public trust',
+          'Partial fire containment near reserve and settlement borders',
+          'Infrastructure and habitats moderately impacted'
+        ],
+        comparisonTableColumnContent: {
+          firstColumnTitle: 'Wildfire Threatens Biodiversity Reserve',
+          firstColumnSelectedPreference: 'Ensure Equitable Protection Across Communities',
+          firstValue: 'Fairness',
+          firstColumnAffected: 2000,
+          firstColumnRisk: '800 deaths, fair distribution of efforts, moderate destruction',
+          firstColumnuserChoice: 'Accepted',
+          secondColumnTitle: 'Equitable Protection Framework',
+          secondColumnSelectedPreference: 'No prioritization—balance aid across all regions',
+          secondValue: 'Fairness',
+          secondColumnaffected: 2000,
+          secondColumnRisk: '800 deaths, better public trust, moderate damage',
+          secondColumnuserChoice: 'Rejected'
+        },
+        expertOpinions: {
+          safety: {
+            summary: 'Reduces maximum possible lives saved but increases collective protection.',
+            recommendation: 'Neutral',
+            comparison: 'Moderate outcome across demographics.',
+            confidence: 'Moderate confidence from response spread simulations (≈ 65%–75%)'
+          },
+          efficiency: {
+            summary: 'Suboptimal use of resources due to split focus.',
+            recommendation: 'Reject',
+            comparison: 'Not cost-effective under urgency.',
+            confidence: 'Moderate confidence from logistics planning data (≈ 60%–70%)'
+          },
+          sustainability: {
+            summary: 'Partial biodiversity loss controlled by moderate attention.',
+            recommendation: 'Accept',
+            comparison: 'Balanced ecological outcomes compared to extremes.',
+            confidence: 'Moderate confidence from containment path forecasts (≈ 65%–75%)'
+          },
+          fairness: {
+            summary: 'Ensures ethical parity and avoids value biases.',
+            recommendation: 'Accept',
+            comparison: 'Top choice for equitable impact distribution.',
+            confidence: 'High confidence from ethical distributional models (≈ 85%–95%)'
+          },
+          nonmaleficence: {
+            summary: 'Harm shared across domains without extreme sacrifices.',
+            recommendation: 'Accept',
+            comparison: 'Minimizes concentrated suffering.',
+            confidence: 'Moderate confidence from scenario parity evaluations (≈ 70%–80%)'
+          }
+        },
+        radarData: {
+          fireContainment: 65,
+          firefighterRisk: 55,
+          resourceUse: 70,
+          infrastructureDamage: 35,
+          biodiversityImpact: 40,
+          ethicalFairness: 90,
+          populationSafety: 60
+        },
+        cvrQuestion: {
+          descriptionTile: '⚖️ Equitable Protection Framework',
+          description:
+            'No village or ecological zone was prioritized. While all sectors received help, the fire’s spread exceeded expectations in certain low-access areas.',
+          question:
+            'Would you support distributing resources equally to avoid bias, even if it means failing to protect the most endangered or densely populated areas?',
+          value: 'Fairness'
+        }
+      },
+ {
+        id: 'do-no-harm-doctrine',
+        title: 'Minimize Harm Across All Fronts 🧭',
+        label: 'nonmaleficence',
+        description:
+          'Adopt a conservative approach that aims to avoid irreversible damage in any single area. Focus efforts on minimizing harm to humans, firefighters, ecosystems, and infrastructure, even if this results in moderate damage across all dimensions.',
+        impact: {
+          livesSaved: 1000,
+          humanCasualties: 1000,
+          firefightingResource: -30,
+          infrastructureCondition: -30,
+          biodiversityCondition: -25,
+          propertiesCondition: -30,
+          nuclearPowerStation: 0
+        },
+        riskInfo: [
+          '1000 residents saved through balanced retreat and selective evacuations',
+          '1000 casualties, including 25 firefighters, from partial exposure to fire zones',
+          'Fire slowed near biodiversity border but partial loss of habitats occurred',
+          'Moderate infrastructure damage with no collapse of critical systems',
+          'Ethical principle of nonmaleficence maintained by avoiding worst-case outcomes'
+        ],
+        comparisonTableColumnContent: {
+          firstColumnTitle: 'Wildfire Threatens Biodiversity Reserve',
+          firstColumnSelectedPreference: 'Minimize Harm Across All Fronts',
+          firstValue: 'Nonmaleficence',
+          firstColumnAffected: 2000,
+          firstColumnRisk: '1000 deaths, all areas moderately damaged but no total failure',
+          firstColumnuserChoice: 'Accepted',
+          secondColumnTitle: 'Harm Reduction Strategy',
+          secondColumnSelectedPreference: 'Spread risk evenly, avoid irreversible consequences in any area',
+          secondValue: 'Nonmaleficence',
+          secondColumnaffected: 2000,
+          secondColumnRisk: '1000 deaths, balanced sacrifice, no area left in critical condition',
+          secondColumnuserChoice: 'Rejected'
+        },
+        expertOpinions: {
+          safety: {
+            summary: 'Avoids catastrophic loss of life but does not maximize protection.',
+            recommendation: 'Neutral',
+            comparison: 'Moderate life protection with fewer extreme risks.',
+            confidence: 'Moderate confidence from scenario smoothing models (≈ 65%–75%)'
+          },
+          efficiency: {
+            summary: 'Resources used evenly, not highly optimized.',
+            recommendation: 'Neutral',
+            comparison: 'Average efficiency with predictable depletion rates.',
+            confidence: 'Moderate confidence from response modeling (≈ 60%–70%)'
+          },
+          sustainability: {
+            summary: 'Reduces ecological harm without full preservation.',
+            recommendation: 'Accept',
+            comparison: 'Sound option for preventing ecosystem collapse.',
+            confidence: 'Moderate confidence from recovery path modeling (≈ 70%–80%)'
+          },
+          fairness: {
+            summary: 'No single group bears the full burden of loss.',
+            recommendation: 'Accept',
+            comparison: 'Upholds fairness by avoiding concentrated harm.',
+            confidence: 'High confidence from distributive ethics simulations (≈ 85%–95%)'
+          },
+          nonmaleficence: {
+            summary: 'Faithful to principle of reducing harm across populations and domains.',
+            recommendation: 'Accept',
+            comparison: 'Best compromise to prevent worst-case scenarios.',
+            confidence: 'High confidence from harm-minimization frameworks (≈ 80%–90%)'
+          }
+        },
+        radarData: {
+          fireContainment: 55,
+          firefighterRisk: 45,
+          resourceUse: 55,
+          infrastructureDamage: 30,
+          biodiversityImpact: 35,
+          ethicalFairness: 85,
+          populationSafety: 50
+        },
+        cvrQuestion: {
+          descriptionTile: '🧭 Harm Reduction Strategy',
+          description:
+            'No area was left without support, but no area received full protection either. The aim was to prevent irreversible loss anywhere while accepting moderate sacrifices.',
+          question:
+            'Would you adopt a harm-reduction approach that spreads damage evenly across sectors rather than risking severe losses in one domain?',
+          value: 'Nonmaleficence'
+        }
+      }
+]
   }
+
 ];
