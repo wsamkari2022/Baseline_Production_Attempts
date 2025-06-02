@@ -39,6 +39,30 @@ const SimulationMainPage: React.FC = () => {
   const [toggledOptions, setToggledOptions] = useState<{[key: string]: boolean}>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState<string | null>(null);
+  const [priorityMessage, setPriorityMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const preferenceType = localStorage.getItem('preferenceTypeFlag');
+    const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
+    const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
+
+    if (currentScenarioIndex > 0) {
+      if (preferenceType === 'true') {
+        const topMetric = metricsRanking[0]?.label;
+        setPriorityMessage(
+          `Because you selected '${topMetric}' as your highest priority in the previous simulation, the top two options are ranked accordingly.`
+        );
+      } else {
+        const value1 = valuesRanking[0]?.label;
+        const value2 = valuesRanking[1]?.label;
+        setPriorityMessage(
+          `Because you selected '${value1}' and '${value2}' as your highest moral priorities in the previous simulation, the top two options are ranked accordingly.`
+        );
+      }
+    } else {
+      setPriorityMessage(null);
+    }
+  }, [currentScenarioIndex]);
 
   useEffect(() => {
     // Clear any previously stored metrics
@@ -62,14 +86,55 @@ const SimulationMainPage: React.FC = () => {
   const currentScenario = scenarios[currentScenarioIndex];
 
   const getInitialOptions = useCallback(() => {
-    if (!currentScenario || !topStableValues.length) return currentScenario.options.slice(0, 2);
+    if (!currentScenario) return [];
     
-    const matchingOptions = currentScenario.options.filter(option => 
-      topStableValues.includes(option.label.toLowerCase())
-    );
+    // For Scenario 1, use original logic
+    if (currentScenarioIndex === 0) {
+      if (!topStableValues.length) return currentScenario.options.slice(0, 2);
+      const matchingOptions = currentScenario.options.filter(option => 
+        topStableValues.includes(option.label.toLowerCase())
+      );
+      return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
+    }
 
-    return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
-  }, [currentScenario, topStableValues]);
+    // For Scenarios 2 & 3
+    const preferenceType = localStorage.getItem('preferenceTypeFlag');
+    const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
+    const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
+
+    if (preferenceType === 'true') {
+      // Simulation Metrics Priority
+      const topMetric = metricsRanking[0]?.id;
+      if (!topMetric) return currentScenario.options.slice(0, 2);
+
+      const sortedOptions = [...currentScenario.options].sort((a, b) => {
+        const getMetricValue = (option: DecisionOptionType) => {
+          switch (topMetric) {
+            case 'livesSaved': return option.impact.livesSaved;
+            case 'casualties': return option.impact.humanCasualties;
+            case 'resources': return Math.abs(option.impact.firefightingResource);
+            case 'infrastructure': return Math.abs(option.impact.infrastructureCondition);
+            case 'biodiversity': return Math.abs(option.impact.biodiversityCondition);
+            case 'properties': return Math.abs(option.impact.propertiesCondition);
+            case 'nuclear': return Math.abs(option.impact.nuclearPowerStation);
+            default: return 0;
+          }
+        };
+
+        return getMetricValue(a) - getMetricValue(b);
+      });
+
+      return sortedOptions.slice(0, 2);
+    } else {
+      // Moral Values Priority
+      const topValues = valuesRanking.slice(0, 2).map(v => v.id.toLowerCase());
+      const matchingOptions = currentScenario.options.filter(option => 
+        topValues.includes(option.label.toLowerCase())
+      );
+
+      return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
+    }
+  }, [currentScenario, currentScenarioIndex, topStableValues]);
 
   const getAlternativeOptions = useCallback(() => {
     if (!currentScenario) return [];
@@ -293,6 +358,12 @@ const SimulationMainPage: React.FC = () => {
           <h2 className="text-lg font-semibold mb-1 text-gray-700">Current Scenario</h2>
           <h3 className="text-base font-medium mb-1 text-gray-800">{currentScenario.title}</h3>
           <p className="text-sm text-gray-600 mb-3">{currentScenario.description}</p>
+          
+          {priorityMessage && currentScenarioIndex > 0 && (
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
+              <p className="text-sm text-blue-800">{priorityMessage}</p>
+            </div>
+          )}
           
           {!selectedDecision ? (
             <>
