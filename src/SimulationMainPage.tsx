@@ -54,7 +54,7 @@ const SimulationMainPage: React.FC = () => {
   useEffect(() => {
     const preferenceType = localStorage.getItem('preferenceTypeFlag');
     
-    if (currentScenarioIndex > 0 && preferenceType) {
+    if (currentScenarioIndex > 0 && preferenceType && preferenceType !== '0') {
       if (preferenceType === '1') {
         const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
         const topMetric = metricsRanking[0]?.label;
@@ -68,8 +68,6 @@ const SimulationMainPage: React.FC = () => {
         setPriorityMessage(
           `Because you selected '${value1}' and '${value2}' as your highest moral priorities in the previous simulation, the top two options are ranked accordingly.`
         );
-      } else {
-        setPriorityMessage(null);
       }
     } else {
       setPriorityMessage(null);
@@ -98,16 +96,16 @@ const SimulationMainPage: React.FC = () => {
   const getInitialOptions = useCallback(() => {
     if (!currentScenario) return [];
     
+    const preferenceType = localStorage.getItem('preferenceTypeFlag');
+    
     // For Scenario 1 or when preferenceType is '0'/null/undefined
-    if (currentScenarioIndex === 0 || !localStorage.getItem('preferenceTypeFlag')) {
+    if (currentScenarioIndex === 0 || !preferenceType || preferenceType === '0') {
       if (!topStableValues.length) return currentScenario.options.slice(0, 2);
       const matchingOptions = currentScenario.options.filter(option => 
         topStableValues.includes(option.label.toLowerCase())
       );
       return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
     }
-
-    const preferenceType = localStorage.getItem('preferenceTypeFlag');
 
     // Simulation Metrics Priority
     if (preferenceType === '1') {
@@ -343,8 +341,6 @@ const SimulationMainPage: React.FC = () => {
 
   if (!currentScenario) return null;
 
-  const availableAlternatives = getAlternativeOptions();
-
   if (showAdaptivePreference) {
     return (
       <AdaptivePreferenceView 
@@ -355,6 +351,8 @@ const SimulationMainPage: React.FC = () => {
       />
     );
   }
+
+  const availableAlternatives = getAlternativeOptions();
 
   return (
     <div className="h-screen bg-gray-50 p-4 flex flex-col">
@@ -495,7 +493,7 @@ const SimulationMainPage: React.FC = () => {
       {isTransitioning && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="text-center max-w-lg mx-auto p-6">
-            <Flame className="mx-auto text-orange-500 mb-4 animate-pulse\" size={48} />
+            <Flame className="mx-auto text-orange-500 mb-4 animate-pulse" size={48} />
             <h2 className="text-white text-2xl font-bold mb-4">
               {transitionMessage || "Scenario Complete"}
             </h2>
