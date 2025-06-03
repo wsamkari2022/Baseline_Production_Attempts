@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Users, Skull, Droplets, Building, Trees as Tree, Factory } from 'lucide-react';
 import { DecisionOption } from '../types';
 
-/**
- * Props interface for the RankedOptionsView component
- */
 interface RankedOptionsViewProps {
   scenario: {
     title: string;
@@ -24,10 +21,6 @@ interface RankedOptionsViewProps {
   };
 }
 
-/**
- * Configuration for metric buttons
- * Defines the visual and behavioral properties of each metric
- */
 const metricButtons = [
   { id: 'livesSaved', label: 'Lives Saved', icon: Users, color: 'text-green-600', higherIsBetter: true },
   { id: 'casualties', label: 'Casualties', icon: Skull, color: 'text-red-600', higherIsBetter: false },
@@ -51,6 +44,9 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
   const [previewMetrics, setPreviewMetrics] = useState(currentMetrics);
 
   useEffect(() => {
+    // Mark that the user has accessed the RankedOptionsView
+    localStorage.setItem('rankedViewAccessed', 'true');
+
     const preferenceType = localStorage.getItem('preferenceTypeFlag');
     const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
     const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');

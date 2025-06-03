@@ -40,24 +40,31 @@ const SimulationMainPage: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState<string | null>(null);
   const [priorityMessage, setPriorityMessage] = useState<string | null>(null);
+  const [hasAccessedRankedView, setHasAccessedRankedView] = useState(false);
 
   useEffect(() => {
+    // Check if user has accessed RankedOptionsView
+    const rankedViewAccessed = localStorage.getItem('rankedViewAccessed') === 'true';
+    setHasAccessedRankedView(rankedViewAccessed);
+
     const preferenceType = localStorage.getItem('preferenceTypeFlag');
     const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
     const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
 
     if (currentScenarioIndex > 0) {
-      if (preferenceType === 'true') {
-        const topMetric = metricsRanking[0]?.label;
-        setPriorityMessage(
-          `Because you selected '${topMetric}' as your highest priority in the previous simulation, the top two options are ranked accordingly.`
-        );
-      } else {
-        const value1 = valuesRanking[0]?.label;
-        const value2 = valuesRanking[1]?.label;
-        setPriorityMessage(
-          `Because you selected '${value1}' and '${value2}' as your highest moral priorities in the previous simulation, the top two options are ranked accordingly.`
-        );
+      if (rankedViewAccessed) {
+        if (preferenceType === 'true') {
+          const topMetric = metricsRanking[0]?.label;
+          setPriorityMessage(
+            `Because you selected '${topMetric}' as your highest priority in the previous simulation, the top two options are ranked accordingly.`
+          );
+        } else {
+          const value1 = valuesRanking[0]?.label;
+          const value2 = valuesRanking[1]?.label;
+          setPriorityMessage(
+            `Because you selected '${value1}' and '${value2}' as your highest moral priorities in the previous simulation, the top two options are ranked accordingly.`
+          );
+        }
       }
     } else {
       setPriorityMessage(null);
@@ -97,7 +104,29 @@ const SimulationMainPage: React.FC = () => {
       return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
     }
 
-    // For Scenarios 2 & 3
+    // For Scenario 2, check if RankedOptionsView was accessed
+    if (!hasAccessedRankedView) {
+      // Use finalValues from localStorage for initial options
+      const savedValues = localStorage.getItem('finalValues');
+      if (savedValues) {
+        try {
+          const values = JSON.parse(savedValues);
+          const topValues = values
+            .slice(0, 2)
+            .map((v: { name: string }) => v.name.toLowerCase());
+          
+          const matchingOptions = currentScenario.options.filter(option => 
+            topValues.includes(option.label.toLowerCase())
+          );
+          return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
+        } catch (error) {
+          console.error('Error parsing final values:', error);
+          return currentScenario.options.slice(0, 2);
+        }
+      }
+    }
+
+    // If RankedOptionsView was accessed, use preference-based sorting
     const preferenceType = localStorage.getItem('preferenceTypeFlag');
     const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
     const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
@@ -134,7 +163,7 @@ const SimulationMainPage: React.FC = () => {
 
       return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
     }
-  }, [currentScenario, currentScenarioIndex, topStableValues]);
+  }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView]);
 
   const getAlternativeOptions = useCallback(() => {
     if (!currentScenario) return [];
@@ -479,7 +508,7 @@ const SimulationMainPage: React.FC = () => {
       {isTransitioning && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="text-center max-w-lg mx-auto p-6">
-            <Flame className="mx-auto text-orange-500 mb-4 animate-pulse\" size={48} />
+            <Flame className="mx-auto text-orange-500 mb-4 animate-pulse" size={48} />
             <h2 className="text-white text-2xl font-bold mb-4">
               {transitionMessage || "Scenario Complete"}
             </h2>
