@@ -5,8 +5,8 @@ interface ValueMatch {
   scenarioId: number;
   selectedValue: string;
   matchesExplicit: boolean;
-  matchesStable: boolean;
-  matchesContext: boolean;
+  matchesImplicit: boolean;
+  matchesSimulation: boolean;
   stabilityScore: number;
 }
 
@@ -16,20 +16,20 @@ interface ValueStabilityTableProps {
 
 const ValueStabilityTable: React.FC<ValueStabilityTableProps> = ({ matches }) => {
   const getStabilityLabel = (match: ValueMatch) => {
-    if (match.matchesStable) return 'Stable';
-    if (match.matchesContext) return 'Context-Dependent';
+    if (match.matchesImplicit) return 'Stable';
+    if (match.matchesSimulation) return 'Context-Dependent';
     return 'Inconsistent';
   };
 
   const getStabilityColor = (match: ValueMatch) => {
-    if (match.matchesStable) return 'text-green-600';
-    if (match.matchesContext) return 'text-orange-600';
+    if (match.matchesImplicit) return 'text-green-600';
+    if (match.matchesSimulation) return 'text-orange-600';
     return 'text-red-600';
   };
 
   const getStabilityIcon = (match: ValueMatch) => {
-    if (match.matchesStable) return <CheckCircle2 size={16} className="text-green-600" />;
-    if (match.matchesContext) return <AlertTriangle size={16} className="text-orange-600" />;
+    if (match.matchesImplicit) return <CheckCircle2 size={16} className="text-green-600" />;
+    if (match.matchesSimulation) return <AlertTriangle size={16} className="text-orange-600" />;
     return <XCircle size={16} className="text-red-600" />;
   };
 
@@ -69,11 +69,11 @@ const ValueStabilityTable: React.FC<ValueStabilityTableProps> = ({ matches }) =>
                   <div className={match.matchesExplicit ? "text-green-600" : "text-gray-400"}>
                     {match.matchesExplicit ? "✓" : "×"} Explicit Values
                   </div>
-                  <div className={match.matchesStable ? "text-green-600" : "text-gray-400"}>
-                    {match.matchesStable ? "✓" : "×"} Stable Values
+                  <div className={match.matchesImplicit ? "text-green-600" : "text-gray-400"}>
+                    {match.matchesImplicit ? "✓" : "×"} Implicit Values
                   </div>
-                  <div className={match.matchesContext ? "text-orange-600" : "text-gray-400"}>
-                    {match.matchesContext ? "✓" : "×"} Context Values
+                  <div className={match.matchesSimulation ? "text-orange-600" : "text-gray-400"}>
+                    {match.matchesSimulation ? "✓" : "×"} Simulation Values
                   </div>
                 </div>
               </td>
