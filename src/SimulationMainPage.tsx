@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Flame, Check, BarChart2, Lightbulb, X, AlertTriangle } from 'lucide-react';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import MetricsDisplay from './components/MetricsDisplay';
@@ -25,7 +26,7 @@ const defaultMetrics: SimulationMetrics = {
 };
 
 const SimulationMainPage: React.FC = () => {
-  // Core simulation metrics
+  const navigate = useNavigate();
   const [metrics, setMetrics] = useState<SimulationMetrics>(defaultMetrics);
   const [topStableValues, setTopStableValues] = useState<string[]>([]);
   const [animatingMetrics, setAnimatingMetrics] = useState<string[]>([]);
@@ -41,6 +42,10 @@ const SimulationMainPage: React.FC = () => {
   const [transitionMessage, setTransitionMessage] = useState<string | null>(null);
   const [priorityMessage, setPriorityMessage] = useState<string | null>(null);
   const [hasAccessedRankedView, setHasAccessedRankedView] = useState(false);
+  const [simulationScenarioOutcomes, setSimulationScenarioOutcomes] = useState<Array<{
+    scenarioId: number;
+    decision: DecisionOptionType;
+  }>>([]);
 
   const getMostFrequentExplicitValues = (): string[] => {
     const savedExplicitValues = localStorage.getItem('explicitValues');
@@ -275,6 +280,16 @@ const SimulationMainPage: React.FC = () => {
       nuclearPowerStation: Math.max(0, metrics.nuclearPowerStation + selectedDecision.impact.nuclearPowerStation),
     };
 
+    // Store the scenario outcome
+    const outcome = {
+      scenarioId: currentScenario.id,
+      decision: selectedDecision
+    };
+    
+    const updatedOutcomes = [...simulationScenarioOutcomes, outcome];
+    setSimulationScenarioOutcomes(updatedOutcomes);
+    localStorage.setItem('simulationScenarioOutcomes', JSON.stringify(updatedOutcomes));
+
     const changing = Object.keys(metrics).filter(
       (key) => metrics[key as keyof SimulationMetrics] !== newMetrics[key as keyof SimulationMetrics]
     );
@@ -291,7 +306,6 @@ const SimulationMainPage: React.FC = () => {
     if (currentScenarioIndex < scenarios.length - 1) {
       setIsTransitioning(true);
       
-      // Set appropriate transition message based on metrics
       let message = "";
       if (newMetrics.nuclearPowerStation < 50) {
         message = "⚠️ CRITICAL: Nuclear facility integrity compromised. Situation escalating - immediate action required!";
@@ -308,9 +322,11 @@ const SimulationMainPage: React.FC = () => {
         setCurrentScenarioIndex(prev => prev + 1);
         setAddedAlternatives([]);
       }, 3000);
+    } else {
+      // Final scenario completed
+      localStorage.setItem('finalSimulationMetrics', JSON.stringify(newMetrics));
+      navigate('/final-analysis');
     }
-
-    localStorage.setItem('currentMetrics', JSON.stringify(newMetrics));
   };
 
   const handleRankedOptionSelect = (option: DecisionOptionType) => {
