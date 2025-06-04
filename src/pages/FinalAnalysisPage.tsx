@@ -88,9 +88,6 @@ const FinalAnalysisPage: React.FC = () => {
         return;
       }
 
-      // Initialize value trends with empty arrays
-      const trends = initializeValueTrends();
-
       // Process explicit values
       const explicitCounts: ValueCount = {};
       explicitValues.forEach((value: any) => {
@@ -107,13 +104,23 @@ const FinalAnalysisPage: React.FC = () => {
       });
       setImplicitValueCounts(implicitCounts);
 
-      // Calculate consistency scores for each value at each scenario
+      // Initialize trends with only the values that appear in decisions
+      const selectedValues = new Set(simulationOutcomes.map((outcome: any) => 
+        outcome.decision.label.toLowerCase()
+      ));
+      
+      const trends: ValueTrend = {};
+      selectedValues.forEach(value => {
+        trends[value] = [];
+      });
+
+      // Calculate consistency scores only for selected values
       simulationOutcomes.forEach((outcome: any) => {
-        MORAL_VALUES.forEach(value => {
-          const normalizedValue = value.toLowerCase();
-          const isSelected = outcome.decision.label.toLowerCase() === normalizedValue;
-          const matchesExplicit = explicitCounts[normalizedValue] > 0;
-          const matchesImplicit = implicitCounts[normalizedValue] > 0;
+        const selectedValue = outcome.decision.label.toLowerCase();
+        selectedValues.forEach(value => {
+          const isSelected = value === selectedValue;
+          const matchesExplicit = explicitCounts[value] > 0;
+          const matchesImplicit = implicitCounts[value] > 0;
           
           let consistencyScore = 0;
           if (isSelected) {
@@ -121,15 +128,9 @@ const FinalAnalysisPage: React.FC = () => {
               (matchesExplicit ? 40 : 0) +
               (matchesImplicit ? 60 : 0)
             );
-          } else {
-            // For non-selected values, calculate inverse consistency
-            consistencyScore = (
-              (!matchesExplicit ? 40 : 0) +
-              (!matchesImplicit ? 60 : 0)
-            );
           }
           
-          trends[normalizedValue].push(consistencyScore);
+          trends[value].push(consistencyScore);
         });
       });
 
@@ -138,9 +139,8 @@ const FinalAnalysisPage: React.FC = () => {
       // Process simulation outcomes and calculate matches
       const matches: ValueMatch[] = simulationOutcomes.map((outcome: any) => {
         const selectedValue = outcome.decision.label.toLowerCase();
-        const matchesExplicit = Object.keys(explicitCounts).includes(selectedValue);
-        const matchesImplicit = Object.keys(implicitCounts).includes(selectedValue);
-        const matchesSimulation = true;
+        const matchesExplicit = explicitCounts[selectedValue] > 0;
+        const matchesImplicit = implicitCounts[selectedValue] > 0;
         
         const stabilityScore = (
           (matchesExplicit ? 40 : 0) +
@@ -152,7 +152,7 @@ const FinalAnalysisPage: React.FC = () => {
           selectedValue: outcome.decision.label,
           matchesExplicit,
           matchesImplicit,
-          matchesSimulation,
+          matchesSimulation: true,
           stabilityScore
         };
       });
@@ -179,7 +179,7 @@ const FinalAnalysisPage: React.FC = () => {
   };
 
   const prepareValueDistributionData = () => {
-    const values = ['Safety', 'Efficiency', 'Sustainability', 'Fairness', 'Nonmaleficence'];
+    const values = MORAL_VALUES;
     
     return {
       labels: values,
@@ -201,7 +201,9 @@ const FinalAnalysisPage: React.FC = () => {
         {
           label: 'Simulation Decisions',
           data: values.map(value => 
-            valueMatches.filter(match => match.selectedValue.toLowerCase() === value.toLowerCase()).length
+            valueMatches.filter(match => 
+              match.selectedValue.toLowerCase() === value.toLowerCase()
+            ).length
           ),
           backgroundColor: 'rgba(255, 99, 132, 0.5)',
           borderColor: 'rgba(255, 99, 132, 1)',
@@ -212,35 +214,33 @@ const FinalAnalysisPage: React.FC = () => {
   };
 
   const prepareConsistencyTrendData = () => {
+    // Only include values that were actually selected in scenarios
+    const selectedValues = Object.keys(valueTrends);
+    
     return {
       labels: ['Explicit Choices', 'Implicit Choices', 'Scenario 1', 'Scenario 2', 'Scenario 3'],
-      datasets: MORAL_VALUES.map((value, index) => {
+      datasets: selectedValues.map((value, index) => {
         const colors = [
-          { line: 'rgb(239, 68, 68)', fill: 'rgba(239, 68, 68, 0.1)' },   // red - Safety
-          { line: 'rgb(59, 130, 246)', fill: 'rgba(59, 130, 246, 0.1)' }, // blue - Efficiency
-          { line: 'rgb(16, 185, 129)', fill: 'rgba(16, 185, 129, 0.1)' }, // green - Sustainability
-          { line: 'rgb(245, 158, 11)', fill: 'rgba(245, 158, 11, 0.1)' }, // amber - Fairness
-          { line: 'rgb(139, 92, 246)', fill: 'rgba(139, 92, 246, 0.1)' }  // purple - Nonmaleficence
+          { line: 'rgb(239, 68, 68)', fill: 'rgba(239, 68, 68, 0.1)' },   // red
+          { line: 'rgb(59, 130, 246)', fill: 'rgba(59, 130, 246, 0.1)' }, // blue
+          { line: 'rgb(16, 185, 129)', fill: 'rgba(16, 185, 129, 0.1)' }, // green
+          { line: 'rgb(245, 158, 11)', fill: 'rgba(245, 158, 11, 0.1)' }, // amber
+          { line: 'rgb(139, 92, 246)', fill: 'rgba(139, 92, 246, 0.1)' }  // purple
         ];
 
-        const normalizedValue = value.toLowerCase();
-        
-        // Calculate scores for explicit and implicit choices
-        const explicitScore = explicitValueCounts[normalizedValue] ? 100 : 0;
-        const implicitScore = implicitValueCounts[normalizedValue] ? 100 : 0;
-
-        // Get scenario scores from trends, ensuring it's always an array
-        const scenarioScores = valueTrends[normalizedValue] || [];
+        // Calculate explicit and implicit scores based on actual selections
+        const explicitScore = explicitValueCounts[value] ? 100 : 0;
+        const implicitScore = implicitValueCounts[value] ? 100 : 0;
 
         return {
-          label: value,
+          label: value.charAt(0).toUpperCase() + value.slice(1),
           data: [
             explicitScore,
             implicitScore,
-            ...scenarioScores
+            ...valueTrends[value]
           ],
-          borderColor: colors[index].line,
-          backgroundColor: colors[index].fill,
+          borderColor: colors[index % colors.length].line,
+          backgroundColor: colors[index % colors.length].fill,
           tension: 0.1,
           fill: true
         };
