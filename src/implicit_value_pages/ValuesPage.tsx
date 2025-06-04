@@ -270,7 +270,7 @@ const ValuesPage: React.FC = () => {
                     <div className="bg-white rounded-lg shadow p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Brain className="h-6 w-6 text-purple-600" />
-                            <h2 className="text-xl font-bold text-gray-900">Deep Values</h2>
+                            <h2 className="text-xl font-bold text-gray-900">Implicit Values</h2>
                         </div>
                         <p className="text-gray-600 mb-4">
                             Through analysis of your decision patterns, these deeper values were identified:
