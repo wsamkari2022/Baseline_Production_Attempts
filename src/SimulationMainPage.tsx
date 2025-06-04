@@ -8,7 +8,7 @@ import RadarChart from './components/RadarChart';
 import AlternativeDecisionModal from './components/AlternativeDecisionModal';
 import CVRQuestionModal from './components/CVRQuestionModal';
 import AdaptivePreferenceView from './components/AdaptivePreferenceView';
-import { SimulationMetrics, DecisionOption as DecisionOptionType } from './types';
+import { SimulationMetrics, DecisionOption as DecisionOptionType, ExplicitValue } from './types';
 import { scenarios } from './data/scenarios';
 
 // Register Chart.js components
@@ -41,6 +41,30 @@ const SimulationMainPage: React.FC = () => {
   const [transitionMessage, setTransitionMessage] = useState<string | null>(null);
   const [priorityMessage, setPriorityMessage] = useState<string | null>(null);
   const [hasAccessedRankedView, setHasAccessedRankedView] = useState(false);
+
+  const getMostFrequentExplicitValues = (): string[] => {
+    const savedExplicitValues = localStorage.getItem('explicitValues');
+    if (!savedExplicitValues) return [];
+
+    try {
+      const explicitValues = JSON.parse(savedExplicitValues) as ExplicitValue[];
+      const valueFrequency: { [key: string]: number } = {};
+      
+      // Count frequency of each value
+      explicitValues.forEach(value => {
+        valueFrequency[value.value_selected] = (valueFrequency[value.value_selected] || 0) + 1;
+      });
+
+      // Sort by frequency and get top 2
+      return Object.entries(valueFrequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 2)
+        .map(([value]) => value.toLowerCase());
+    } catch (error) {
+      console.error('Error parsing explicit values:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     // Check if user has accessed RankedOptionsView
@@ -95,9 +119,22 @@ const SimulationMainPage: React.FC = () => {
   const getInitialOptions = useCallback(() => {
     if (!currentScenario) return [];
     
-    // For Scenario 1, use original logic
+    // For Scenario 1, use original logic with fallback to most frequent explicit values
     if (currentScenarioIndex === 0) {
-      if (!topStableValues.length) return currentScenario.options.slice(0, 2);
+      if (!topStableValues.length) {
+        // Get most frequent explicit values as fallback
+        const frequentValues = getMostFrequentExplicitValues();
+        if (frequentValues.length > 0) {
+          const matchingOptions = currentScenario.options.filter(option => 
+            frequentValues.includes(option.label.toLowerCase())
+          );
+          if (matchingOptions.length >= 2) {
+            return matchingOptions.slice(0, 2);
+          }
+        }
+        return currentScenario.options.slice(0, 2);
+      }
+      
       const matchingOptions = currentScenario.options.filter(option => 
         topStableValues.includes(option.label.toLowerCase())
       );
@@ -114,6 +151,20 @@ const SimulationMainPage: React.FC = () => {
           const topValues = values
             .slice(0, 2)
             .map((v: { name: string }) => v.name.toLowerCase());
+          
+          if (topValues.length === 0) {
+            // Fallback to most frequent explicit values
+            const frequentValues = getMostFrequentExplicitValues();
+            if (frequentValues.length > 0) {
+              const matchingOptions = currentScenario.options.filter(option => 
+                frequentValues.includes(option.label.toLowerCase())
+              );
+              if (matchingOptions.length >= 2) {
+                return matchingOptions.slice(0, 2);
+              }
+            }
+            return currentScenario.options.slice(0, 2);
+          }
           
           const matchingOptions = currentScenario.options.filter(option => 
             topValues.includes(option.label.toLowerCase())
