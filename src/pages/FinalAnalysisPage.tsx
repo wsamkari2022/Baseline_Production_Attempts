@@ -56,6 +56,15 @@ interface ValueTrend {
 
 const MORAL_VALUES = ['Safety', 'Efficiency', 'Sustainability', 'Fairness', 'Nonmaleficence'];
 
+// Initialize value trends with empty arrays for each moral value
+const initializeValueTrends = (): ValueTrend => {
+  const trends: ValueTrend = {};
+  MORAL_VALUES.forEach(value => {
+    trends[value.toLowerCase()] = [];
+  });
+  return trends;
+};
+
 const FinalAnalysisPage: React.FC = () => {
   const navigate = useNavigate();
   const [explicitValueCounts, setExplicitValueCounts] = useState<ValueCount>({});
@@ -64,7 +73,7 @@ const FinalAnalysisPage: React.FC = () => {
   const [finalMetrics, setFinalMetrics] = useState<SimulationMetrics | null>(null);
   const [overallStabilityScore, setOverallStabilityScore] = useState<number>(0);
   const [showError, setShowError] = useState(false);
-  const [valueTrends, setValueTrends] = useState<ValueTrend>({});
+  const [valueTrends, setValueTrends] = useState<ValueTrend>(initializeValueTrends());
 
   useEffect(() => {
     try {
@@ -79,11 +88,8 @@ const FinalAnalysisPage: React.FC = () => {
         return;
       }
 
-      // Initialize value trends
-      const trends: ValueTrend = {};
-      MORAL_VALUES.forEach(value => {
-        trends[value.toLowerCase()] = [];
-      });
+      // Initialize value trends with empty arrays
+      const trends = initializeValueTrends();
 
       // Process explicit values
       const explicitCounts: ValueCount = {};
@@ -206,48 +212,47 @@ const FinalAnalysisPage: React.FC = () => {
   };
 
   const prepareConsistencyTrendData = () => {
-  return {
-    labels: ['Explicit Choices', 'Implicit Choices', 'Scenario 1', 'Scenario 2', 'Scenario 3'],
-    datasets: MORAL_VALUES.map((value, index) => {
-      const colors = [
-        { line: 'rgb(239, 68, 68)', fill: 'rgba(239, 68, 68, 0.1)' },   // red - Safety
-        { line: 'rgb(59, 130, 246)', fill: 'rgba(59, 130, 246, 0.1)' }, // blue - Efficiency
-        { line: 'rgb(16, 185, 129)', fill: 'rgba(16, 185, 129, 0.1)' }, // green - Sustainability
-        { line: 'rgb(245, 158, 11)', fill: 'rgba(245, 158, 11, 0.1)' }, // amber - Fairness
-        { line: 'rgb(139, 92, 246)', fill: 'rgba(139, 92, 246, 0.1)' }  // purple - Nonmaleficence
-      ];
+    return {
+      labels: ['Explicit Choices', 'Implicit Choices', 'Scenario 1', 'Scenario 2', 'Scenario 3'],
+      datasets: MORAL_VALUES.map((value, index) => {
+        const colors = [
+          { line: 'rgb(239, 68, 68)', fill: 'rgba(239, 68, 68, 0.1)' },   // red - Safety
+          { line: 'rgb(59, 130, 246)', fill: 'rgba(59, 130, 246, 0.1)' }, // blue - Efficiency
+          { line: 'rgb(16, 185, 129)', fill: 'rgba(16, 185, 129, 0.1)' }, // green - Sustainability
+          { line: 'rgb(245, 158, 11)', fill: 'rgba(245, 158, 11, 0.1)' }, // amber - Fairness
+          { line: 'rgb(139, 92, 246)', fill: 'rgba(139, 92, 246, 0.1)' }  // purple - Nonmaleficence
+        ];
 
-      const normalizedValue = value.toLowerCase();
-      
-      // Calculate scores for explicit and implicit choices
-      const explicitScore = explicitValueCounts[normalizedValue] ? 100 : 0;
-      const implicitScore = implicitValueCounts[normalizedValue] ? 100 : 0;
+        const normalizedValue = value.toLowerCase();
+        
+        // Calculate scores for explicit and implicit choices
+        const explicitScore = explicitValueCounts[normalizedValue] ? 100 : 0;
+        const implicitScore = implicitValueCounts[normalizedValue] ? 100 : 0;
 
-      // Get scenario scores from trends
-      const scenarioScores = valueTrends[normalizedValue];
+        // Get scenario scores from trends, ensuring it's always an array
+        const scenarioScores = valueTrends[normalizedValue] || [];
 
-      return {
-        label: value,
-        data: [
-          explicitScore,
-          implicitScore,
-          ...scenarioScores
-        ],
-        borderColor: colors[index].line,
-        backgroundColor: colors[index].fill,
-        tension: 0.1,
-        fill: true
-      };
-    })
+        return {
+          label: value,
+          data: [
+            explicitScore,
+            implicitScore,
+            ...scenarioScores
+          ],
+          borderColor: colors[index].line,
+          backgroundColor: colors[index].fill,
+          tension: 0.1,
+          fill: true
+        };
+      })
+    };
   };
-};
-
 
   if (showError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-          <AlertTriangle className="mx-auto text-red-500 mb-4\" size={48} />
+          <AlertTriangle className="mx-auto text-red-500 mb-4" size={48} />
           <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Data Not Found</h2>
           <p className="text-gray-600 text-center mb-6">
             Please complete the simulation before accessing the final analysis.
@@ -356,65 +361,64 @@ const FinalAnalysisPage: React.FC = () => {
             </div>
             <div className="h-[400px]">
               <Line
-  data={prepareConsistencyTrendData()}
-  options={{
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-        title: {
-          display: true,
-          text: 'Consistency Score (%)'
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)'
-        }
-      },
-      x: {
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)'
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-          font: {
-            size: 12
-          }
-        }
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        titleColor: '#1f2937',
-        bodyColor: '#1f2937',
-        borderColor: '#e5e7eb',
-        borderWidth: 1,
-        padding: 12,
-        bodyFont: {
-          size: 12
-        },
-        titleFont: {
-          size: 14,
-          weight: 'bold'
-        }
-      }
-    },
-    interaction: {
-      mode: 'nearest',
-      axis: 'x',
-      intersect: false
-    }
-  }}
-/>
-
+                data={prepareConsistencyTrendData()}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100,
+                      title: {
+                        display: true,
+                        text: 'Consistency Score (%)'
+                      },
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                    },
+                    x: {
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                    }
+                  },
+                  plugins: {
+                    legend: {
+                      position: 'bottom' as const,
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                          size: 12
+                        }
+                      }
+                    },
+                    tooltip: {
+                      mode: 'index',
+                      intersect: false,
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      titleColor: '#1f2937',
+                      bodyColor: '#1f2937',
+                      borderColor: '#e5e7eb',
+                      borderWidth: 1,
+                      padding: 12,
+                      bodyFont: {
+                        size: 12
+                      },
+                      titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                      }
+                    }
+                  },
+                  interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                  }
+                }}
+              />
             </div>
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-gray-50 p-3 rounded-lg">
