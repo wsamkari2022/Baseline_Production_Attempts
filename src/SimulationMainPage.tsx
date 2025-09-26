@@ -29,6 +29,7 @@ const SimulationMainPage: React.FC = () => {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<SimulationMetrics>(defaultMetrics);
   const [topStableValues, setTopStableValues] = useState<string[]>([]);
+  const [scenario1InitialOptions, setScenario1InitialOptions] = useState<DecisionOptionType[]>([]);
   const [animatingMetrics, setAnimatingMetrics] = useState<string[]>([]);
   const [selectedDecision, setSelectedDecision] = useState<DecisionOptionType | null>(null);
   const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
@@ -101,6 +102,12 @@ const SimulationMainPage: React.FC = () => {
   }, [currentScenarioIndex]);
 
   useEffect(() => {
+    // Set random initial options for Scenario 1 only once
+    if (currentScenarioIndex === 0 && scenario1InitialOptions.length === 0 && currentScenario) {
+      const shuffledOptions = [...currentScenario.options].sort(() => Math.random() - 0.5);
+      setScenario1InitialOptions(shuffledOptions.slice(0, 2));
+    }
+    
     // Clear any previously stored metrics
     localStorage.removeItem('currentMetrics');
     
@@ -117,15 +124,24 @@ const SimulationMainPage: React.FC = () => {
         console.error('Error parsing matched stable values:', error);
       }
     }
-  }, []);
+  }, [currentScenarioIndex, currentScenario, scenario1InitialOptions.length]);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
   const getInitialOptions = useCallback(() => {
     if (!currentScenario) return [];
     
-    // For Scenario 1, use original logic with fallback to most frequent explicit values
+    // For Scenario 1, use pre-selected random options
     if (currentScenarioIndex === 0) {
+      if (scenario1InitialOptions.length > 0) {
+        return scenario1InitialOptions;
+      }
+      // Fallback if scenario1InitialOptions not set yet
+      return currentScenario.options.slice(0, 2);
+    }
+
+    // For other scenarios, use original logic with fallback to most frequent explicit values
+    if (currentScenarioIndex > 0) {
       if (!topStableValues.length) {
         // Get most frequent explicit values as fallback
         const frequentValues = getMostFrequentExplicitValues();
@@ -219,7 +235,7 @@ const SimulationMainPage: React.FC = () => {
 
       return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
     }
-  }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView]);
+  }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView, scenario1InitialOptions]);
 
   const getAlternativeOptions = useCallback(() => {
     if (!currentScenario) return [];
@@ -230,7 +246,7 @@ const SimulationMainPage: React.FC = () => {
     return currentScenario.options
       .filter(option => !initialOptionIds.includes(option.id) && !addedOptionIds.includes(option.id))
       .map(option => ({ ...option, isAlternative: true }));
-  }, [currentScenario, getInitialOptions, addedAlternatives]);
+  }, [currentScenario, getInitialOptions, addedAlternatives, scenario1InitialOptions]);
 
   useEffect(() => {
     const initialOptions = getInitialOptions();
@@ -239,7 +255,7 @@ const SimulationMainPage: React.FC = () => {
       initialToggledOptions[option.id] = true;
     });
     setToggledOptions(initialToggledOptions);
-  }, [currentScenarioIndex, getInitialOptions, addedAlternatives]);
+  }, [currentScenarioIndex, getInitialOptions, addedAlternatives, scenario1InitialOptions]);
 
   const handleDecisionSelect = (decision: DecisionOptionType) => {
     if (decision.isAlternative && decision.cvrQuestion) {
@@ -320,6 +336,7 @@ const SimulationMainPage: React.FC = () => {
         setIsTransitioning(false);
         setTransitionMessage(null);
         setCurrentScenarioIndex(prev => prev + 1);
+        setScenario1InitialOptions([]); // Reset for next scenario
         setAddedAlternatives([]);
       }, 3000);
     } else {
