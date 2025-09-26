@@ -29,6 +29,7 @@ const SimulationMainPage: React.FC = () => {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<SimulationMetrics>(defaultMetrics);
   const [topStableValues, setTopStableValues] = useState<string[]>([]);
+  const [scenario1InitialOptions, setScenario1InitialOptions] = useState<DecisionOptionType[]>([]);
   const [animatingMetrics, setAnimatingMetrics] = useState<string[]>([]);
   const [selectedDecision, setSelectedDecision] = useState<DecisionOptionType | null>(null);
   const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
@@ -104,6 +105,12 @@ const SimulationMainPage: React.FC = () => {
     // Clear any previously stored metrics
     localStorage.removeItem('currentMetrics');
     
+    // Initialize random options for Scenario 1 only once
+    if (currentScenarioIndex === 0 && scenario1InitialOptions.length === 0) {
+      const shuffledOptions = [...scenarios[0].options].sort(() => Math.random() - 0.5);
+      setScenario1InitialOptions(shuffledOptions.slice(0, 2));
+    }
+    
     const savedValues = localStorage.getItem('finalValues');
     if (savedValues) {
       try {
@@ -117,7 +124,7 @@ const SimulationMainPage: React.FC = () => {
         console.error('Error parsing matched stable values:', error);
       }
     }
-  }, []);
+  }, [currentScenarioIndex, scenario1InitialOptions.length]);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -126,9 +133,7 @@ const SimulationMainPage: React.FC = () => {
     
     // For Scenario 1, use random selection of 2 options
     if (currentScenarioIndex === 0) {
-      // Randomly select 2 options from all available options
-      const shuffledOptions = [...currentScenario.options].sort(() => Math.random() - 0.5);
-      return shuffledOptions.slice(0, 2);
+      return scenario1InitialOptions;
     }
 
     // For Scenario 2, check if RankedOptionsView was accessed
@@ -204,7 +209,7 @@ const SimulationMainPage: React.FC = () => {
 
       return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
     }
-  }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView]);
+  }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView, scenario1InitialOptions]);
 
   const getAlternativeOptions = useCallback(() => {
     if (!currentScenario) return [];
