@@ -48,6 +48,8 @@ const SimulationMainPage: React.FC = () => {
     decision: DecisionOptionType;
   }>>([]);
   const [matchedStableValues, setMatchedStableValues] = useState<string[]>([]);
+  const [hasExploredAlternatives, setHasExploredAlternatives] = useState(false);
+  const [showAlternativesHint, setShowAlternativesHint] = useState(false);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -301,6 +303,20 @@ const SimulationMainPage: React.FC = () => {
     setShowAlternativesModal(false);
   };
 
+  const handleExploreAlternatives = () => {
+    setHasExploredAlternatives(true);
+    setShowAlternativesModal(true);
+  };
+
+  const handleConfirmAttempt = () => {
+    if (!hasExploredAlternatives) {
+      setShowAlternativesHint(true);
+      setTimeout(() => setShowAlternativesHint(false), 3000);
+      return;
+    }
+    handleConfirmDecision();
+  };
+
   const handleConfirmDecision = () => {
     if (!selectedDecision) return;
 
@@ -357,6 +373,7 @@ const SimulationMainPage: React.FC = () => {
         setScenario1InitialOptions([]); // Reset for next scenario
         setAddedAlternatives([]);
       }, 3000);
+      setHasExploredAlternatives(false); // Reset for next scenario
     } else {
       // Final scenario completed
       localStorage.setItem('finalSimulationMetrics', JSON.stringify(newMetrics));
@@ -502,7 +519,7 @@ const SimulationMainPage: React.FC = () => {
                 <h3 className="text-base font-medium text-gray-800">Select Your Decision</h3>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => setShowAlternativesModal(true)}
+                    onClick={handleExploreAlternatives}
                     className={`flex items-center text-center text-sm px-3 py-1.5 rounded-md transition-colors duration-200 ${
                       availableAlternatives.length === 0
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -563,9 +580,21 @@ const SimulationMainPage: React.FC = () => {
                 <ExpertAnalysis decision={selectedDecision} />
               </div>
               
+              {showAlternativesHint && (
+                <div className="mb-3 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r-lg">
+                  <p className="text-sm text-yellow-800">
+                    Reviewing alternatives is required before confirmation.
+                  </p>
+                </div>
+              )}
+              
               <button
-                onClick={handleConfirmDecision}
-                className="mt-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors duration-200"
+                onClick={handleConfirmAttempt}
+                className={`mt-auto font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors duration-200 ${
+                  hasExploredAlternatives
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                }`}
               >
                 <Check size={16} className="mr-1" />
                 Confirm Decision
