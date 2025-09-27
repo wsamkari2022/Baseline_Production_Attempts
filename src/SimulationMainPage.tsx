@@ -178,12 +178,45 @@ const SimulationMainPage: React.FC = () => {
       return currentScenario.options.slice(0, 2);
     }
 
-    // For other scenarios, use original logic with fallback to most frequent explicit values
+    // For scenarios 2 and 3, prioritize reordered preferences
     if (currentScenarioIndex > 0) {
-      // Check if user has reordered preferences in AdaptivePreferenceView
+      // FIRST PRIORITY: Check for reordered preferences from AdaptivePreferenceView
       const simulationMetricsReorder = localStorage.getItem('SimulationMetricsReorderList');
       const moralValuesReorder = localStorage.getItem('MoralValuesReorderList');
       
+      // If moral values were reordered, use top 2 from that list
+      if (moralValuesReorder) {
+        try {
+          const reorderedValues = JSON.parse(moralValuesReorder);
+          const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
+          
+          // Find options that match the top 2 reordered moral values
+          const matchingOptions = currentScenario.options.filter(option => 
+            topValues.includes(option.label.toLowerCase())
+          );
+          
+          // Sort matching options to maintain the order from MoralValuesReorderList
+          const sortedMatchingOptions = matchingOptions.sort((a, b) => {
+            const aIndex = topValues.indexOf(a.label.toLowerCase());
+            const bIndex = topValues.indexOf(b.label.toLowerCase());
+            return aIndex - bIndex;
+          });
+          
+          if (sortedMatchingOptions.length >= 2) {
+            return sortedMatchingOptions.slice(0, 2);
+          } else if (sortedMatchingOptions.length === 1) {
+            // If only one matching option, add the best remaining option
+            const remainingOptions = currentScenario.options.filter(option => 
+              !topValues.includes(option.label.toLowerCase())
+            );
+            return [sortedMatchingOptions[0], remainingOptions[0]];
+          }
+        } catch (error) {
+          console.error('Error parsing MoralValuesReorderList:', error);
+        }
+      }
+      
+      // If simulation metrics were reordered, use top metric from that list
       if (simulationMetricsReorder) {
         try {
           const reorderedMetrics = JSON.parse(simulationMetricsReorder);
@@ -223,30 +256,7 @@ const SimulationMainPage: React.FC = () => {
           // Find options that match the top 2 reordered moral values
           const matchingOptions = currentScenario.options.filter(option => 
             topValues.includes(option.label.toLowerCase())
-          );
-          
-          // Sort matching options to maintain the order from MoralValuesReorderList
-          const sortedMatchingOptions = matchingOptions.sort((a, b) => {
-            const aIndex = topValues.indexOf(a.label.toLowerCase());
-            const bIndex = topValues.indexOf(b.label.toLowerCase());
-            return aIndex - bIndex;
-          });
-          
-          if (matchingOptions.length >= 2) {
-            return sortedMatchingOptions.slice(0, 2);
-          } else if (matchingOptions.length === 1) {
-            // If only one matching option, add the best remaining option
-            const remainingOptions = currentScenario.options.filter(option => 
-              !topValues.includes(option.label.toLowerCase())
-            );
-            return [sortedMatchingOptions[0], remainingOptions[0]];
-          }
-        } catch (error) {
-          console.error('Error parsing MoralValuesReorderList:', error);
-        }
-      }
-      
-      // Check what values are mentioned in the priority message
+      // SECOND PRIORITY: Check what values are mentioned in the priority message
       const preferenceType = localStorage.getItem('preferenceTypeFlag');
       const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
       const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
@@ -304,7 +314,7 @@ const SimulationMainPage: React.FC = () => {
         }
       }
       
-      // Fallback to original matched stable values
+      // THIRD PRIORITY: Fallback to original matched stable values
       if (topStableValues.length > 0) {
         const matchingOptions = currentScenario.options.filter(option => 
           topStableValues.includes(option.label.toLowerCase())
@@ -314,7 +324,7 @@ const SimulationMainPage: React.FC = () => {
         }
       }
       
-      // Final fallback to most frequent explicit values
+      // FOURTH PRIORITY: Final fallback to most frequent explicit values
       const frequentValues = getMostFrequentExplicitValues();
       if (frequentValues.length > 0) {
         const matchingOptions = currentScenario.options.filter(option => 
