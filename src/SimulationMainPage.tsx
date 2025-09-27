@@ -220,117 +220,57 @@ const SimulationMainPage: React.FC = () => {
           const reorderedValues = JSON.parse(moralValuesReorder);
           const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
           
+          // Find options that match the top 2 reordered moral values
           const matchingOptions = currentScenario.options.filter(option => 
             topValues.includes(option.label.toLowerCase())
           );
           
+          // Sort matching options to maintain the order from MoralValuesReorderList
+          const sortedMatchingOptions = matchingOptions.sort((a, b) => {
+            const aIndex = topValues.indexOf(a.label.toLowerCase());
+            const bIndex = topValues.indexOf(b.label.toLowerCase());
+            return aIndex - bIndex;
+          });
+          
           if (matchingOptions.length >= 2) {
-            return matchingOptions.slice(0, 2);
+            return sortedMatchingOptions.slice(0, 2);
           } else if (matchingOptions.length === 1) {
             // If only one matching option, add the best remaining option
             const remainingOptions = currentScenario.options.filter(option => 
               !topValues.includes(option.label.toLowerCase())
             );
-            return [matchingOptions[0], remainingOptions[0]];
+            return [sortedMatchingOptions[0], remainingOptions[0]];
           }
         } catch (error) {
           console.error('Error parsing MoralValuesReorderList:', error);
         }
       }
       
-      if (!topStableValues.length) {
-        // Get most frequent explicit values as fallback
-        const frequentValues = getMostFrequentExplicitValues();
-        if (frequentValues.length > 0) {
-          const matchingOptions = currentScenario.options.filter(option => 
-            frequentValues.includes(option.label.toLowerCase())
-          );
-          if (matchingOptions.length >= 2) {
-            return matchingOptions.slice(0, 2);
-          }
+      // Fallback to original logic if no reordered preferences
+      if (topStableValues.length > 0) {
+        const matchingOptions = currentScenario.options.filter(option => 
+          topStableValues.includes(option.label.toLowerCase())
+        );
+        if (matchingOptions.length >= 2) {
+          return matchingOptions.slice(0, 2);
         }
-        return currentScenario.options.slice(0, 2);
       }
       
-      const matchingOptions = currentScenario.options.filter(option => 
-        topStableValues.includes(option.label.toLowerCase())
-      );
-      return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
-    }
-
-    // For Scenario 2, check if RankedOptionsView was accessed
-    if (!hasAccessedRankedView) {
-      // Use finalValues from localStorage for initial options
-      const savedValues = localStorage.getItem('finalValues');
-      if (savedValues) {
-        try {
-          const values = JSON.parse(savedValues);
-          const topValues = values
-            .slice(0, 2)
-            .map((v: { name: string }) => v.name.toLowerCase());
-          
-          if (topValues.length === 0) {
-            // Fallback to most frequent explicit values
-            const frequentValues = getMostFrequentExplicitValues();
-            if (frequentValues.length > 0) {
-              const matchingOptions = currentScenario.options.filter(option => 
-                frequentValues.includes(option.label.toLowerCase())
-              );
-              if (matchingOptions.length >= 2) {
-                return matchingOptions.slice(0, 2);
-              }
-            }
-            return currentScenario.options.slice(0, 2);
-          }
-          
-          const matchingOptions = currentScenario.options.filter(option => 
-            topValues.includes(option.label.toLowerCase())
-          );
-          return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
-        } catch (error) {
-          console.error('Error parsing final values:', error);
-          return currentScenario.options.slice(0, 2);
+      // Final fallback to most frequent explicit values
+      const frequentValues = getMostFrequentExplicitValues();
+      if (frequentValues.length > 0) {
+        const matchingOptions = currentScenario.options.filter(option => 
+          frequentValues.includes(option.label.toLowerCase())
+        );
+        if (matchingOptions.length >= 2) {
+          return matchingOptions.slice(0, 2);
         }
       }
+      
+      return currentScenario.options.slice(0, 2);
     }
 
-    // If RankedOptionsView was accessed, use preference-based sorting
-    const preferenceType = localStorage.getItem('preferenceTypeFlag');
-    const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
-    const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
-
-    if (preferenceType === 'true') {
-      // Simulation Metrics Priority
-      const topMetric = metricsRanking[0]?.id;
-      if (!topMetric) return currentScenario.options.slice(0, 2);
-
-      const sortedOptions = [...currentScenario.options].sort((a, b) => {
-        const getMetricValue = (option: DecisionOptionType) => {
-          switch (topMetric) {
-            case 'livesSaved': return option.impact.livesSaved;
-            case 'casualties': return option.impact.humanCasualties;
-            case 'resources': return Math.abs(option.impact.firefightingResource);
-            case 'infrastructure': return Math.abs(option.impact.infrastructureCondition);
-            case 'biodiversity': return Math.abs(option.impact.biodiversityCondition);
-            case 'properties': return Math.abs(option.impact.propertiesCondition);
-            case 'nuclear': return Math.abs(option.impact.nuclearPowerStation);
-            default: return 0;
-          }
-        };
-
-        return getMetricValue(a) - getMetricValue(b);
-      });
-
-      return sortedOptions.slice(0, 2);
-    } else {
-      // Moral Values Priority
-      const topValues = valuesRanking.slice(0, 2).map(v => v.id.toLowerCase());
-      const matchingOptions = currentScenario.options.filter(option => 
-        topValues.includes(option.label.toLowerCase())
-      );
-
-      return matchingOptions.length >= 2 ? matchingOptions.slice(0, 2) : currentScenario.options.slice(0, 2);
-    }
+    return currentScenario.options.slice(0, 2);
   }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView, scenario1InitialOptions]);
 
   const getAlternativeOptions = useCallback(() => {
