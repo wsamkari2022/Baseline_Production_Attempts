@@ -169,199 +169,169 @@ const SimulationMainPage: React.FC = () => {
   const getInitialOptions = useCallback(() => {
     if (!currentScenario) return [];
     
-    // For Scenario 1, use pre-selected random options
-    if (currentScenarioIndex === 0) {
-      if (scenario1InitialOptions.length > 0) {
+    // Check if user has accessed AdaptivePreferenceView (MoralValuesReorderList exists)
+    const moralValuesReorder = localStorage.getItem('MoralValuesReorderList');
+    const simulationMetricsReorder = localStorage.getItem('SimulationMetricsReorderList');
+    
+    // If no reordering has occurred, use random selection for all scenarios
+    if (!moralValuesReorder && !simulationMetricsReorder) {
+      // For Scenario 1, use pre-selected random options if available
+      if (currentScenarioIndex === 0 && scenario1InitialOptions.length > 0) {
         return scenario1InitialOptions;
       }
-      // Fallback if scenario1InitialOptions not set yet
-      return currentScenario.options.slice(0, 2);
+      
+      // For all scenarios when no reordering exists, select randomly
+      const shuffledOptions = [...currentScenario.options].sort(() => Math.random() - 0.5);
+      return shuffledOptions.slice(0, 2);
+    }
+    
+    // If reordering has occurred, use the reordered preferences
+    // FIRST PRIORITY: Check for reordered moral values
+    if (moralValuesReorder) {
+      try {
+        const reorderedValues = JSON.parse(moralValuesReorder);
+        const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
+        
+        // Find options that match the top 2 reordered moral values
+        const matchingOptions = currentScenario.options.filter(option => 
+          topValues.includes(option.label.toLowerCase())
+        );
+        
+        // Sort matching options to maintain the order from MoralValuesReorderList
+        const sortedMatchingOptions = matchingOptions.sort((a, b) => {
+          const aIndex = topValues.indexOf(a.label.toLowerCase());
+          const bIndex = topValues.indexOf(b.label.toLowerCase());
+          return aIndex - bIndex;
+        });
+        
+        if (sortedMatchingOptions.length >= 2) {
+          return sortedMatchingOptions.slice(0, 2);
+        } else if (sortedMatchingOptions.length === 1) {
+          // If only one matching option, add the best remaining option
+          const remainingOptions = currentScenario.options.filter(option => 
+            !topValues.includes(option.label.toLowerCase())
+          );
+          return [sortedMatchingOptions[0], remainingOptions[0]];
+        }
+      } catch (error) {
+        console.error('Error parsing MoralValuesReorderList:', error);
+      }
+    }
+    
+    // SECOND PRIORITY: Check for reordered simulation metrics
+    if (simulationMetricsReorder) {
+      try {
+        const reorderedMetrics = JSON.parse(simulationMetricsReorder);
+        const topMetric = reorderedMetrics[0]?.id;
+        
+        if (topMetric) {
+          const sortedOptions = [...currentScenario.options].sort((a, b) => {
+            const getMetricValue = (option: DecisionOptionType) => {
+              switch (topMetric) {
+                case 'livesSaved': return option.impact.livesSaved;
+                case 'casualties': return option.impact.humanCasualties;
+                case 'resources': return Math.abs(option.impact.firefightingResource);
+                case 'infrastructure': return Math.abs(option.impact.infrastructureCondition);
+                case 'biodiversity': return Math.abs(option.impact.biodiversityCondition);
+                case 'properties': return Math.abs(option.impact.propertiesCondition);
+                case 'nuclear': return Math.abs(option.impact.nuclearPowerStation);
+                default: return 0;
+              }
+            };
+
+            const isHigherBetter = topMetric === 'livesSaved';
+            return isHigherBetter ? getMetricValue(b) - getMetricValue(a) : getMetricValue(a) - getMetricValue(b);
+          });
+          
+          return sortedOptions.slice(0, 2);
+        }
+      } catch (error) {
+        console.error('Error parsing SimulationMetricsReorderList:', error);
+      }
+    }
+    
+    // THIRD PRIORITY: Check what values are mentioned in the priority message (for backward compatibility)
+    const preferenceType = localStorage.getItem('preferenceTypeFlag');
+    const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
+    const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
+    
+    if (hasAccessedRankedView) {
+      if (preferenceType === 'true') {
+        // Use simulation metrics ranking
+        const topMetric = metricsRanking[0]?.id;
+        if (topMetric) {
+          const sortedOptions = [...currentScenario.options].sort((a, b) => {
+            const getMetricValue = (option: DecisionOptionType) => {
+              switch (topMetric) {
+                case 'livesSaved': return option.impact.livesSaved;
+                case 'casualties': return option.impact.humanCasualties;
+                case 'resources': return Math.abs(option.impact.firefightingResource);
+                case 'infrastructure': return Math.abs(option.impact.infrastructureCondition);
+                case 'biodiversity': return Math.abs(option.impact.biodiversityCondition);
+                case 'properties': return Math.abs(option.impact.propertiesCondition);
+                case 'nuclear': return Math.abs(option.impact.nuclearPowerStation);
+                default: return 0;
+              }
+            };
+
+            const isHigherBetter = topMetric === 'livesSaved';
+            return isHigherBetter ? getMetricValue(b) - getMetricValue(a) : getMetricValue(a) - getMetricValue(b);
+          });
+          
+          return sortedOptions.slice(0, 2);
+        }
+      } else {
+        // Use moral values ranking - get the exact values mentioned in the message
+        const topValues = valuesRanking.slice(0, 2).map((v: any) => v.id.toLowerCase());
+        
+        // Find options that match these exact values
+        const matchingOptions = currentScenario.options.filter(option => 
+          topValues.includes(option.label.toLowerCase())
+        );
+        
+        // Sort matching options to maintain the order from valuesRanking
+        const sortedMatchingOptions = matchingOptions.sort((a, b) => {
+          const aIndex = topValues.indexOf(a.label.toLowerCase());
+          const bIndex = topValues.indexOf(b.label.toLowerCase());
+          return aIndex - bIndex;
+        });
+        
+        if (matchingOptions.length >= 2) {
+          return sortedMatchingOptions.slice(0, 2);
+        } else if (matchingOptions.length === 1) {
+          // If only one matching option, add the best remaining option
+          const remainingOptions = currentScenario.options.filter(option => 
+            !topValues.includes(option.label.toLowerCase())
+          );
+          return [sortedMatchingOptions[0], remainingOptions[0]];
+        }
+      }
+    }
+    
+    // FOURTH PRIORITY: Fallback to original matched stable values
+    if (topStableValues.length > 0) {
+      const matchingOptions = currentScenario.options.filter(option => 
+        topStableValues.includes(option.label.toLowerCase())
+      );
+      if (matchingOptions.length >= 2) {
+        return matchingOptions.slice(0, 2);
+      }
+    }
+    
+    // FIFTH PRIORITY: Final fallback to most frequent explicit values
+    const frequentValues = getMostFrequentExplicitValues();
+    if (frequentValues.length > 0) {
+      const matchingOptions = currentScenario.options.filter(option => 
+        frequentValues.includes(option.label.toLowerCase())
+      );
+      if (matchingOptions.length >= 2) {
+        return matchingOptions.slice(0, 2);
+      }
     }
 
-    // For scenarios 2 and 3, prioritize reordered preferences
-    if (currentScenarioIndex > 0) {
-      // FIRST PRIORITY: Check for reordered preferences from AdaptivePreferenceView
-      const simulationMetricsReorder = localStorage.getItem('SimulationMetricsReorderList');
-      const moralValuesReorder = localStorage.getItem('MoralValuesReorderList');
-      
-      // If moral values were reordered, use top 2 from that list
-      if (moralValuesReorder) {
-        try {
-          const reorderedValues = JSON.parse(moralValuesReorder);
-          const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
-          
-          // Find options that match the top 2 reordered moral values
-          const matchingOptions = currentScenario.options.filter(option => 
-            topValues.includes(option.label.toLowerCase())
-          );
-          
-          // Sort matching options to maintain the order from MoralValuesReorderList
-          const sortedMatchingOptions = matchingOptions.sort((a, b) => {
-            const aIndex = topValues.indexOf(a.label.toLowerCase());
-            const bIndex = topValues.indexOf(b.label.toLowerCase());
-            return aIndex - bIndex;
-          });
-          
-          if (sortedMatchingOptions.length >= 2) {
-            return sortedMatchingOptions.slice(0, 2);
-          } else if (sortedMatchingOptions.length === 1) {
-            // If only one matching option, add the best remaining option
-            const remainingOptions = currentScenario.options.filter(option => 
-              !topValues.includes(option.label.toLowerCase())
-            );
-            return [sortedMatchingOptions[0], remainingOptions[0]];
-          }
-        } catch (error) {
-          console.error('Error parsing MoralValuesReorderList:', error);
-        }
-      }
-      
-      // If simulation metrics were reordered, use top metric from that list
-      if (simulationMetricsReorder) {
-        try {
-          const reorderedMetrics = JSON.parse(simulationMetricsReorder);
-          const topMetric = reorderedMetrics[0]?.id;
-          
-          if (topMetric) {
-            const sortedOptions = [...currentScenario.options].sort((a, b) => {
-              const getMetricValue = (option: DecisionOptionType) => {
-                switch (topMetric) {
-                  case 'livesSaved': return option.impact.livesSaved;
-                  case 'casualties': return option.impact.humanCasualties;
-                  case 'resources': return Math.abs(option.impact.firefightingResource);
-                  case 'infrastructure': return Math.abs(option.impact.infrastructureCondition);
-                  case 'biodiversity': return Math.abs(option.impact.biodiversityCondition);
-                  case 'properties': return Math.abs(option.impact.propertiesCondition);
-                  case 'nuclear': return Math.abs(option.impact.nuclearPowerStation);
-                  default: return 0;
-                }
-              };
-
-              const isHigherBetter = topMetric === 'livesSaved';
-              return isHigherBetter ? getMetricValue(b) - getMetricValue(a) : getMetricValue(a) - getMetricValue(b);
-            });
-            
-            return sortedOptions.slice(0, 2);
-          }
-        } catch (error) {
-          console.error('Error parsing SimulationMetricsReorderList:', error);
-        }
-      }
-      
-      if (moralValuesReorder) {
-        try {
-          const reorderedValues = JSON.parse(moralValuesReorder);
-          const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
-          
-          // Find options that match the top 2 reordered moral values
-          const matchingOptions = currentScenario.options.filter(option => 
-            topValues.includes(option.label.toLowerCase())
-          );
-          
-          // Sort matching options to maintain the order from MoralValuesReorderList
-          const sortedMatchingOptions = matchingOptions.sort((a, b) => {
-            const aIndex = topValues.indexOf(a.label.toLowerCase());
-            const bIndex = topValues.indexOf(b.label.toLowerCase());
-            return aIndex - bIndex;
-          });
-          
-          if (sortedMatchingOptions.length >= 2) {
-            return sortedMatchingOptions.slice(0, 2);
-          } else if (sortedMatchingOptions.length === 1) {
-            // If only one matching option, add the best remaining option
-            const remainingOptions = currentScenario.options.filter(option => 
-              !topValues.includes(option.label.toLowerCase())
-            );
-            return [sortedMatchingOptions[0], remainingOptions[0]];
-          }
-        } catch (error) {
-          console.error('Error parsing MoralValuesReorderList:', error);
-        }
-      }
-      
-      // SECOND PRIORITY: Check what values are mentioned in the priority message
-      const preferenceType = localStorage.getItem('preferenceTypeFlag');
-      const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
-      const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
-      
-      if (hasAccessedRankedView) {
-        if (preferenceType === 'true') {
-          // Use simulation metrics ranking
-          const topMetric = metricsRanking[0]?.id;
-          if (topMetric) {
-            const sortedOptions = [...currentScenario.options].sort((a, b) => {
-              const getMetricValue = (option: DecisionOptionType) => {
-                switch (topMetric) {
-                  case 'livesSaved': return option.impact.livesSaved;
-                  case 'casualties': return option.impact.humanCasualties;
-                  case 'resources': return Math.abs(option.impact.firefightingResource);
-                  case 'infrastructure': return Math.abs(option.impact.infrastructureCondition);
-                  case 'biodiversity': return Math.abs(option.impact.biodiversityCondition);
-                  case 'properties': return Math.abs(option.impact.propertiesCondition);
-                  case 'nuclear': return Math.abs(option.impact.nuclearPowerStation);
-                  default: return 0;
-                }
-              };
-
-              const isHigherBetter = topMetric === 'livesSaved';
-              return isHigherBetter ? getMetricValue(b) - getMetricValue(a) : getMetricValue(a) - getMetricValue(b);
-            });
-            
-            return sortedOptions.slice(0, 2);
-          }
-        } else {
-          // Use moral values ranking - get the exact values mentioned in the message
-          const topValues = valuesRanking.slice(0, 2).map((v: any) => v.id.toLowerCase());
-          
-          // Find options that match these exact values
-          const matchingOptions = currentScenario.options.filter(option => 
-            topValues.includes(option.label.toLowerCase())
-          );
-          
-          // Sort matching options to maintain the order from valuesRanking
-          const sortedMatchingOptions = matchingOptions.sort((a, b) => {
-            const aIndex = topValues.indexOf(a.label.toLowerCase());
-            const bIndex = topValues.indexOf(b.label.toLowerCase());
-            return aIndex - bIndex;
-          });
-          
-          if (matchingOptions.length >= 2) {
-            return sortedMatchingOptions.slice(0, 2);
-          } else if (matchingOptions.length === 1) {
-            // If only one matching option, add the best remaining option
-            const remainingOptions = currentScenario.options.filter(option => 
-              !topValues.includes(option.label.toLowerCase())
-            );
-            return [sortedMatchingOptions[0], remainingOptions[0]];
-          }
-        }
-      }
-      
-      // THIRD PRIORITY: Fallback to original matched stable values
-      if (topStableValues.length > 0) {
-        const matchingOptions = currentScenario.options.filter(option => 
-          topStableValues.includes(option.label.toLowerCase())
-        );
-        if (matchingOptions.length >= 2) {
-          return matchingOptions.slice(0, 2);
-        }
-      }
-      
-      // FOURTH PRIORITY: Final fallback to most frequent explicit values
-      const frequentValues = getMostFrequentExplicitValues();
-      if (frequentValues.length > 0) {
-        const matchingOptions = currentScenario.options.filter(option => 
-          frequentValues.includes(option.label.toLowerCase())
-        );
-        if (matchingOptions.length >= 2) {
-          return matchingOptions.slice(0, 2);
-        }
-      }
-      
-      return currentScenario.options.slice(0, 2);
-    }
-
-    return currentScenario.options.slice(0, 2);
+    // Final fallback: random selection
+    const shuffledOptions = [...currentScenario.options].sort(() => Math.random() - 0.5);
+    return shuffledOptions.slice(0, 2);
   }, [currentScenario, currentScenarioIndex, topStableValues, hasAccessedRankedView, scenario1InitialOptions]);
 
   const getAlternativeOptions = useCallback(() => {
