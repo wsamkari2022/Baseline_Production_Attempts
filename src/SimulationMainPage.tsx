@@ -203,6 +203,8 @@ const SimulationMainPage: React.FC = () => {
           );
           
           if (matchingOptions.length >= 2) {
+            // Update matchedStableValues to reflect the new reordered preferences
+            setMatchedStableValues(topValues);
             return matchingOptions.slice(0, 2);
           }
         } catch (error) {
