@@ -77,3 +77,19 @@ export interface MainScenario {
 }
 
 export interface Scenario extends MainScenario {}
+
+export interface ScenarioSessionState {
+  hasExploredAlts: boolean;
+  enteredCVR: boolean;
+  enteredAPA: boolean;
+  pathLock: "none" | "CVR" | "APA";
+  valueChangeType: "none" | "CVR_commit" | "APA_commit";
+  scenarioInstanceId: string;
+  selectedOptionId?: string;
+  timeSpent: {
+    start: number;
+    cvr?: number;
+    apa?: number;
+    confirmed?: number;
+  };
+}
