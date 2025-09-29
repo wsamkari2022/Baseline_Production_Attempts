@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flame, Check, BarChart2, Lightbulb, X, AlertTriangle } from 'lucide-react';
+import { Flame, Check, BarChart2, Lightbulb, X, AlertTriangle, Eye } from 'lucide-react';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import MetricsDisplay from './components/MetricsDisplay';
 import DecisionOption from './components/DecisionOption';
-import ExpertAnalysis from './components/ExpertAnalysis';
+import ExpertAnalysisModal from './components/ExpertAnalysisModal';
+import DecisionSummaryModal from './components/DecisionSummaryModal';
 import RadarChart from './components/RadarChart';
 import AlternativeDecisionModal from './components/AlternativeDecisionModal';
 import CVRQuestionModal from './components/CVRQuestionModal';
@@ -37,6 +38,9 @@ const SimulationMainPage: React.FC = () => {
   const [showAlternativesModal, setShowAlternativesModal] = useState(false);
   const [showCVRModal, setShowCVRModal] = useState(false);
   const [showAdaptivePreference, setShowAdaptivePreference] = useState(false);
+  const [showExpertModal, setShowExpertModal] = useState(false);
+  const [showDecisionSummary, setShowDecisionSummary] = useState(false);
+  const [tempSelectedOption, setTempSelectedOption] = useState<DecisionOptionType | null>(null);
   const [addedAlternatives, setAddedAlternatives] = useState<DecisionOptionType[]>([]);
   const [toggledOptions, setToggledOptions] = useState<{[key: string]: boolean}>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -49,7 +53,6 @@ const SimulationMainPage: React.FC = () => {
   }>>([]);
   const [matchedStableValues, setMatchedStableValues] = useState<string[]>([]);
   const [hasExploredAlternatives, setHasExploredAlternatives] = useState(false);
-  const [showAlternativesHint, setShowAlternativesHint] = useState(false);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -365,16 +368,34 @@ const SimulationMainPage: React.FC = () => {
   }, [currentScenarioIndex, getInitialOptions, addedAlternatives]);
 
   const handleDecisionSelect = (decision: DecisionOptionType) => {
-    // Check if the selected option's value doesn't match user's stable values
-    const optionValue = decision.label.toLowerCase();
-    const doesNotMatchStableValues = !matchedStableValues.includes(optionValue);
+    setTempSelectedOption(decision);
+    setShowExpertModal(true);
+  };
+
+  const handleKeepChoice = () => {
+    if (!tempSelectedOption) return;
     
-    if (doesNotMatchStableValues && decision.cvrQuestion) {
-      setSelectedDecision(decision);
+    setShowExpertModal(false);
+    
+    // Check if the selected option's value matches user's stable values
+    const optionValue = tempSelectedOption.label.toLowerCase();
+    const isAligned = matchedStableValues.includes(optionValue);
+    
+    if (!isAligned && tempSelectedOption.cvrQuestion) {
+      setSelectedDecision(tempSelectedOption);
       setShowCVRModal(true);
     } else {
-      setSelectedDecision(decision);
+      setSelectedDecision(tempSelectedOption);
+      setShowDecisionSummary(true);
     }
+    setTempSelectedOption(null);
+  };
+
+  const handleReviewAlternatives = () => {
+    setShowExpertModal(false);
+    setHasExploredAlternatives(true);
+    setShowAlternativesModal(true);
+    setTempSelectedOption(null);
   };
 
   const handleCVRAnswer = (answer: boolean) => {
@@ -413,7 +434,8 @@ const SimulationMainPage: React.FC = () => {
         console.log('Updated MoralValuesReorderList:', newMoralValuesReorderList);
       }
       
-      // Proceed with the decision - the selected decision is already set
+      // Show decision summary
+      setShowDecisionSummary(true);
     } else {
       // User rejected their choice, show adaptive preference view
       setShowAdaptivePreference(true);
@@ -430,17 +452,15 @@ const SimulationMainPage: React.FC = () => {
     setShowAlternativesModal(true);
   };
 
-  const handleConfirmAttempt = () => {
-    if (!hasExploredAlternatives) {
-      setShowAlternativesHint(true);
-      setTimeout(() => setShowAlternativesHint(false), 3000);
-      return;
-    }
-    handleConfirmDecision();
-  };
 
   const handleConfirmDecision = () => {
+    if (!hasExploredAlternatives) {
+      return; // This should be handled by the modal's disabled state
+    }
+    
     if (!selectedDecision) return;
+
+    setShowDecisionSummary(false);
 
     const newMetrics = {
       livesSaved: metrics.livesSaved + selectedDecision.impact.livesSaved,
@@ -504,6 +524,7 @@ const SimulationMainPage: React.FC = () => {
   const handleRankedOptionSelect = (option: DecisionOptionType) => {
     setShowAdaptivePreference(false);
     setSelectedDecision(option);
+    setShowDecisionSummary(true);
   };
 
   const handleToggleOption = useCallback((optionId: string) => {
@@ -640,20 +661,27 @@ const SimulationMainPage: React.FC = () => {
                 <div className="flex gap-2">
                   <button 
                     onClick={handleExploreAlternatives}
-                    className={`flex items-center text-center text-sm px-3 py-1.5 rounded-md transition-colors duration-200 ${
+                    className={`flex items-center text-center text-sm px-3 py-1.5 rounded-md transition-colors duration-200 relative ${
                       availableAlternatives.length === 0
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : addedAlternatives.length > 0
-                        ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+                        : hasExploredAlternatives
+                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
                         : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
                     }`}
                     disabled={availableAlternatives.length === 0}
                   >
-                    <Lightbulb size={16} className="mr-1.5" />
-                    {addedAlternatives.length > 0 
-                      ? `Alternative Options (${addedAlternatives.length})` 
+                    {hasExploredAlternatives ? (
+                      <Eye size={16} className="mr-1.5" />
+                    ) : (
+                      <Lightbulb size={16} className="mr-1.5" />
+                    )}
+                    {hasExploredAlternatives
+                      ? `Alternatives Reviewed ${addedAlternatives.length > 0 ? `(${addedAlternatives.length} added)` : ''}`
                       : 'Explore Alternatives'
                     }
+                    {!hasExploredAlternatives && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    )}
                   </button>
                   <button 
                     onClick={() => setShowRadarChart(true)}
@@ -675,54 +703,32 @@ const SimulationMainPage: React.FC = () => {
                 ))}
               </div>
             </>
-          ) : (
-            <div className="flex-1 flex flex-col">
-              <div className="flex items-center mb-3">
-                <h3 className="text-base font-medium text-gray-800 mr-2">Selected Decision:</h3>
-                <span className={`px-2 py-1 rounded-md text-sm font-medium ${
-                  selectedDecision.isAlternative 
-                    ? 'bg-blue-100 text-blue-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {selectedDecision.title}
-                </span>
-                <button 
-                  onClick={() => setSelectedDecision(null)}
-                  className="ml-auto flex items-center text-gray-500 hover:text-gray-700 text-sm"
-                >
-                  <X size={14} className="mr-1" />
-                  Change Selection
-                </button>
-              </div>
-              
-              <div className="bg-gray-50 p-3 rounded-lg mb-3 flex-1 overflow-hidden">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Expert Analysis</h4>
-                <ExpertAnalysis decision={selectedDecision} />
-              </div>
-              
-              {showAlternativesHint && (
-                <div className="mb-3 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r-lg">
-                  <p className="text-sm text-yellow-800">
-                    Reviewing alternatives is required before confirmation.
-                  </p>
-                </div>
-              )}
-              
-              <button
-                onClick={handleConfirmAttempt}
-                className={`mt-auto font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors duration-200 ${
-                  hasExploredAlternatives
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                }`}
-              >
-                <Check size={16} className="mr-1" />
-                Confirm Decision
-              </button>
-            </div>
           )}
         </div>
       </div>
+
+      <ExpertAnalysisModal
+        isOpen={showExpertModal}
+        onClose={() => {
+          setShowExpertModal(false);
+          setTempSelectedOption(null);
+        }}
+        option={tempSelectedOption!}
+        onKeepChoice={handleKeepChoice}
+        onReviewAlternatives={handleReviewAlternatives}
+        isAligned={tempSelectedOption ? matchedStableValues.includes(tempSelectedOption.label.toLowerCase()) : false}
+      />
+
+      <DecisionSummaryModal
+        isOpen={showDecisionSummary}
+        onClose={() => {
+          setShowDecisionSummary(false);
+          setSelectedDecision(null);
+        }}
+        option={selectedDecision!}
+        onConfirmDecision={handleConfirmDecision}
+        canConfirm={hasExploredAlternatives}
+      />
 
       <RadarChart
         showRadarChart={showRadarChart}
