@@ -199,7 +199,10 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
             
             {canConfirm && (
               <button
-                onClick={onReviewAlternatives}
+                onClick={() => {
+                  onClose();
+                  onReviewAlternatives();
+                }}
                 className="flex items-center gap-2 px-6 py-2 rounded-lg transition-colors duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
               >
                 Review Alternatives
@@ -207,7 +210,10 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
             )}
             
             <button
-              onClick={onConfirmDecision}
+              onClick={() => {
+                onClose();
+                onReviewAlternatives();
+              }}
               disabled={!canConfirm}
               className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-colors duration-200 ${
                 canConfirm
