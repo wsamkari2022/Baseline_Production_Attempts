@@ -673,7 +673,7 @@ const SimulationMainPage: React.FC = () => {
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           : hasExploredAlternatives
                           ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                          : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 animate-pulse shadow-lg shadow-purple-400/50 border-2 border-purple-300'
+                          : 'bg-purple-300 text-purple-800 hover:bg-purple-400 animate-pulse shadow-lg shadow-purple-400/50 border-2 border-purple-200'
                       }`}
                       disabled={availableAlternatives.length === 0}
                     >
@@ -688,18 +688,18 @@ const SimulationMainPage: React.FC = () => {
                       }
                       {!hasExploredAlternatives && availableAlternatives.length > 0 && (
                         <>
-                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></span>
-                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></span>
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-ping"></span>
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full"></span>
                         </>
                       )}
                     </button>
                     
                     {/* Elegant bubble tooltip */}
                     {!hasExploredAlternatives && availableAlternatives.length > 0 && (
-                      <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 z-10">
-                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap animate-bounce border border-purple-300">
+                      <div className="absolute top-1/2 -left-32 transform -translate-y-1/2 z-10">
+                        <div className="bg-purple-500 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap animate-bounce">
                           Exploring is Required
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-purple-600"></div>
+                          <div className="absolute top-1/2 left-full transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-purple-500"></div>
                         </div>
                       </div>
                     )}
