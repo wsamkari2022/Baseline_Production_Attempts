@@ -398,6 +398,7 @@ const SimulationMainPage: React.FC = () => {
 
   const handleReviewAlternatives = () => {
     setShowExpertModal(false);
+    setShowDecisionSummary(false);
     setHasExploredAlternatives(true);
     setShowAlternativesModal(true);
     setTempSelectedOption(null);
