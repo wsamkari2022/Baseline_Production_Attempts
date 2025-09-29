@@ -197,15 +197,16 @@ const SimulationMainPage: React.FC = () => {
   const calculatePreferenceBasedOptions = useCallback((): DecisionOptionType[] => {
     if (!currentScenario) return [];
     
-    // Check if user has accessed AdaptivePreferenceView (MoralValuesReorderList exists)
+    // FIRST PRIORITY: Check for reordered moral values (including CVR updates)
     const moralValuesReorder = localStorage.getItem('MoralValuesReorderList');
     const simulationMetricsReorder = localStorage.getItem('SimulationMetricsReorderList');
     
-    // FIRST PRIORITY: Check for reordered moral values
     if (moralValuesReorder) {
       try {
         const reorderedValues = JSON.parse(moralValuesReorder);
         const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
+        
+        console.log('Using reordered moral values for initial options:', topValues);
         
         // Find options that match the top 2 reordered moral values
         const matchingOptions = currentScenario.options.filter(option => 
@@ -220,12 +221,14 @@ const SimulationMainPage: React.FC = () => {
         });
         
         if (sortedMatchingOptions.length >= 2) {
+          console.log('Found 2+ matching options:', sortedMatchingOptions.map(o => o.label));
           return sortedMatchingOptions.slice(0, 2);
         } else if (sortedMatchingOptions.length === 1) {
           // If only one matching option, add the best remaining option
           const remainingOptions = currentScenario.options.filter(option => 
             !topValues.includes(option.label.toLowerCase())
           );
+          console.log('Found 1 matching option, adding best remaining:', [sortedMatchingOptions[0].label, remainingOptions[0]?.label]);
           return [sortedMatchingOptions[0], remainingOptions[0]];
         }
       } catch (error) {
@@ -408,34 +411,57 @@ const SimulationMainPage: React.FC = () => {
     setShowCVRModal(false);
     
     if (answer) {
-      // User confirmed their choice, update moral values reorder list
+      // User confirmed their choice, update moral values reorder list to prioritize this value
       if (selectedDecision) {
         const selectedValue = selectedDecision.label.toLowerCase();
         
-        // Get current matched stable values
+        // Get current matched stable values and moral values reorder list
         const savedMatchedValues = localStorage.getItem('finalValues');
-        let matchedStableValuesList: string[] = [];
+        const existingMoralValuesReorder = localStorage.getItem('MoralValuesReorderList');
+        let allAvailableValues: Array<{id: string, label: string}> = [];
         
+        // First, try to get from existing reorder list
+        if (existingMoralValuesReorder) {
+          try {
+            allAvailableValues = JSON.parse(existingMoralValuesReorder);
+          } catch (error) {
+            console.error('Error parsing existing MoralValuesReorderList:', error);
+          }
+        }
+        
+        // If no existing reorder list, get from matched stable values
         if (savedMatchedValues) {
           try {
             const parsedValues = JSON.parse(savedMatchedValues);
-            matchedStableValuesList = parsedValues.map((v: any) => ({
+            const matchedStableValuesList = parsedValues.map((v: any) => ({
               id: v.name.toLowerCase(),
               label: v.name
             }));
+            
+            // If we don't have a reorder list yet, use matched stable values
+            if (allAvailableValues.length === 0) {
+              allAvailableValues = matchedStableValuesList;
+            }
           } catch (error) {
             console.error('Error parsing matched stable values:', error);
           }
         }
         
-        // Create new moral values reorder list with selected value at top
+        // Remove the selected value from its current position and add it to the top
+        const filteredValues = allAvailableValues.filter(v => v.id !== selectedValue);
         const newMoralValuesReorderList = [
           { id: selectedValue, label: selectedDecision.label },
-          ...matchedStableValuesList.filter(v => v.id !== selectedValue)
+          ...filteredValues
         ];
         
         // Save to localStorage
         localStorage.setItem('MoralValuesReorderList', JSON.stringify(newMoralValuesReorderList));
+        
+        // Update the matched stable values to reflect the new priority
+        setMatchedStableValues(prev => {
+          const updated = [selectedValue, ...prev.filter(v => v !== selectedValue)];
+          return updated;
+        });
         
         console.log('Updated MoralValuesReorderList:', newMoralValuesReorderList);
       }
