@@ -606,6 +606,7 @@ const SimulationMainPage: React.FC = () => {
 
   const handleRankedOptionSelect = (option: DecisionOptionType) => {
     setShowAdaptivePreference(false);
+    setCameFromAdaptivePreference(true); // Mark that user came from adaptive preference
     setSelectedDecision(option);
     setShowDecisionSummary(true);
   };
