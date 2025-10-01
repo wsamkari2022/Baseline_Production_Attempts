@@ -5,6 +5,7 @@ import {
   TrendingUp,
   AlertTriangle,
   RefreshCcw,
+  ArrowRight,
   Scale,
   Brain,
   Flame,

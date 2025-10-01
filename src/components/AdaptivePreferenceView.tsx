@@ -142,6 +142,18 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
   const handleContinue = () => {
     if (!preferenceType || rankingItems.length === 0) return;
 
+    // Emit telemetry event for APA reordering
+    const telemetryEvent = {
+      event: 'apa_reordered',
+      timestamp: new Date().toISOString(),
+      preferenceType,
+      newOrder: rankingItems
+    };
+    
+    const existingLogs = JSON.parse(localStorage.getItem('sessionEventLogs') || '[]');
+    existingLogs.push(telemetryEvent);
+    localStorage.setItem('sessionEventLogs', JSON.stringify(existingLogs));
+
     localStorage.setItem('preferenceTypeFlag', preferenceType === 'metrics' ? 'true' : 'false');
 
     if (preferenceType === 'metrics') {

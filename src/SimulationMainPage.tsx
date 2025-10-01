@@ -598,6 +598,20 @@ const SimulationMainPage: React.FC = () => {
     } else {
       // Final scenario completed
       localStorage.setItem('finalSimulationMetrics', JSON.stringify(newMetrics));
+      
+      // Emit telemetry event for scenario completion
+      const telemetryEvent = {
+        event: 'scenario_completed',
+        scenarioId: currentScenario.id,
+        optionId: selectedDecision.id,
+        timestamp: new Date().toISOString(),
+        finalMetrics: newMetrics
+      };
+      
+      const existingLogs = JSON.parse(localStorage.getItem('sessionEventLogs') || '[]');
+      existingLogs.push(telemetryEvent);
+      localStorage.setItem('sessionEventLogs', JSON.stringify(existingLogs));
+      
       navigate('/final-analysis');
     }
   };

@@ -15,6 +15,21 @@ const CVRQuestionModal: React.FC<CVRQuestionModalProps> = ({
   question,
   onAnswer
 }) => {
+  // Emit telemetry event when CVR modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      const telemetryEvent = {
+        event: 'cvr_opened',
+        timestamp: new Date().toISOString(),
+        question: question.question
+      };
+      
+      const existingLogs = JSON.parse(localStorage.getItem('sessionEventLogs') || '[]');
+      existingLogs.push(telemetryEvent);
+      localStorage.setItem('sessionEventLogs', JSON.stringify(existingLogs));
+    }
+  }, [isOpen, question]);
+
   if (!isOpen) return null;
 
   return (

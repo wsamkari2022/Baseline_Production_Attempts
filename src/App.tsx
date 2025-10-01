@@ -7,6 +7,7 @@ import CompletionPage from './implicit_value_pages/CompletionPage';
 import ValuesPage from './implicit_value_pages/ValuesPage';
 import SimulationPage from './SimulationMainPage';
 import FinalAnalysisPage from './pages/FinalAnalysisPage';
+import ResultsFeedbackPage from './pages/ResultsFeedbackPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/values" element={<ValuesPage />} />
         <Route path="/simulation" element={<SimulationPage />} />
         <Route path="/final-analysis" element={<FinalAnalysisPage />} />
+        <Route path="/results-feedback" element={<ResultsFeedbackPage />} />
       </Routes>
     </Router>
   );
