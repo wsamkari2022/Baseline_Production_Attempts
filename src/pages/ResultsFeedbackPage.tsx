@@ -62,6 +62,9 @@ const ResultsFeedbackPage: React.FC = () => {
         (v.name || v).toString().toLowerCase()
       );
 
+      console.log('[ResultsFeedback] matchedStableValues:', matchedStableValues);
+      console.log('[ResultsFeedback] simulationOutcomes:', simulationOutcomes);
+
       // Get reordered moral values (for Scenarios 2 & 3)
       let moralValuesReorderList: string[] = [];
       if (moralValuesReorder) {
@@ -70,23 +73,34 @@ const ResultsFeedbackPage: React.FC = () => {
           moralValuesReorderList = reorderedValues.map((v: any) =>
             (v.id || v.name || v).toString().toLowerCase()
           );
+          console.log('[ResultsFeedback] moralValuesReorderList from storage:', moralValuesReorderList);
         } catch (e) {
           console.error('Error parsing MoralValuesReorderList:', e);
           moralValuesReorderList = matchedStableValues;
         }
       } else {
+        console.log('[ResultsFeedback] No MoralValuesReorderList found, using matchedStableValues');
         moralValuesReorderList = matchedStableValues;
       }
 
       // Helper function to check alignment based on scenario
       const checkAlignment = (optionLabel: string, scenarioId: number): boolean => {
         const optionValue = optionLabel.toLowerCase();
+
+        console.log(`[Alignment Check] Scenario ${scenarioId}, Option: "${optionValue}"`);
+
         if (scenarioId === 1) {
           // Scenario 1: Use matchedStableValues
-          return matchedStableValues.includes(optionValue);
+          console.log(`  Using matchedStableValues:`, matchedStableValues);
+          const isAligned = matchedStableValues.includes(optionValue);
+          console.log(`  Result: ${isAligned ? 'ALIGNED' : 'MISALIGNED'}`);
+          return isAligned;
         } else {
           // Scenarios 2 & 3: Use moralValuesReorderList
-          return moralValuesReorderList.includes(optionValue);
+          console.log(`  Using moralValuesReorderList:`, moralValuesReorderList);
+          const isAligned = moralValuesReorderList.includes(optionValue);
+          console.log(`  Result: ${isAligned ? 'ALIGNED' : 'MISALIGNED'}`);
+          return isAligned;
         }
       };
 
