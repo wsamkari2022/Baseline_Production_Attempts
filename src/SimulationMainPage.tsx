@@ -46,7 +46,6 @@ const SimulationMainPage: React.FC = () => {
   const [toggledOptions, setToggledOptions] = useState<{[key: string]: boolean}>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState<string | null>(null);
-  const [priorityMessage, setPriorityMessage] = useState<string | null>(null);
   const [hasAccessedRankedView, setHasAccessedRankedView] = useState(false);
   const [simulationScenarioOutcomes, setSimulationScenarioOutcomes] = useState<Array<{
     scenarioId: number;
@@ -142,24 +141,6 @@ const SimulationMainPage: React.FC = () => {
     const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
     const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
 
-    if (currentScenarioIndex > 0) {
-      if (rankedViewAccessed) {
-        if (preferenceType === 'true') {
-          const topMetric = metricsRanking[0]?.label;
-          setPriorityMessage(
-            `Because you selected '${topMetric}' as your highest priority in the previous simulation, the top two options are ranked accordingly.`
-          );
-        } else {
-          const value1 = valuesRanking[0]?.label;
-          const value2 = valuesRanking[1]?.label;
-          setPriorityMessage(
-            `Because you selected '${value1}' and '${value2}' as your highest moral priorities in the previous simulation, the top two options are ranked accordingly.`
-          );
-        }
-      }
-    } else {
-      setPriorityMessage(null);
-    }
   }, [currentScenarioIndex]);
 
   useEffect(() => {
@@ -796,13 +777,7 @@ const SimulationMainPage: React.FC = () => {
           <h2 className="text-lg font-semibold mb-1 text-gray-700">Current Scenario</h2>
           <h3 className="text-base font-medium mb-1 text-gray-800">{currentScenario.title}</h3>
           <p className="text-sm text-gray-600 mb-3">{currentScenario.description}</p>
-          
-          {priorityMessage && currentScenarioIndex > 0 && (
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
-              <p className="text-sm text-blue-800">{priorityMessage}</p>
-            </div>
-          )}
-          
+
           {!selectedDecision ? (
             <>
               <div className="flex justify-between items-center mb-2">
