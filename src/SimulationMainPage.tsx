@@ -838,6 +838,8 @@ const SimulationMainPage: React.FC = () => {
                     key={option.id}
                     option={option}
                     onSelect={handleDecisionSelect}
+                    currentMetrics={metrics}
+                    scenarioIndex={currentScenarioIndex}
                   />
                 ))}
               </div>

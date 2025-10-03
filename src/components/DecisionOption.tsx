@@ -1,13 +1,15 @@
 import React from 'react';
-import { Users, Skull, Droplets, Building, Trees as Tree, Factory, ThumbsUp, Shield, Scale, Leaf, Ban } from 'lucide-react';
-import { DecisionOption as DecisionOptionType } from '../types';
+import { Users, Skull, Droplets, Building, Trees as Tree, Factory, ThumbsUp, Shield, Scale, Leaf, Ban, AlertTriangle } from 'lucide-react';
+import { DecisionOption as DecisionOptionType, SimulationMetrics } from '../types';
 
 interface DecisionOptionProps {
   option: DecisionOptionType;
   onSelect: (option: DecisionOptionType) => void;
+  currentMetrics?: SimulationMetrics;
+  scenarioIndex?: number;
 }
 
-const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect }) => {
+const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect, currentMetrics, scenarioIndex }) => {
   const formatImpactValue = (value: number, isLivesSaved: boolean = false, isCasualties: boolean = false) => {
     if (isLivesSaved) {
       return `+${value}`;
@@ -24,6 +26,53 @@ const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect }) => 
     return acceptCount;
   };
 
+  const checkFeasibility = () => {
+    if (scenarioIndex !== 2 || !currentMetrics) {
+      return { isFeasible: true, insufficientResources: [] };
+    }
+
+    const insufficientResources: Array<{ metric: string; needed: number; available: number }> = [];
+
+    if (currentMetrics.firefightingResource + option.impact.firefightingResource < 0) {
+      insufficientResources.push({
+        metric: 'Resources',
+        needed: Math.abs(option.impact.firefightingResource),
+        available: currentMetrics.firefightingResource
+      });
+    }
+
+    if (currentMetrics.infrastructureCondition + option.impact.infrastructureCondition < 0) {
+      insufficientResources.push({
+        metric: 'Infrastructure',
+        needed: Math.abs(option.impact.infrastructureCondition),
+        available: currentMetrics.infrastructureCondition
+      });
+    }
+
+    if (currentMetrics.biodiversityCondition + option.impact.biodiversityCondition < 0) {
+      insufficientResources.push({
+        metric: 'Biodiversity',
+        needed: Math.abs(option.impact.biodiversityCondition),
+        available: currentMetrics.biodiversityCondition
+      });
+    }
+
+    if (currentMetrics.propertiesCondition + option.impact.propertiesCondition < 0) {
+      insufficientResources.push({
+        metric: 'Properties',
+        needed: Math.abs(option.impact.propertiesCondition),
+        available: currentMetrics.propertiesCondition
+      });
+    }
+
+    return {
+      isFeasible: insufficientResources.length === 0,
+      insufficientResources
+    };
+  };
+
+  const { isFeasible, insufficientResources } = checkFeasibility();
+
   // Map value labels to their display properties
   const valueMap = {
     safety: { name: 'Safety', icon: <Shield size={12} className="mr-1" /> },
@@ -36,17 +85,26 @@ const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect }) => 
   const valueDisplay = valueMap[option.label as keyof typeof valueMap];
 
   return (
-    <button
-      onClick={() => onSelect(option)}
-      className={`bg-white border ${
-        option.isAlternative 
-          ? 'border-blue-300 shadow-[0_0_0_1px_rgba(59,130,246,0.1)] bg-gradient-to-b from-blue-50/50 to-transparent hover:bg-blue-50/80' 
-          : 'border-gray-300 hover:bg-gray-50'
-      } text-left p-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 flex flex-col h-full`}
-    >
+    <div className="relative h-full">
+      <button
+        onClick={() => !isFeasible ? null : onSelect(option)}
+        disabled={!isFeasible}
+        className={`bg-white border ${
+          !isFeasible
+            ? 'border-red-300 bg-red-50/50 cursor-not-allowed opacity-75'
+            : option.isAlternative
+              ? 'border-blue-300 shadow-[0_0_0_1px_rgba(59,130,246,0.1)] bg-gradient-to-b from-blue-50/50 to-transparent hover:bg-blue-50/80'
+              : 'border-gray-300 hover:bg-gray-50'
+        } text-left p-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 flex flex-col h-full w-full`}
+      >
+      {!isFeasible && (
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
+          <AlertTriangle size={16} className="text-red-600" />
+        </div>
+      )}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex-1">
-          <h4 className={`font-medium ${option.isAlternative ? 'text-blue-800' : 'text-gray-800'} mb-1`}>
+          <h4 className={`font-medium ${!isFeasible ? 'text-red-800' : option.isAlternative ? 'text-blue-800' : 'text-gray-800'} mb-1 ${!isFeasible ? 'ml-6' : ''}`}>
             {option.title}
           </h4>
           <p className="text-gray-600 text-xs">{option.description}</p>
@@ -111,7 +169,19 @@ const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect }) => 
           <span>{formatImpactValue(option.impact.nuclearPowerStation)}</span>
         </div>
       </div>
-    </button>
+      </button>
+
+      {!isFeasible && insufficientResources.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-20 bg-red-600 text-white text-xs px-3 py-2 rounded-md shadow-lg">
+          <div className="font-semibold mb-1">Not Feasible:</div>
+          {insufficientResources.map((resource, idx) => (
+            <div key={idx}>
+              Not enough {resource.metric} (needs {resource.needed}%, you have {resource.available}%)
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
