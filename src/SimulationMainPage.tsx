@@ -54,12 +54,14 @@ const SimulationMainPage: React.FC = () => {
   }>>([]);
   const [matchedStableValues, setMatchedStableValues] = useState<string[]>([]);
   const [hasExploredAlternatives, setHasExploredAlternatives] = useState(false);
+  const [isFromRankedView, setIsFromRankedView] = useState(false);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
   // Reset hasExploredAlternatives when scenario changes
   useEffect(() => {
     setHasExploredAlternatives(false);
+    setIsFromRankedView(false);
 
     // Initialize flag for first scenario
     if (currentScenarioIndex === 0) {
@@ -393,8 +395,8 @@ const SimulationMainPage: React.FC = () => {
     // Track option selection
     TrackingManager.recordOptionSelection(decision.id, decision.label, isAligned);
 
-    // Mark that this selection was NOT from the ranked top 2 (it's from main scenario)
-    localStorage.setItem('selectedFromTop2Previous', 'false');
+    // Mark that this selection is NOT from ranked view
+    setIsFromRankedView(false);
 
     setTempSelectedOption(decision);
     setShowExpertModal(true);
@@ -593,6 +595,9 @@ const SimulationMainPage: React.FC = () => {
     const isAligned = matchedStableValues.includes(optionValue);
     TrackingManager.confirmOption(selectedDecision.id, selectedDecision.label, isAligned, newMetrics);
 
+    // Set flag based on whether this decision came from ranked view top 2
+    localStorage.setItem('selectedFromTop2Previous', isFromRankedView.toString());
+
     // Store the scenario outcome
     const outcome = {
       scenarioId: currentScenario.id,
@@ -659,11 +664,12 @@ const SimulationMainPage: React.FC = () => {
     }
   };
 
-  const handleRankedOptionSelect = (option: DecisionOptionType) => {
+  const handleRankedOptionSelect = (option: DecisionOptionType, isTop2: boolean) => {
     setShowAdaptivePreference(false);
     // Reset the selected decision state to null to show the main simulation UI
     setSelectedDecision(null);
     setSelectedDecision(option);
+    setIsFromRankedView(isTop2);
     setShowDecisionSummary(true);
   };
 

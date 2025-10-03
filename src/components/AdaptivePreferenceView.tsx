@@ -90,7 +90,7 @@ interface AdaptivePreferenceViewProps {
   onBack: () => void;
   selectedOption: DecisionOption;
   mainScenario: MainScenario;
-  onConfirm: (option: DecisionOption) => void;
+  onConfirm: (option: DecisionOption, isTop2: boolean) => void;
 }
 
 const simulationMetrics = [
@@ -174,7 +174,7 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
           setShowRankedOptions(false);
           onBack();
         }}
-        onConfirm={onConfirm}
+        onConfirm={(option, isTop2) => onConfirm(option, isTop2)}
         currentMetrics={{
           livesSaved: 0,
           humanCasualties: 0,

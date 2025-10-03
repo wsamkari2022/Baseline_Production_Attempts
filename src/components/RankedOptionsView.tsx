@@ -9,7 +9,7 @@ interface RankedOptionsViewProps {
     options: DecisionOption[];
   };
   onBack: () => void;
-  onConfirm: (option: DecisionOption) => void;
+  onConfirm: (option: DecisionOption, isTop2: boolean) => void;
   currentMetrics: {
     livesSaved: number;
     humanCasualties: number;
@@ -182,9 +182,8 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
       // Track if user selected from top 2 options
       const selectedIndex = rankedOptions.findIndex(opt => opt.id === selectedOption.id);
       const isTop2 = selectedIndex < 2;
-      localStorage.setItem('selectedFromTop2Previous', isTop2.toString());
 
-      onConfirm(selectedOption);
+      onConfirm(selectedOption, isTop2);
     }
   };
 
