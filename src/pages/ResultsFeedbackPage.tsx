@@ -57,17 +57,20 @@ const ResultsFeedbackPage: React.FC = () => {
         return;
       }
 
-      // Get current matched values (prioritize reordered list)
-      let currentMatchedValues: string[] = [];
+      // Get matched stable values (original from implicit preference)
+      const matchedStableValues: string[] = matchedValues.map((v: any) => (v.name || v).toString().toLowerCase());
+
+      // Get moral values reorder list (used for scenarios 2 & 3)
+      let moralValuesReorderList: string[] = [];
       if (moralValuesReorder) {
         try {
           const reorderedValues = JSON.parse(moralValuesReorder);
-          currentMatchedValues = reorderedValues.map((v: any) => (v.id || v.name || v).toString().toLowerCase());
+          moralValuesReorderList = reorderedValues.map((v: any) => (v.id || v.name || v).toString().toLowerCase());
         } catch (e) {
-          currentMatchedValues = matchedValues.map((v: any) => (v.name || v).toString().toLowerCase());
+          moralValuesReorderList = matchedStableValues;
         }
       } else {
-        currentMatchedValues = matchedValues.map((v: any) => (v.name || v).toString().toLowerCase());
+        moralValuesReorderList = matchedStableValues;
       }
 
       // 1. CVR Arrivals - count all CVR opens from events
@@ -145,7 +148,18 @@ const ResultsFeedbackPage: React.FC = () => {
 
       simulationOutcomes.forEach((outcome: any, index: number) => {
         const optionValue = (outcome.decision.label || '').toLowerCase();
-        const aligned = currentMatchedValues.includes(optionValue);
+        const scenarioId = outcome.scenarioId;
+
+        // Apply different alignment rules based on scenario
+        let aligned = false;
+        if (scenarioId === 1) {
+          // Scenario 1: Check against matchedStableValues
+          aligned = matchedStableValues.includes(optionValue);
+        } else if (scenarioId === 2 || scenarioId === 3) {
+          // Scenarios 2 & 3: Check against moralValuesReorderList
+          aligned = moralValuesReorderList.includes(optionValue);
+        }
+
         finalAlignmentByScenario.push(aligned);
 
         // Get detailed tracking data if available
@@ -207,44 +221,37 @@ const ResultsFeedbackPage: React.FC = () => {
       let misalignAfterCvrApaCount = 0;
       let realignAfterCvrApaCount = 0;
 
+      // Check if realignment happened:
+      // Realignment = CVR "Yes" answer + choosing from top reordered values + top 2 reordered != top 2 matched stable
+      const top2MatchedStable = matchedStableValues.slice(0, 2);
+      const top2ReorderedValues = moralValuesReorderList.slice(0, 2);
+      const hasReorderedValues = moralValuesReorder && moralValuesReorderList.length > 0;
+      const top2Changed = hasReorderedValues && (
+        top2ReorderedValues[0] !== top2MatchedStable[0] ||
+        top2ReorderedValues[1] !== top2MatchedStable[1]
+      );
+
       // For each scenario, check if user made misaligned or aligned final choices after CVR/APA
       scenarioDetails.forEach((scenario, index) => {
         const scenarioEvents = allEvents.filter(e => e.scenarioId === scenario.scenarioId);
 
-        // Check if user visited CVR or did APA in this scenario
-        const hadCvr = scenarioEvents.some(e => e.event === 'cvr_opened' || e.event === 'cvr_answered');
+        // Check if user answered "Yes" to CVR in this scenario
+        const cvrYesAnswered = scenarioEvents.some(e => e.event === 'cvr_answered' && e.cvrAnswer === true);
         const hadApa = scenarioEvents.some(e => e.event === 'apa_reordered');
-        const hadCvrOrApa = hadCvr || hadApa;
 
-        if (hadCvrOrApa) {
-          // Count final choice alignment status after CVR/APA intervention
-          if (!scenario.aligned) {
-            // User made a misaligned final choice even after CVR/APA
-            misalignAfterCvrApaCount++;
-          } else {
-            // User made an aligned final choice after CVR/APA
-            realignAfterCvrApaCount++;
-          }
+        // Check final choice value
+        const outcome = simulationOutcomes[index];
+        const finalChoiceValue = (outcome.decision.label || '').toLowerCase();
+        const chosenFromTop2Reordered = top2ReorderedValues.includes(finalChoiceValue);
+
+        // Realignment occurs when: CVR Yes + chose from top 2 reordered + top 2 changed
+        if (cvrYesAnswered && chosenFromTop2Reordered && top2Changed) {
+          realignAfterCvrApaCount++;
         }
-      });
 
-      // Also track alignment state changes during selection
-      const alignmentChanges = allEvents.filter(e => e.event === 'alignment_state_changed');
-
-      alignmentChanges.forEach(event => {
-        if (event.scenarioId === undefined) return;
-
-        const eventIndex = allEvents.indexOf(event);
-        const priorEvents = allEvents.slice(0, eventIndex);
-        const scenarioEvents = priorEvents.filter(e => e.scenarioId === event.scenarioId);
-        const hadCvrOrApa = scenarioEvents.some(e => e.event === 'cvr_opened' || e.event === 'cvr_answered' || e.event === 'apa_reordered');
-
-        if (hadCvrOrApa) {
-          if (event.alignedBefore === true && event.alignedAfter === false) {
-            misalignAfterCvrApaCount++;
-          } else if (event.alignedBefore === false && event.alignedAfter === true) {
-            realignAfterCvrApaCount++;
-          }
+        // Misalignment after CVR/APA: had CVR or APA but final choice is not aligned
+        if ((cvrYesAnswered || hadApa) && !scenario.aligned) {
+          misalignAfterCvrApaCount++;
         }
       });
 
