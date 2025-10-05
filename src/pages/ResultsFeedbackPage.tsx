@@ -156,21 +156,19 @@ const ResultsFeedbackPage: React.FC = () => {
           e => e.scenarioId === outcome.scenarioId && e.cvrAnswer === true
         );
 
-        // Apply different alignment rules based on scenario
-        let aligned = false;
+        // Check if the selected option exists in the appropriate value list
+        let valueExistsInList = false;
         if (scenarioId === 1) {
           // Scenario 1: Check against matchedStableValues
-          aligned = matchedStableValues.includes(optionValue);
+          valueExistsInList = matchedStableValues.includes(optionValue);
         } else if (scenarioId === 2 || scenarioId === 3) {
           // Scenarios 2 & 3: Check against moralValuesReorderList
-          aligned = moralValuesReorderList.includes(optionValue);
+          valueExistsInList = moralValuesReorderList.includes(optionValue);
         }
 
-        // CRITICAL: If user answered "Yes, I would" to CVR, it means they would change their decision
-        // This indicates misalignment with current choice, so set aligned to false
-        if (scenarioCvrYesAnswers.length > 0) {
-          aligned = false;
-        }
+        // Aligned = value exists in list AND no CVR "Yes" answer
+        // Not Aligned = value does NOT exist in list OR CVR "Yes" answer
+        const aligned = valueExistsInList && scenarioCvrYesAnswers.length === 0;
 
         finalAlignmentByScenario.push(aligned);
 
@@ -227,35 +225,34 @@ const ResultsFeedbackPage: React.FC = () => {
       let misalignAfterCvrApaCount = 0;
       let realignAfterCvrApaCount = 0;
 
-      // Check if realignment happened:
-      // Realignment = CVR "Yes" answer + APA reordering where top 2 values changed
-      const top2MatchedStable = matchedStableValues.slice(0, 2).sort();
-      const top2ReorderedValues = moralValuesReorderList.slice(0, 2).sort();
-      const hasReorderedValues = moralValuesReorder && moralValuesReorderList.length > 0;
-
-      // Check if top 2 changed (compare sorted arrays)
-      const top2Changed = hasReorderedValues && (
-        top2ReorderedValues[0] !== top2MatchedStable[0] ||
-        top2ReorderedValues[1] !== top2MatchedStable[1]
-      );
-
-      // For each scenario, check if user made misaligned or aligned final choices after CVR/APA
+      // For each scenario, check realignment and misalignment
       scenarioDetails.forEach((scenario, index) => {
+        const outcome = simulationOutcomes[index];
+        const scenarioId = outcome.scenarioId;
+        const optionValue = (outcome.decision.label || '').toLowerCase();
         const scenarioEvents = allEvents.filter(e => e.scenarioId === scenario.scenarioId);
 
         // Check if user answered "Yes" to CVR in this scenario
         const cvrYesAnswered = scenarioEvents.some(e => e.event === 'cvr_answered' && e.cvrAnswer === true);
-        const hadApa = scenarioEvents.some(e => e.event === 'apa_reordered');
 
-        // Realignment switch happens when:
-        // 1. User answers "Yes, I would" in CVR question
-        // 2. User did APA reordering where top 2 values are different from matchedStableValues top 2
-        if (cvrYesAnswered && hadApa && top2Changed) {
+        // Check if the selected option exists in the appropriate value list
+        let valueExistsInList = false;
+        if (scenarioId === 1) {
+          // Scenario 1: Check against matchedStableValues
+          valueExistsInList = matchedStableValues.includes(optionValue);
+        } else if (scenarioId === 2 || scenarioId === 3) {
+          // Scenarios 2 & 3: Check against moralValuesReorderList
+          valueExistsInList = moralValuesReorderList.includes(optionValue);
+        }
+
+        // Realignment Switch: User answers "Yes, I would" to CVR AND confirms a decision NOT in their value list
+        // This means they consciously chose to go against their values
+        if (cvrYesAnswered && !valueExistsInList) {
           realignAfterCvrApaCount++;
         }
 
-        // Misalignment after CVR/APA: had CVR "Yes" answer (indicates misalignment)
-        if (cvrYesAnswered) {
+        // Misalignment: Final choice is not aligned (either not in list OR CVR Yes)
+        if (!scenario.aligned) {
           misalignAfterCvrApaCount++;
         }
       });
