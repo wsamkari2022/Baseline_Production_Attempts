@@ -54,6 +54,7 @@ const SimulationMainPage: React.FC = () => {
   const [matchedStableValues, setMatchedStableValues] = useState<string[]>([]);
   const [hasExploredAlternatives, setHasExploredAlternatives] = useState(false);
   const [isFromRankedView, setIsFromRankedView] = useState(false);
+  const [showAlternativeNotification, setShowAlternativeNotification] = useState(false);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -538,6 +539,14 @@ const SimulationMainPage: React.FC = () => {
   const handleAddAlternative = (option: DecisionOptionType) => {
     setAddedAlternatives(prev => [...prev, { ...option, isAlternative: true }]);
     setShowAlternativesModal(false);
+
+    // Show notification bubble
+    setShowAlternativeNotification(true);
+
+    // Auto-hide notification after 5 seconds
+    setTimeout(() => {
+      setShowAlternativeNotification(false);
+    }, 5000);
   };
 
   const handleExploreAlternatives = () => {
@@ -832,16 +841,39 @@ const SimulationMainPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-                {[...getInitialOptions(), ...addedAlternatives].map((option) => (
-                  <DecisionOption
-                    key={option.id}
-                    option={option}
-                    onSelect={handleDecisionSelect}
-                    currentMetrics={metrics}
-                    scenarioIndex={currentScenarioIndex}
-                  />
-                ))}
+              <div className="relative">
+                {showAlternativeNotification && (
+                  <div className="mb-3 bg-gradient-to-r from-cyan-50 to-teal-50 border-2 border-cyan-300 rounded-lg p-3 shadow-lg animate-pulse">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-cyan-400 text-white rounded-full p-1.5">
+                          <Lightbulb size={16} />
+                        </div>
+                        <p className="text-cyan-900 font-medium text-sm">
+                          ✨ New alternative added! Scroll down to see it below.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowAlternativeNotification(false)}
+                        className="text-cyan-600 hover:text-cyan-800 transition-colors"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                  {[...getInitialOptions(), ...addedAlternatives].map((option) => (
+                    <DecisionOption
+                      key={option.id}
+                      option={option}
+                      onSelect={handleDecisionSelect}
+                      currentMetrics={metrics}
+                      scenarioIndex={currentScenarioIndex}
+                    />
+                  ))}
+                </div>
               </div>
             </>
           ) : null}
