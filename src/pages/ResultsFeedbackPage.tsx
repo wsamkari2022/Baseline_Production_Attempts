@@ -58,20 +58,21 @@ const ResultsFeedbackPage: React.FC = () => {
         return;
       }
 
-      // Get matched stable values (original from implicit preference)
-      const matchedStableValues: string[] = matchedValues.map((v: any) => (v.name || v).toString().toLowerCase());
-
-      // Get moral values reorder list (used for scenarios 2 & 3)
-      let moralValuesReorderList: string[] = [];
-      if (moralValuesReorder) {
+      // Get UserValuesScenariosOrder - the unified list used across all scenarios
+      const userValuesScenariosOrder = localStorage.getItem('UserValuesScenariosOrder');
+      let userValuesList: string[] = [];
+      if (userValuesScenariosOrder) {
         try {
-          const reorderedValues = JSON.parse(moralValuesReorder);
-          moralValuesReorderList = reorderedValues.map((v: any) => (v.id || v.name || v).toString().toLowerCase());
+          const parsedList = JSON.parse(userValuesScenariosOrder);
+          userValuesList = parsedList.map((v: any) => (v.id || v.name || v).toString().toLowerCase());
         } catch (e) {
-          moralValuesReorderList = matchedStableValues;
+          console.error('Error parsing UserValuesScenariosOrder:', e);
+          // Fallback to finalValues if UserValuesScenariosOrder doesn't exist
+          userValuesList = matchedValues.map((v: any) => (v.name || v).toString().toLowerCase());
         }
       } else {
-        moralValuesReorderList = matchedStableValues;
+        // Fallback to finalValues if UserValuesScenariosOrder doesn't exist
+        userValuesList = matchedValues.map((v: any) => (v.name || v).toString().toLowerCase());
       }
 
       // 1. CVR Arrivals - count all CVR opens from events
@@ -157,19 +158,13 @@ const ResultsFeedbackPage: React.FC = () => {
           e => e.scenarioId === outcome.scenarioId && e.cvrAnswer === true
         );
 
-        // Check if the selected option exists in the appropriate value list
-        let valueExistsInList = false;
-        if (scenarioId === 1) {
-          // Scenario 1: Check against matchedStableValues
-          valueExistsInList = matchedStableValues.includes(optionValue);
-        } else if (scenarioId === 2 || scenarioId === 3) {
-          // Scenarios 2 & 3: Check against moralValuesReorderList
-          valueExistsInList = moralValuesReorderList.includes(optionValue);
-        }
+        // Check if the selected option exists in UserValuesScenariosOrder (unified for all scenarios)
+        const valueExistsInList = userValuesList.includes(optionValue);
 
-        // Aligned = value exists in list AND no CVR "Yes" answer
-        // Not Aligned = value does NOT exist in list OR CVR "Yes" answer
-        const aligned = valueExistsInList && scenarioCvrYesAnswers.length === 0;
+        // Aligned = value exists in UserValuesScenariosOrder list
+        // Not Aligned = value does NOT exist in list
+        // Note: CVR answers don't affect current scenario alignment, only future scenarios
+        const aligned = valueExistsInList;
 
         finalAlignmentByScenario.push(aligned);
 
@@ -236,15 +231,8 @@ const ResultsFeedbackPage: React.FC = () => {
         // Check if user answered "Yes" to CVR in this scenario
         const cvrYesAnswered = scenarioEvents.some(e => e.event === 'cvr_answered' && e.cvrAnswer === true);
 
-        // Check if the selected option exists in the appropriate value list
-        let valueExistsInList = false;
-        if (scenarioId === 1) {
-          // Scenario 1: Check against matchedStableValues
-          valueExistsInList = matchedStableValues.includes(optionValue);
-        } else if (scenarioId === 2 || scenarioId === 3) {
-          // Scenarios 2 & 3: Check against moralValuesReorderList
-          valueExistsInList = moralValuesReorderList.includes(optionValue);
-        }
+        // Check if the selected option exists in UserValuesScenariosOrder
+        const valueExistsInList = userValuesList.includes(optionValue);
 
         // Realignment Switch: User answers "Yes, I would" to CVR AND confirms a decision NOT in their value list
         // This means they consciously chose to go against their values
