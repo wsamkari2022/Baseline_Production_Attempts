@@ -56,6 +56,7 @@ const SimulationMainPage: React.FC = () => {
   const [hasExploredAlternatives, setHasExploredAlternatives] = useState(false);
   const [isFromRankedView, setIsFromRankedView] = useState(false);
   const [showAlternativeNotification, setShowAlternativeNotification] = useState(false);
+  const [finalTopTwoValues, setFinalTopTwoValues] = useState<string[]>([]);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -104,8 +105,20 @@ const SimulationMainPage: React.FC = () => {
     const rankedViewAccessed = localStorage.getItem('rankedViewAccessed') === 'true';
     setHasAccessedRankedView(rankedViewAccessed);
 
-    // Load matched stable values from localStorage
+    // Initialize FinalTopTwoValues from finalValues before simulation starts
     const savedMatchedValues = localStorage.getItem('finalValues');
+    if (savedMatchedValues && currentScenarioIndex === 0) {
+      try {
+        const parsedValues = JSON.parse(savedMatchedValues);
+        const topTwoValues = parsedValues.slice(0, 2).map((v: any) => v.name.toLowerCase());
+        setFinalTopTwoValues(topTwoValues);
+        localStorage.setItem('FinalTopTwoValues', JSON.stringify(topTwoValues));
+      } catch (error) {
+        console.error('Error initializing FinalTopTwoValues:', error);
+      }
+    }
+
+    // Load matched stable values from localStorage
     const moralValuesReorder = localStorage.getItem('MoralValuesReorderList');
     
     // If user has reordered moral values, use those instead of original matched values
@@ -591,6 +604,35 @@ const SimulationMainPage: React.FC = () => {
     const optionValue = selectedDecision.label.toLowerCase();
     const isAligned = matchedStableValues.includes(optionValue);
     TrackingManager.confirmOption(selectedDecision.id, selectedDecision.label, isAligned, newMetrics);
+
+    // Update FinalTopTwoValues after confirming decision
+    const moralValuesReorderList = localStorage.getItem('MoralValuesReorderList');
+    let updatedTopTwoValues: string[] = [];
+
+    if (!moralValuesReorderList) {
+      // If moralvaluesreordering is empty, use first two values from finalValues
+      const savedFinalValues = localStorage.getItem('finalValues');
+      if (savedFinalValues) {
+        try {
+          const parsedValues = JSON.parse(savedFinalValues);
+          updatedTopTwoValues = parsedValues.slice(0, 2).map((v: any) => v.name.toLowerCase());
+        } catch (error) {
+          console.error('Error parsing finalValues:', error);
+        }
+      }
+    } else {
+      // If moralvaluesreordering is not empty, use first two values from it
+      try {
+        const parsedReorderList = JSON.parse(moralValuesReorderList);
+        updatedTopTwoValues = parsedReorderList.slice(0, 2).map((v: any) => v.id.toLowerCase());
+      } catch (error) {
+        console.error('Error parsing MoralValuesReorderList:', error);
+      }
+    }
+
+    setFinalTopTwoValues(updatedTopTwoValues);
+    localStorage.setItem('FinalTopTwoValues', JSON.stringify(updatedTopTwoValues));
+    console.log('Updated FinalTopTwoValues:', updatedTopTwoValues);
 
     // Set flag based on whether this decision came from ranked view top 2
     localStorage.setItem('selectedFromTop2Previous', isFromRankedView.toString());
