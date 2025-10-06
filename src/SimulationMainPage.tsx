@@ -32,6 +32,7 @@ const SimulationMainPage: React.FC = () => {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<SimulationMetrics>(defaultMetrics);
   const [topStableValues, setTopStableValues] = useState<string[]>([]);
+  const [userValuesScenariosOrder, setUserValuesScenariosOrder] = useState<Array<{id: string, label: string}>>([]);
   const [currentScenarioInitialOptions, setCurrentScenarioInitialOptions] = useState<DecisionOptionType[]>([]);
   const [animatingMetrics, setAnimatingMetrics] = useState<string[]>([]);
   const [selectedDecision, setSelectedDecision] = useState<DecisionOptionType | null>(null);
@@ -59,6 +60,35 @@ const SimulationMainPage: React.FC = () => {
 
   const currentScenario = scenarios[currentScenarioIndex];
 
+  // Initialize UserValuesScenariosOrder from finalValues on first load
+  useEffect(() => {
+    const existingList = localStorage.getItem('UserValuesScenariosOrder');
+    if (!existingList) {
+      const savedFinalValues = localStorage.getItem('finalValues');
+      if (savedFinalValues) {
+        try {
+          const parsedValues = JSON.parse(savedFinalValues);
+          const initialList = parsedValues.map((v: any) => ({
+            id: (v.name || v).toLowerCase(),
+            label: v.name || v
+          }));
+          localStorage.setItem('UserValuesScenariosOrder', JSON.stringify(initialList));
+          setUserValuesScenariosOrder(initialList);
+          console.log('Initialized UserValuesScenariosOrder from finalValues:', initialList);
+        } catch (error) {
+          console.error('Error initializing UserValuesScenariosOrder:', error);
+        }
+      }
+    } else {
+      try {
+        const parsedList = JSON.parse(existingList);
+        setUserValuesScenariosOrder(parsedList);
+      } catch (error) {
+        console.error('Error loading UserValuesScenariosOrder:', error);
+      }
+    }
+  }, []);
+
   // Reset hasExploredAlternatives when scenario changes
   useEffect(() => {
     setHasExploredAlternatives(false);
@@ -67,6 +97,20 @@ const SimulationMainPage: React.FC = () => {
     // Initialize flag for first scenario
     if (currentScenarioIndex === 0) {
       localStorage.setItem('selectedFromTop2Previous', 'false');
+    }
+
+    // Load current UserValuesScenariosOrder for this scenario
+    const savedList = localStorage.getItem('UserValuesScenariosOrder');
+    if (savedList) {
+      try {
+        const parsedList = JSON.parse(savedList);
+        setUserValuesScenariosOrder(parsedList);
+        const topTwo = parsedList.slice(0, 2).map((v: any) => v.id);
+        setMatchedStableValues(topTwo);
+        console.log(`Scenario ${currentScenarioIndex + 1} - Current top-aligned values:`, topTwo);
+      } catch (error) {
+        console.error('Error loading UserValuesScenariosOrder:', error);
+      }
     }
 
     // Start tracking for this scenario
@@ -103,46 +147,6 @@ const SimulationMainPage: React.FC = () => {
     // Check if user has accessed RankedOptionsView
     const rankedViewAccessed = localStorage.getItem('rankedViewAccessed') === 'true';
     setHasAccessedRankedView(rankedViewAccessed);
-
-    // Load matched stable values from localStorage
-    const savedMatchedValues = localStorage.getItem('finalValues');
-    const moralValuesReorder = localStorage.getItem('MoralValuesReorderList');
-    
-    // If user has reordered moral values, use those instead of original matched values
-    if (moralValuesReorder && currentScenarioIndex > 0) {
-      try {
-        const reorderedValues = JSON.parse(moralValuesReorder);
-        const topValues = reorderedValues.slice(0, 2).map((v: any) => v.id.toLowerCase());
-        setMatchedStableValues(topValues);
-      } catch (error) {
-        console.error('Error parsing MoralValuesReorderList:', error);
-        // Fallback to original matched values
-        if (savedMatchedValues) {
-          try {
-            const parsedValues = JSON.parse(savedMatchedValues);
-            const valueNames = parsedValues.map((v: any) => v.name.toLowerCase());
-            setMatchedStableValues(valueNames);
-          } catch (error) {
-            console.error('Error parsing matched stable values:', error);
-            setMatchedStableValues([]);
-          }
-        }
-      }
-    } else if (savedMatchedValues) {
-      try {
-        const parsedValues = JSON.parse(savedMatchedValues);
-        const valueNames = parsedValues.map((v: any) => v.name.toLowerCase());
-        setMatchedStableValues(valueNames);
-      } catch (error) {
-        console.error('Error parsing matched stable values:', error);
-        setMatchedStableValues([]);
-      }
-    }
-
-    const preferenceType = localStorage.getItem('preferenceTypeFlag');
-    const metricsRanking = JSON.parse(localStorage.getItem('simulationMetricsRanking') || '[]');
-    const valuesRanking = JSON.parse(localStorage.getItem('moralValuesRanking') || '[]');
-
   }, [currentScenarioIndex]);
 
   useEffect(() => {
@@ -478,61 +482,30 @@ const SimulationMainPage: React.FC = () => {
     }
 
     if (answer) {
-      // User confirmed their choice, update moral values reorder list to prioritize this value
+      // User confirmed their choice, update UserValuesScenariosOrder to prioritize this value
       if (selectedDecision) {
         const selectedValue = selectedDecision.label.toLowerCase();
-        
-        // Get current matched stable values and moral values reorder list
-        const savedMatchedValues = localStorage.getItem('finalValues');
-        const existingMoralValuesReorder = localStorage.getItem('MoralValuesReorderList');
-        let allAvailableValues: Array<{id: string, label: string}> = [];
-        
-        // First, try to get from existing reorder list
-        if (existingMoralValuesReorder) {
-          try {
-            allAvailableValues = JSON.parse(existingMoralValuesReorder);
-          } catch (error) {
-            console.error('Error parsing existing MoralValuesReorderList:', error);
-          }
-        }
-        
-        // If no existing reorder list, get from matched stable values
-        if (savedMatchedValues) {
-          try {
-            const parsedValues = JSON.parse(savedMatchedValues);
-            const matchedStableValuesList = parsedValues.map((v: any) => ({
-              id: v.name.toLowerCase(),
-              label: v.name
-            }));
-            
-            // If we don't have a reorder list yet, use matched stable values
-            if (allAvailableValues.length === 0) {
-              allAvailableValues = matchedStableValuesList;
-            }
-          } catch (error) {
-            console.error('Error parsing matched stable values:', error);
-          }
-        }
-        
+
+        // Get current UserValuesScenariosOrder
+        const currentList = [...userValuesScenariosOrder];
+
         // Remove the selected value from its current position and add it to the top
-        const filteredValues = allAvailableValues.filter(v => v.id !== selectedValue);
-        const newMoralValuesReorderList = [
+        const filteredList = currentList.filter(v => v.id !== selectedValue);
+        const updatedList = [
           { id: selectedValue, label: selectedDecision.label },
-          ...filteredValues
+          ...filteredList
         ];
-        
-        // Save to localStorage
-        localStorage.setItem('MoralValuesReorderList', JSON.stringify(newMoralValuesReorderList));
-        
-        // Update the matched stable values to reflect the new priority
-        setMatchedStableValues(prev => {
-          const updated = [selectedValue, ...prev.filter(v => v !== selectedValue)];
-          return updated;
-        });
-        
-        console.log('Updated MoralValuesReorderList:', newMoralValuesReorderList);
+
+        // Save to localStorage and state
+        localStorage.setItem('UserValuesScenariosOrder', JSON.stringify(updatedList));
+        setUserValuesScenariosOrder(updatedList);
+
+        // Also update MoralValuesReorderList for backward compatibility with APA
+        localStorage.setItem('MoralValuesReorderList', JSON.stringify(updatedList));
+
+        console.log('CVR Yes - Updated UserValuesScenariosOrder:', updatedList);
       }
-      
+
       // Show decision summary
       setShowDecisionSummary(true);
     } else {
@@ -587,9 +560,25 @@ const SimulationMainPage: React.FC = () => {
       nuclearPowerStation: Math.max(0, metrics.nuclearPowerStation + selectedDecision.impact.nuclearPowerStation),
     };
 
-    // Track option confirmation
+    // Check alignment based on UserValuesScenariosOrder
     const optionValue = selectedDecision.label.toLowerCase();
-    const isAligned = matchedStableValues.includes(optionValue);
+    const valueExistsInList = userValuesScenariosOrder.some(v => v.id === optionValue);
+    const isAligned = valueExistsInList;
+
+    console.log(`Final Decision - Option: ${optionValue}, Exists in UserValuesScenariosOrder: ${valueExistsInList}, Aligned: ${isAligned}`);
+
+    // If the value doesn't exist in UserValuesScenariosOrder (not aligned), add it to the top
+    if (!valueExistsInList) {
+      const updatedList = [
+        { id: optionValue, label: selectedDecision.label },
+        ...userValuesScenariosOrder
+      ];
+      localStorage.setItem('UserValuesScenariosOrder', JSON.stringify(updatedList));
+      setUserValuesScenariosOrder(updatedList);
+      console.log('Not aligned - Added new value to top of UserValuesScenariosOrder:', updatedList);
+    }
+
+    // Track option confirmation
     TrackingManager.confirmOption(selectedDecision.id, selectedDecision.label, isAligned, newMetrics);
 
     // Set flag based on whether this decision came from ranked view top 2
