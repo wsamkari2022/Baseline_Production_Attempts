@@ -161,10 +161,6 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
     } else {
       localStorage.setItem('moralValuesRanking', JSON.stringify(rankingItems));
       localStorage.setItem('MoralValuesReorderList', JSON.stringify(rankingItems));
-
-      // Update UserValuesScenariosOrder with the newly reordered values
-      localStorage.setItem('UserValuesScenariosOrder', JSON.stringify(rankingItems));
-      console.log('APA Reordering - Updated UserValuesScenariosOrder:', rankingItems);
     }
 
     setShowRankedOptions(true);
