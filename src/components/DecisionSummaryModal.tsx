@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Check, ThumbsUp, ThumbsDown, Users, Skull, Droplets, Building, Trees as Tree, Factory } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Check, ThumbsUp, ThumbsDown, Users, Skull, Droplets, Building, Trees as Tree, Factory, AlertTriangle } from 'lucide-react';
 import { DecisionOption } from '../types';
 
 interface DecisionSummaryModalProps {
@@ -19,7 +19,58 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
   canConfirm,
   onReviewAlternatives
 }) => {
+  const [showWarningPopup, setShowWarningPopup] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleCloseOrReview = (action: 'close' | 'review') => {
+    const hasReordered = localStorage.getItem('hasReorderedValues') === 'true';
+
+    if (hasReordered) {
+      setShowWarningPopup(true);
+
+      // Store the action to execute after confirmation
+      if (action === 'close') {
+        (window as any).pendingAction = 'close';
+      } else {
+        (window as any).pendingAction = 'review';
+      }
+    } else {
+      // No reordering, proceed normally
+      if (action === 'close') {
+        onClose();
+      } else {
+        onClose();
+        onReviewAlternatives();
+      }
+    }
+  };
+
+  const handleWarningConfirm = () => {
+    // Empty the MoralValuesReorderList
+    localStorage.removeItem('MoralValuesReorderList');
+    localStorage.removeItem('moralValuesRanking');
+    localStorage.setItem('hasReorderedValues', 'false');
+
+    setShowWarningPopup(false);
+
+    // Execute the pending action
+    const pendingAction = (window as any).pendingAction;
+    if (pendingAction === 'close') {
+      onClose();
+    } else {
+      onClose();
+      onReviewAlternatives();
+    }
+
+    // Clean up
+    delete (window as any).pendingAction;
+  };
+
+  const handleWarningCancel = () => {
+    setShowWarningPopup(false);
+    delete (window as any).pendingAction;
+  };
 
   const formatImpactValue = (value: number, isLivesSaved: boolean = false, isCasualties: boolean = false) => {
     if (isLivesSaved) {
@@ -47,8 +98,8 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h3 className="text-xl font-semibold text-gray-800">Decision Summary</h3>
-          <button 
-            onClick={onClose}
+          <button
+            onClick={() => handleCloseOrReview('close')}
             className="text-gray-500 hover:text-gray-700"
           >
             <X size={24} />
@@ -177,10 +228,7 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
             {!canConfirm && (
               <div className="relative">
                 <button
-                  onClick={() => {
-                    onClose();
-                    onReviewAlternatives();
-                  }}
+                  onClick={() => handleCloseOrReview('review')}
                   className="flex items-center gap-2 px-6 py-2 rounded-lg transition-all duration-300 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl animate-pulse border-2 border-purple-300"
                 >
                   <span className="relative">
@@ -202,10 +250,7 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
             
             {canConfirm && (
               <button
-                onClick={() => {
-                  onClose();
-                  onReviewAlternatives();
-                }}
+                onClick={() => handleCloseOrReview('review')}
                 className="flex items-center gap-2 px-6 py-2 rounded-lg transition-colors duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
               >
                 Review Alternatives
@@ -228,6 +273,50 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Warning Popup */}
+      {showWarningPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="text-orange-500" size={32} />
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-3">
+                Your Preference Changes Will Be Lost
+              </h3>
+
+              <p className="text-gray-600 text-center mb-6">
+                You recently reordered your values to help guide this decision. If you go back now, these personalized rankings will be cleared and you'll need to set them up again if you want to use them.
+              </p>
+
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
+                <p className="text-sm text-blue-800">
+                  <strong>Tip:</strong> Consider confirming your current decision to preserve your preference settings, or continue if you'd like to explore other options from scratch.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleWarningCancel}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  Stay Here
+                </button>
+                <button
+                  onClick={handleWarningConfirm}
+                  className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                >
+                  Continue Anyway
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
