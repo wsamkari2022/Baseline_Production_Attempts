@@ -178,6 +178,9 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
       const selectedIndex = rankedOptions.findIndex(opt => opt.id === selectedOption.id);
       const isTop2 = selectedIndex < 2;
 
+      // Set flag indicating user has reordered their values
+      localStorage.setItem('hasReorderedValues', 'true');
+
       onConfirm(selectedOption, isTop2);
     }
   };

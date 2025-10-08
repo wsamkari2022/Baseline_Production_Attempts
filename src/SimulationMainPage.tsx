@@ -59,6 +59,7 @@ const SimulationMainPage: React.FC = () => {
   const [finalTopTwoValues, setFinalTopTwoValues] = useState<string[]>([]);
   const [debugFinalValues, setDebugFinalValues] = useState<string[]>([]);
   const [debugMoralValuesReorder, setDebugMoralValuesReorder] = useState<string[]>([]);
+  const [hasReorderedValues, setHasReorderedValues] = useState<boolean>(false);
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -101,6 +102,10 @@ const SimulationMainPage: React.FC = () => {
           // Keep current state
         }
       }
+
+      // Update hasReorderedValues flag
+      const reorderedFlag = localStorage.getItem('hasReorderedValues');
+      setHasReorderedValues(reorderedFlag === 'true');
     };
 
     updateDebugValues();
@@ -928,6 +933,16 @@ const SimulationMainPage: React.FC = () => {
                   {finalTopTwoValues.length > 0
                     ? `[${finalTopTwoValues.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ')}]`
                     : '[ Empty - Not initialized yet ]'}
+                </p>
+              </div>
+
+              {/* hasReorderedValues Flag */}
+              <div className={`p-2 rounded border-2 ${hasReorderedValues ? 'bg-blue-50 border-blue-400' : 'bg-gray-50 border-gray-300'}`}>
+                <p className={`text-xs font-bold mb-1 ${hasReorderedValues ? 'text-blue-800' : 'text-gray-600'}`}>
+                  hasReorderedValues:
+                </p>
+                <p className={`text-xs font-mono font-semibold ${hasReorderedValues ? 'text-blue-700' : 'text-gray-600'}`}>
+                  {hasReorderedValues ? '✓ true' : '✗ false'}
                 </p>
               </div>
             </div>
