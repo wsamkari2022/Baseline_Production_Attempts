@@ -121,6 +121,10 @@ const SimulationMainPage: React.FC = () => {
     setHasExploredAlternatives(false);
     setIsFromRankedView(false);
 
+    // Reset hasReorderedValues flag for new scenario
+    localStorage.setItem('hasReorderedValues', 'false');
+    setHasReorderedValues(false);
+
     // Initialize flag for first scenario
     if (currentScenarioIndex === 0) {
       localStorage.setItem('selectedFromTop2Previous', 'false');
