@@ -9,6 +9,7 @@ interface DecisionSummaryModalProps {
   onConfirmDecision: () => void;
   canConfirm: boolean;
   onReviewAlternatives: () => void;
+  onResetCVRFlags?: () => void;
 }
 
 const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
@@ -17,7 +18,8 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
   option,
   onConfirmDecision,
   canConfirm,
-  onReviewAlternatives
+  onReviewAlternatives,
+  onResetCVRFlags
 }) => {
   const [showWarningPopup, setShowWarningPopup] = useState(false);
 
@@ -25,8 +27,9 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
 
   const handleCloseOrReview = (action: 'close' | 'review') => {
     const hasReordered = localStorage.getItem('hasReorderedValues') === 'true';
+    const hasCVRFlags = localStorage.getItem('cvrYesClicked') === 'true' || localStorage.getItem('cvrNoClicked') === 'true';
 
-    if (hasReordered) {
+    if (hasReordered || hasCVRFlags) {
       setShowWarningPopup(true);
 
       // Store the action to execute after confirmation
@@ -36,7 +39,7 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
         (window as any).pendingAction = 'review';
       }
     } else {
-      // No reordering, proceed normally
+      // No reordering and no CVR flags, proceed normally
       if (action === 'close') {
         onClose();
       } else {
@@ -51,6 +54,11 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
     localStorage.removeItem('MoralValuesReorderList');
     localStorage.removeItem('moralValuesRanking');
     localStorage.setItem('hasReorderedValues', 'false');
+
+    // Reset CVR flags
+    if (onResetCVRFlags) {
+      onResetCVRFlags();
+    }
 
     setShowWarningPopup(false);
 

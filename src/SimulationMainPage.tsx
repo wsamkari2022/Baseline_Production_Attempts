@@ -130,6 +130,8 @@ const SimulationMainPage: React.FC = () => {
     // Reset CVR flags for new scenario
     setCvrYesClicked(false);
     setCvrNoClicked(false);
+    localStorage.setItem('cvrYesClicked', 'false');
+    localStorage.setItem('cvrNoClicked', 'false');
 
     // Initialize flag for first scenario
     if (currentScenarioIndex === 0) {
@@ -545,13 +547,17 @@ const SimulationMainPage: React.FC = () => {
   const handleCVRAnswer = (answer: boolean) => {
     setShowCVRModal(false);
 
-    // Set CVR flags based on answer
+    // Set CVR flags based on answer and persist to localStorage
     if (answer) {
       setCvrYesClicked(true);
       setCvrNoClicked(false);
+      localStorage.setItem('cvrYesClicked', 'true');
+      localStorage.setItem('cvrNoClicked', 'false');
     } else {
       setCvrYesClicked(false);
       setCvrNoClicked(true);
+      localStorage.setItem('cvrYesClicked', 'false');
+      localStorage.setItem('cvrNoClicked', 'true');
     }
 
     // Track CVR answer
@@ -653,6 +659,13 @@ const SimulationMainPage: React.FC = () => {
     }
 
     setShowAlternativesModal(true);
+  };
+
+  const handleResetCVRFlags = () => {
+    setCvrYesClicked(false);
+    setCvrNoClicked(false);
+    localStorage.setItem('cvrYesClicked', 'false');
+    localStorage.setItem('cvrNoClicked', 'false');
   };
 
 
@@ -1107,6 +1120,7 @@ const SimulationMainPage: React.FC = () => {
         onConfirmDecision={handleConfirmDecision}
         canConfirm={hasExploredAlternatives}
         onReviewAlternatives={handleExploreAlternatives}
+        onResetCVRFlags={handleResetCVRFlags}
       />
 
       <RadarChart
