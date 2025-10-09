@@ -27,17 +27,20 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
 
   const handleCloseOrReview = (action: 'close' | 'review') => {
     const hasReordered = localStorage.getItem('hasReorderedValues') === 'true';
-    const hasCVRFlags = localStorage.getItem('cvrYesClicked') === 'true' || localStorage.getItem('cvrNoClicked') === 'true';
+    const cvrYesClicked = localStorage.getItem('cvrYesClicked') === 'true';
+    const cvrNoClicked = localStorage.getItem('cvrNoClicked') === 'true';
+    const hasCVRFlags = cvrYesClicked || cvrNoClicked;
 
     if (hasReordered || hasCVRFlags) {
       setShowWarningPopup(true);
 
-      // Store the action to execute after confirmation
+      // Store the action to execute after confirmation and CVR state
       if (action === 'close') {
         (window as any).pendingAction = 'close';
       } else {
         (window as any).pendingAction = 'review';
       }
+      (window as any).cvrYesClicked = cvrYesClicked;
     } else {
       // No reordering and no CVR flags, proceed normally
       if (action === 'close') {
@@ -73,11 +76,13 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
 
     // Clean up
     delete (window as any).pendingAction;
+    delete (window as any).cvrYesClicked;
   };
 
   const handleWarningCancel = () => {
     setShowWarningPopup(false);
     delete (window as any).pendingAction;
+    delete (window as any).cvrYesClicked;
   };
 
   const formatImpactValue = (value: number, isLivesSaved: boolean = false, isCasualties: boolean = false) => {
@@ -99,6 +104,9 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
   };
 
   const { accepts, rejects, total } = getExpertRecommendations();
+
+  // Check if we should show CVR-specific message
+  const showCVRMessage = (window as any).cvrYesClicked === true;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -293,19 +301,39 @@ const DecisionSummaryModal: React.FC<DecisionSummaryModalProps> = ({
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-gray-800 text-center mb-3">
-                Your Preference Changes Will Be Lost
-              </h3>
+              {showCVRMessage ? (
+                <>
+                  <h3 className="text-xl font-bold text-gray-800 text-center mb-3">
+                    Your Value Reflection Will Be Cleared
+                  </h3>
 
-              <p className="text-gray-600 text-center mb-6">
-                You recently reordered your values to help guide this decision. If you go back now, these personalized rankings will be cleared and you'll need to set them up again if you want to use them.
-              </p>
+                  <p className="text-gray-600 text-center mb-6">
+                    You confirmed your decision in the value reflection scenario. If you go back now, your response to that reflection question will be cleared, and the value prioritization you established will be reset.
+                  </p>
 
-              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
-                <p className="text-sm text-blue-800">
-                  <strong>Tip:</strong> Consider confirming your current decision to preserve your preference settings, or continue if you'd like to explore other options from scratch.
-                </p>
-              </div>
+                  <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
+                    <p className="text-sm text-blue-800">
+                      <strong>Tip:</strong> Consider confirming your current decision to preserve your value reflection response, or continue if you'd like to reconsider your choice from the beginning.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-gray-800 text-center mb-3">
+                    Your Preference Changes Will Be Lost
+                  </h3>
+
+                  <p className="text-gray-600 text-center mb-6">
+                    You recently reordered your values to help guide this decision. If you go back now, these personalized rankings will be cleared and you'll need to set them up again if you want to use them.
+                  </p>
+
+                  <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
+                    <p className="text-sm text-blue-800">
+                      <strong>Tip:</strong> Consider confirming your current decision to preserve your preference settings, or continue if you'd like to explore other options from scratch.
+                    </p>
+                  </div>
+                </>
+              )}
 
               <div className="flex gap-3">
                 <button
