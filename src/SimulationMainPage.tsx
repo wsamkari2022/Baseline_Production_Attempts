@@ -806,15 +806,21 @@ const SimulationMainPage: React.FC = () => {
     console.log('Updated CheckingAlignmentList:', updatedAlignmentList);
 
     // Update FinalTopTwoValues after confirming decision
-    // Remove the decision value if it already exists in the list, then add it to the top
-    const updatedTopTwoValues = [
-      finalDecisionValue,
-      ...finalTopTwoValues.filter(v => v !== finalDecisionValue)
-    ].slice(0, 2); // Keep only top 2
+    // BUT only if simulationMetricsReorderingFlag is FALSE
+    if (!flagsAtConfirmation.simulationMetricsReorderingFlag) {
+      // Remove the decision value if it already exists in the list, then add it to the top
+      const updatedTopTwoValues = [
+        finalDecisionValue,
+        ...finalTopTwoValues.filter(v => v !== finalDecisionValue)
+      ].slice(0, 2); // Keep only top 2
 
-    setFinalTopTwoValues(updatedTopTwoValues);
-    localStorage.setItem('FinalTopTwoValues', JSON.stringify(updatedTopTwoValues));
-    console.log('Updated FinalTopTwoValues with final decision:', updatedTopTwoValues);
+      setFinalTopTwoValues(updatedTopTwoValues);
+      localStorage.setItem('FinalTopTwoValues', JSON.stringify(updatedTopTwoValues));
+      console.log('Updated FinalTopTwoValues with final decision:', updatedTopTwoValues);
+    } else {
+      console.log('Skipping FinalTopTwoValues update because simulationMetricsReorderingFlag is true');
+      console.log('FinalTopTwoValues remains:', finalTopTwoValues);
+    }
 
     // Set flag based on whether this decision came from ranked view top 2
     localStorage.setItem('selectedFromTop2Previous', isFromRankedView.toString());
