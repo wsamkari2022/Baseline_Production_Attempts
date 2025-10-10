@@ -16,6 +16,7 @@ export class TrackingManager {
       apaReordered: false,
       apaReorderCount: 0,
       alternativesExplored: false,
+      alternativesExploredCount: 0,
       switchCount: 0
     };
 
@@ -263,6 +264,23 @@ export class TrackingManager {
       event: 'alternatives_explored',
       timestamp: new Date().toISOString(),
       scenarioId,
+      timeSinceScenarioOpen: this.currentScenarioTracking
+        ? Date.now() - this.currentScenarioTracking.startTime
+        : 0
+    });
+  }
+
+  static recordAlternativeAdded(scenarioId: number, optionId: string, optionLabel: string) {
+    if (this.currentScenarioTracking) {
+      this.currentScenarioTracking.alternativesExploredCount += 1;
+    }
+
+    this.emitEvent({
+      event: 'alternative_added',
+      timestamp: new Date().toISOString(),
+      scenarioId,
+      optionId,
+      optionLabel,
       timeSinceScenarioOpen: this.currentScenarioTracking
         ? Date.now() - this.currentScenarioTracking.startTime
         : 0

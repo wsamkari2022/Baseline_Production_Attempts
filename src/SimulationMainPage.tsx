@@ -69,6 +69,7 @@ const SimulationMainPage: React.FC = () => {
   const [cvrNoClickedCount, setCvrNoClickedCount] = useState<number>(0);
   const [simulationMetricsSelectedCount, setSimulationMetricsSelectedCount] = useState<number>(0);
   const [moralValuesSelectedCount, setMoralValuesSelectedCount] = useState<number>(0);
+  const [alternativesExploredCount, setAlternativesExploredCount] = useState<number>(0);
   const [scenariosFinalDecisionLabels, setScenariosFinalDecisionLabels] = useState<string[]>([]);
   const [checkingAlignmentList, setCheckingAlignmentList] = useState<string[]>([]);
 
@@ -141,6 +142,9 @@ const SimulationMainPage: React.FC = () => {
       const valuesCount = localStorage.getItem('moralValuesSelectedCount');
       setMoralValuesSelectedCount(valuesCount ? parseInt(valuesCount) : 0);
 
+      const alternativesCount = localStorage.getItem('alternativesExploredCount');
+      setAlternativesExploredCount(alternativesCount ? parseInt(alternativesCount) : 0);
+
       // Update ScenariosFinalDecisionLabels from localStorage
       const savedDecisionLabels = localStorage.getItem('ScenariosFinalDecisionLabels');
       if (savedDecisionLabels) {
@@ -192,6 +196,10 @@ const SimulationMainPage: React.FC = () => {
     setCvrNoClicked(false);
     localStorage.setItem('cvrYesClicked', 'false');
     localStorage.setItem('cvrNoClicked', 'false');
+
+    // Reset alternatives explored counter for new scenario
+    setAlternativesExploredCount(0);
+    localStorage.setItem('alternativesExploredCount', '0');
 
     // Initialize flag for first scenario
     if (currentScenarioIndex === 0) {
@@ -712,6 +720,14 @@ const SimulationMainPage: React.FC = () => {
   const handleAddAlternative = (option: DecisionOptionType) => {
     setAddedAlternatives(prev => [...prev, { ...option, isAlternative: true }]);
     setShowAlternativesModal(false);
+
+    // Increment alternatives explored counter
+    const newCount = alternativesExploredCount + 1;
+    setAlternativesExploredCount(newCount);
+    localStorage.setItem('alternativesExploredCount', newCount.toString());
+
+    // Track alternative added
+    TrackingManager.recordAlternativeAdded(currentScenario.id, option.id, option.label);
 
     // Show notification bubble
     setShowAlternativeNotification(true);

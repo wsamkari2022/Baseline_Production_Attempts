@@ -757,9 +757,10 @@ const ResultsFeedbackPage: React.FC = () => {
                     const cvrYesCount = scenarioEvents.filter(e => e.event === 'cvr_answered' && e.cvrAnswer === true).length;
                     const cvrNoCount = scenarioEvents.filter(e => e.event === 'cvr_answered' && e.cvrAnswer === false).length;
                     const apaReorderCount = scenarioEvents.filter(e => e.event === 'apa_reordered').length;
+                    const alternativesAddedCount = scenarioEvents.filter(e => e.event === 'alternative_added').length;
                     const optionSwitches = Math.max(0, scenarioEvents.filter(e => e.event === 'option_selected').length - 1);
 
-                    console.log(`[Debug] Scenario ${scenarioId} - Counters - CVR Yes: ${cvrYesCount}, CVR No: ${cvrNoCount}, APA: ${apaReorderCount}, Switches: ${optionSwitches}`);
+                    console.log(`[Debug] Scenario ${scenarioId} - Counters - CVR Yes: ${cvrYesCount}, CVR No: ${cvrNoCount}, APA: ${apaReorderCount}, Alternatives: ${alternativesAddedCount}, Switches: ${optionSwitches}`);
 
                     if (!confirmationEvent) {
                       console.warn(`[Warning] No confirmation event found for Scenario ${scenarioId}`);
@@ -869,6 +870,10 @@ const ResultsFeedbackPage: React.FC = () => {
                             <div className="flex items-center justify-between px-2 py-1 bg-red-50 rounded">
                               <span className="font-semibold text-red-900">CVR "No":</span>
                               <span className="ml-2 font-bold text-red-700">{cvrNoCount}</span>
+                            </div>
+                            <div className="flex items-center justify-between px-2 py-1 bg-blue-50 rounded">
+                              <span className="font-semibold text-blue-900">Alternatives:</span>
+                              <span className="ml-2 font-bold text-blue-700">{alternativesAddedCount}</span>
                             </div>
                             <div className="flex items-center justify-between px-2 py-1 bg-orange-50 rounded">
                               <span className="font-semibold text-orange-900">Switches:</span>

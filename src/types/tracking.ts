@@ -47,6 +47,7 @@ export interface ScenarioTracking {
   apaReordered: boolean;
   apaReorderCount: number;
   alternativesExplored: boolean;
+  alternativesExploredCount: number;
   switchCount: number;
 }
 
