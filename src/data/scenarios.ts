@@ -945,7 +945,7 @@ export const scenarios: Scenario[] = [
           humanCasualties: 100,
           firefightingResource: -30,
           infrastructureCondition: -20,
-          biodiversityCondition: -35,
+          biodiversityCondition: -50,
           propertiesCondition: -22,
           nuclearPowerStation: 0
         },
@@ -1007,7 +1007,7 @@ export const scenarios: Scenario[] = [
           firefighterRisk: 40,
           resourceUse: 60,
           infrastructureDamage: 40,
-          biodiversityImpact: 70,
+          biodiversityImpact: 100,
           ethicalFairness: 55,
           populationSafety: 90
         },
@@ -1032,7 +1032,7 @@ export const scenarios: Scenario[] = [
           humanCasualties: 600,
           firefightingResource: -22,
           infrastructureCondition: -16,
-          biodiversityCondition: -24,
+          biodiversityCondition: -35,
           propertiesCondition: -18,
           nuclearPowerStation: 0
         },
@@ -1094,7 +1094,7 @@ export const scenarios: Scenario[] = [
           firefighterRisk: 50,
           resourceUse: 44,
           infrastructureDamage: 32,
-          biodiversityImpact: 48,
+          biodiversityImpact: 70,
           ethicalFairness: 65,
           populationSafety: 70
         },
@@ -1118,9 +1118,9 @@ export const scenarios: Scenario[] = [
           livesSaved: 800,
           humanCasualties: 1200,
           firefightingResource: -24,
-          infrastructureCondition: -14,
-          biodiversityCondition: -12,
-          propertiesCondition: -16,
+          infrastructureCondition: -12,
+          biodiversityCondition: -15,
+          propertiesCondition: -14,
           nuclearPowerStation: 0
         },
         riskInfo: [
@@ -1180,8 +1180,8 @@ export const scenarios: Scenario[] = [
           fireContainment: 60,
           firefighterRisk: 70,
           resourceUse: 48,
-          infrastructureDamage: 28,
-          biodiversityImpact: 24,
+          infrastructureDamage: 24,
+          biodiversityImpact: 30,
           ethicalFairness: 40,
           populationSafety: 40
         },
@@ -1205,8 +1205,8 @@ export const scenarios: Scenario[] = [
           livesSaved: 1200,
           humanCasualties: 800,
           firefightingResource: -26,
-          infrastructureCondition: -20,
-          biodiversityCondition: -18,
+          infrastructureCondition: -18,
+          biodiversityCondition: -28,
           propertiesCondition: -18,
           nuclearPowerStation: 0
         },
@@ -1267,8 +1267,8 @@ export const scenarios: Scenario[] = [
           fireContainment: 65,
           firefighterRisk: 55,
           resourceUse: 52,
-          infrastructureDamage: 40,
-          biodiversityImpact: 36,
+          infrastructureDamage: 36,
+          biodiversityImpact: 56,
           ethicalFairness: 90,
           populationSafety: 60
         },
@@ -1293,7 +1293,7 @@ export const scenarios: Scenario[] = [
           humanCasualties: 1000,
           firefightingResource: -20,
           infrastructureCondition: -16,
-          biodiversityCondition: -16,
+          biodiversityCondition: -22,
           propertiesCondition: -16,
           nuclearPowerStation: 0
         },
@@ -1355,7 +1355,7 @@ export const scenarios: Scenario[] = [
           firefighterRisk: 45,
           resourceUse: 40,
           infrastructureDamage: 32,
-          biodiversityImpact: 32,
+          biodiversityImpact: 44,
           ethicalFairness: 85,
           populationSafety: 50
         },
