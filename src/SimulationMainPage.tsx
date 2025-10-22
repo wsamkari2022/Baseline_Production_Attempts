@@ -664,20 +664,8 @@ const SimulationMainPage: React.FC = () => {
 
     const finalTopTwoValuesBeforeUpdate = [...finalTopTwoValues];
 
-    // Capture MoralValuesReorderList snapshot at confirmation
-    let moralValuesReorderListSnapshot: Array<{id: string, label: string}> | null = null;
-    const moralValuesReorderListRaw = localStorage.getItem('MoralValuesReorderList');
-    if (moralValuesReorderListRaw) {
-      try {
-        moralValuesReorderListSnapshot = JSON.parse(moralValuesReorderListRaw);
-      } catch (error) {
-        console.error('Error parsing MoralValuesReorderList for snapshot:', error);
-      }
-    }
-
     console.log(`[Scenario ${currentScenario.id}] Flags at confirmation:`, flagsAtConfirmation);
     console.log(`[Scenario ${currentScenario.id}] FinalTopTwoValues before update:`, finalTopTwoValuesBeforeUpdate);
-    console.log(`[Scenario ${currentScenario.id}] MoralValuesReorderList snapshot:`, moralValuesReorderListSnapshot);
 
     // If user answered "Yes" to CVR question, update MoralValuesReorderList now
     if (flagsAtConfirmation.cvrYesClicked && !isAligned) {
@@ -735,8 +723,7 @@ const SimulationMainPage: React.FC = () => {
       isAligned,
       newMetrics,
       flagsAtConfirmation,
-      finalTopTwoValuesBeforeUpdate,
-      moralValuesReorderListSnapshot
+      finalTopTwoValuesBeforeUpdate
     );
 
     // BEFORE updating FinalTopTwoValues, track the final decision value and check alignment
@@ -848,8 +835,7 @@ const SimulationMainPage: React.FC = () => {
         apa_reordered: scenarioTracking.apaReordered,
         apa_reorder_count: scenarioTracking.apaReorderCount,
         alternatives_explored: scenarioTracking.alternativesExplored,
-        final_metrics: newMetrics,
-        moral_values_snapshot: moralValuesReorderListSnapshot
+        final_metrics: newMetrics
       });
     }
 
