@@ -41,7 +41,7 @@ interface MatchedStableValue {
  */
 const ValuesPage: React.FC = () => {
     const navigate = useNavigate();
-    
+
     // State management for various value types and calculations
     const [deepValues, setDeepValues] = useState<DeepValue[]>([]);
     const [groupedValues, setGroupedValues] = useState<GroupedValues>({ stable: [], contextDependent: [] });
@@ -50,6 +50,7 @@ const ValuesPage: React.FC = () => {
     const [matchPercentage, setMatchPercentage] = useState({ stable: 0, contextDependent: 0 });
     const [showError, setShowError] = useState(false);
     const [matchedStableValues, setMatchedStableValues] = useState<MatchedStableValue[]>([]);
+    const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
 
     useEffect(() => {
         // Retrieve saved assessment data from localStorage
@@ -253,179 +254,259 @@ const ValuesPage: React.FC = () => {
             <ProgressTracker currentStep={6} steps={progressSteps} />
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                {/* Matched Stable Values Section */}
-                {matchedStableValues.length > 0 && (
-                    <div className="bg-white rounded-lg shadow p-6 mb-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Brain className="h-6 w-6 text-purple-600" />
-                            <h2 className="text-xl font-bold text-gray-900">Matched Stable Values</h2>
-                        </div>
-                        <div className="space-y-3">
-                            {matchedStableValues.map((value, index) => (
-                                <div key={index} className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium text-purple-900">{value.name}</span>
-                                        <span className="text-purple-700">
-                                            Match: {value.matchPercentage.toFixed(1)}%
-                                        </span>
+                {!showDetailedAnalysis ? (
+                    <div className="max-w-4xl mx-auto">
+                        <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl shadow-lg p-8 mb-8 border border-blue-100">
+                            <div className="flex items-center justify-center mb-6">
+                                <div className="bg-white rounded-full p-4 shadow-md">
+                                    <Brain className="h-12 w-12 text-blue-600" />
+                                </div>
+                            </div>
+
+                            <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+                                Your Value Analysis is Complete
+                            </h2>
+
+                            <p className="text-center text-gray-700 text-lg mb-8 max-w-2xl mx-auto">
+                                Thank you for completing both assessments. Based on your responses to explicit and implicit value questions,
+                                we've identified {matchedStableValues.length === 1 ? 'your' : 'your top'} matched stable {matchedStableValues.length === 1 ? 'value' : 'values'}:
+                            </p>
+
+                            <div className="space-y-4 mb-8">
+                                {matchedStableValues.slice(0, 2).map((value, index) => (
+                                    <div key={index} className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 transform transition-all duration-300 hover:shadow-lg">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="text-2xl font-bold text-gray-900">{value.name}</h3>
+                                            <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full">
+                                                {value.matchPercentage.toFixed(1)}% Match
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-600 text-sm">
+                                            This value consistently appeared across your responses, indicating it's a core part of your decision-making.
+                                        </p>
                                     </div>
-                                    <div className="mt-2 bg-purple-200 rounded-full h-2">
-                                        <div
-                                            className="bg-purple-600 h-2 rounded-full"
-                                            style={{ width: `${value.matchPercentage}%` }}
-                                        />
+                                ))}
+                            </div>
+
+                            {matchedStableValues.length === 0 && (
+                                <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                                    <p className="text-center text-gray-700">
+                                        We're still analyzing your responses. Your value patterns will be used in the upcoming simulation.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-md p-8 text-center border border-gray-200">
+                            <div className="max-w-2xl mx-auto mb-6">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                                    Want to understand how we identified these values?
+                                </h3>
+                                <p className="text-gray-600 leading-relaxed">
+                                    We used a comprehensive analysis comparing your explicit choices with patterns from implicit scenarios.
+                                    If you're curious about the methodology and detailed breakdown, you can explore the full analysis below.
+                                </p>
+                                <p className="text-sm text-gray-500 mt-3 italic">
+                                    Exploring the detailed analysis is completely optional
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => setShowDetailedAnalysis(true)}
+                                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center gap-2 mx-auto"
+                            >
+                                <BarChart2 className="h-5 w-5" />
+                                Explore Why
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        <div className="mb-6 flex justify-center">
+                            <button
+                                onClick={() => setShowDetailedAnalysis(false)}
+                                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 font-medium flex items-center gap-2 border border-gray-300"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Back to Summary
+                            </button>
+                        </div>
+
+                        {/* Matched Stable Values Section */}
+                        {matchedStableValues.length > 0 && (
+                            <div className="bg-white rounded-lg shadow p-6 mb-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Brain className="h-6 w-6 text-blue-600" />
+                                    <h2 className="text-xl font-bold text-gray-900">Matched Stable Values</h2>
+                                </div>
+                                <div className="space-y-3">
+                                    {matchedStableValues.map((value, index) => (
+                                        <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-medium text-blue-900">{value.name}</span>
+                                                <span className="text-blue-700">
+                                                    Match: {value.matchPercentage.toFixed(1)}%
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 bg-blue-200 rounded-full h-2">
+                                                <div
+                                                    className="bg-blue-600 h-2 rounded-full"
+                                                    style={{ width: `${value.matchPercentage}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            {/* Explicit Values Section */}
+                            <div className="bg-white rounded-lg shadow p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <FileCheck className="h-6 w-6 text-blue-600" />
+                                    <h2 className="text-xl font-bold text-gray-900">Explicit Values</h2>
+                                </div>
+                                <p className="text-gray-600 mb-4">
+                                    Your direct responses to everyday ethical scenarios reveal these value preferences:
+                                </p>
+                                <div className="space-y-4">
+                                    {explicitValues.map((value, index) => (
+                                        <div key={index} className="bg-blue-50 rounded-lg p-4">
+                                            <p className="text-sm text-gray-600 mb-2">
+                                                Scenario: {getQuestionText(value.question_id)}
+                                            </p>
+                                            <p className="text-sm font-medium text-blue-800">
+                                                Your Choice: {getSelectedOptionLabel(value.question_id, value.value_selected)}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Deep Values Section */}
+                            <div className="bg-white rounded-lg shadow p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Brain className="h-6 w-6 text-green-600" />
+                                    <h2 className="text-xl font-bold text-gray-900">Implicit Values</h2>
+                                </div>
+                                <p className="text-gray-600 mb-4">
+                                    Through analysis of your decision patterns, these deeper values were identified:
+                                </p>
+
+                                {/* Stable Values */}
+                                {groupedValues.stable.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Stable Values</h3>
+                                        <div className="space-y-3">
+                                            {groupedValues.stable.map((item, index) => (
+                                                <div key={index} className="bg-green-50 p-4 rounded-lg border border-green-200">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm text-gray-600">{item.scenarioId}</span>
+                                                        <span className="font-medium text-green-700">{item.value.name}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Context-Dependent Values */}
+                                {groupedValues.contextDependent.length > 0 && (
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Context-Dependent Values</h3>
+                                        <div className="space-y-3">
+                                            {groupedValues.contextDependent.map((item, index) => (
+                                                <div key={index} className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                                                    <div className="mb-2 text-sm text-gray-600">{item.scenarioId}</div>
+                                                    <div className="flex items-center gap-3">
+                                                        {item.values.map((value, vIndex) => (
+                                                            <span key={vIndex} className="px-3 py-1 bg-yellow-100 rounded-full text-yellow-800 text-sm">
+                                                                {value.name}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Value Comparison Section */}
+                        <div className="bg-white rounded-lg shadow p-6 mb-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <BarChart2 className="h-6 w-6 text-teal-600" />
+                                <h2 className="text-xl font-bold text-gray-900">Value Alignment Analysis</h2>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Most Common Explicit Values */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">Most Common Explicit Values</h3>
+                                    {valueFrequencies.map((freq, index) => (
+                                        <div key={index} className="bg-teal-50 rounded-lg p-4">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-medium text-teal-900">{freq.value}</span>
+                                                <span className="text-teal-700">
+                                                    {freq.percentage.toFixed(1)}% ({freq.count} times)
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 bg-teal-200 rounded-full h-2">
+                                                <div
+                                                    className="bg-teal-600 h-2 rounded-full"
+                                                    style={{ width: `${freq.percentage}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Value Alignment Stats */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">Value Alignment</h3>
+
+                                    {/* Stable Values Match */}
+                                    <div className="bg-green-50 rounded-lg p-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="font-medium text-green-900">Match with Stable Values</span>
+                                            <span className="text-green-700">{matchPercentage.stable.toFixed(1)}%</span>
+                                        </div>
+                                        <div className="bg-green-200 rounded-full h-2">
+                                            <div
+                                                className="bg-green-600 h-2 rounded-full"
+                                                style={{ width: `${matchPercentage.stable}%` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Context-Dependent Values Match */}
+                                    <div className="bg-yellow-50 rounded-lg p-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="font-medium text-yellow-900">Match with Context-Dependent Values</span>
+                                            <span className="text-yellow-700">{matchPercentage.contextDependent.toFixed(1)}%</span>
+                                        </div>
+                                        <div className="bg-yellow-200 rounded-full h-2">
+                                            <div
+                                                className="bg-yellow-600 h-2 rounded-full"
+                                                style={{ width: `${matchPercentage.contextDependent}%` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                                        <p className="text-sm text-gray-600">
+                                            {matchPercentage.stable > matchPercentage.contextDependent
+                                                ? "Your explicit choices align more strongly with your stable deep values, suggesting consistent ethical decision-making patterns."
+                                                : "Your explicit choices show more alignment with context-dependent values, indicating flexibility in your decision-making approach."}
+                                        </p>
                                     </div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     </div>
                 )}
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    {/* Explicit Values Section */}
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <FileCheck className="h-6 w-6 text-blue-600" />
-                            <h2 className="text-xl font-bold text-gray-900">Explicit Values</h2>
-                        </div>
-                        <p className="text-gray-600 mb-4">
-                            Your direct responses to everyday ethical scenarios reveal these value preferences:
-                        </p>
-                        <div className="space-y-4">
-                            {explicitValues.map((value, index) => (
-                                <div key={index} className="bg-blue-50 rounded-lg p-4">
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        Scenario: {getQuestionText(value.question_id)}
-                                    </p>
-                                    <p className="text-sm font-medium text-blue-800">
-                                        Your Choice: {getSelectedOptionLabel(value.question_id, value.value_selected)}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Deep Values Section */}
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Brain className="h-6 w-6 text-purple-600" />
-                            <h2 className="text-xl font-bold text-gray-900">Implicit Values</h2>
-                        </div>
-                        <p className="text-gray-600 mb-4">
-                            Through analysis of your decision patterns, these deeper values were identified:
-                        </p>
-                        
-                        {/* Stable Values */}
-                        {groupedValues.stable.length > 0 && (
-                            <div className="mb-6">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Stable Values</h3>
-                                <div className="space-y-3">
-                                    {groupedValues.stable.map((item, index) => (
-                                        <div key={index} className="bg-green-50 p-4 rounded-lg border border-green-200">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-gray-600">{item.scenarioId}</span>
-                                                <span className="font-medium text-green-700">{item.value.name}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Context-Dependent Values */}
-                        {groupedValues.contextDependent.length > 0 && (
-                            <div>
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Context-Dependent Values</h3>
-                                <div className="space-y-3">
-                                    {groupedValues.contextDependent.map((item, index) => (
-                                        <div key={index} className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                                            <div className="mb-2 text-sm text-gray-600">{item.scenarioId}</div>
-                                            <div className="flex items-center gap-3">
-                                                {item.values.map((value, vIndex) => (
-                                                    <span key={vIndex} className="px-3 py-1 bg-yellow-100 rounded-full text-yellow-800 text-sm">
-                                                        {value.name}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Value Comparison Section */}
-                <div className="bg-white rounded-lg shadow p-6 mb-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <BarChart2 className="h-6 w-6 text-indigo-600" />
-                        <h2 className="text-xl font-bold text-gray-900">Value Alignment Analysis</h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Most Common Explicit Values */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Most Common Explicit Values</h3>
-                            {valueFrequencies.map((freq, index) => (
-                                <div key={index} className="bg-indigo-50 rounded-lg p-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium text-indigo-900">{freq.value}</span>
-                                        <span className="text-indigo-700">
-                                            {freq.percentage.toFixed(1)}% ({freq.count} times)
-                                        </span>
-                                    </div>
-                                    <div className="mt-2 bg-indigo-200 rounded-full h-2">
-                                        <div
-                                            className="bg-indigo-600 h-2 rounded-full"
-                                            style={{ width: `${freq.percentage}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Value Alignment Stats */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Value Alignment</h3>
-                            
-                            {/* Stable Values Match */}
-                            <div className="bg-green-50 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium text-green-900">Match with Stable Values</span>
-                                    <span className="text-green-700">{matchPercentage.stable.toFixed(1)}%</span>
-                                </div>
-                                <div className="bg-green-200 rounded-full h-2">
-                                    <div
-                                        className="bg-green-600 h-2 rounded-full"
-                                        style={{ width: `${matchPercentage.stable}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Context-Dependent Values Match */}
-                            <div className="bg-yellow-50 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium text-yellow-900">Match with Context-Dependent Values</span>
-                                    <span className="text-yellow-700">{matchPercentage.contextDependent.toFixed(1)}%</span>
-                                </div>
-                                <div className="bg-yellow-200 rounded-full h-2">
-                                    <div
-                                        className="bg-yellow-600 h-2 rounded-full"
-                                        style={{ width: `${matchPercentage.contextDependent}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                                <p className="text-sm text-gray-600">
-                                    {matchPercentage.stable > matchPercentage.contextDependent
-                                        ? "Your explicit choices align more strongly with your stable deep values, suggesting consistent ethical decision-making patterns."
-                                        : "Your explicit choices show more alignment with context-dependent values, indicating flexibility in your decision-making approach."}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div className="flex justify-between">
                     <button
