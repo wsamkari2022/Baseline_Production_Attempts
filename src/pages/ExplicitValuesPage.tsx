@@ -4,6 +4,7 @@ import { Compass, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { explicitQuestions } from '../data/explicitQuestions';
 import type { ExplicitValue } from '../types/explicitValues';
 import axios from 'axios';
+import ProgressTracker from '../components/ProgressTracker';
 
 const ExplicitValuesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -60,6 +61,17 @@ const ExplicitValuesPage: React.FC = () => {
     );
   }
 
+  const progressSteps = [
+    { id: 'explicit', label: 'Explicit Values' },
+    { id: 'hospital', label: 'Hospital' },
+    { id: 'environment', label: 'Environment' },
+    { id: 'safety', label: 'Safety' },
+    { id: 'resources', label: 'Resources' },
+    { id: 'medical', label: 'Medical' },
+    { id: 'results', label: 'Results' },
+    { id: 'simulation', label: 'Simulation', isLarger: true }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -72,6 +84,8 @@ const ExplicitValuesPage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      <ProgressTracker currentStep={0} steps={progressSteps} />
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-8">

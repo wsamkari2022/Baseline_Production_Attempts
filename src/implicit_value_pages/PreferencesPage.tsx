@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { scenarios } from '../data/ImplicitScenarios';
 import type { UserResponse, DeepValue } from '../types/implicitPrefernce';
+import ProgressTracker from '../components/ProgressTracker';
 
 const PreferencesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,6 +81,17 @@ const PreferencesPage: React.FC = () => {
 
   const getCurrentResponse = () => responses[currentScenarioIndex];
 
+  const progressSteps = [
+    { id: 'explicit', label: 'Explicit Values' },
+    { id: 'hospital', label: 'Hospital' },
+    { id: 'environment', label: 'Environment' },
+    { id: 'safety', label: 'Safety' },
+    { id: 'resources', label: 'Resources' },
+    { id: 'medical', label: 'Medical' },
+    { id: 'results', label: 'Results' },
+    { id: 'simulation', label: 'Simulation', isLarger: true }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -92,6 +104,8 @@ const PreferencesPage: React.FC = () => {
           </div>
         </div>
       </header>
+
+      <ProgressTracker currentStep={1 + currentScenarioIndex} steps={progressSteps} />
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-6">

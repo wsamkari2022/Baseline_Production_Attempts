@@ -6,6 +6,7 @@ import type { ExplicitValue } from '../types/explicitValues';
 import { explicitQuestions } from '../data/explicitQuestions';
 import { scenarios } from '../data/ImplicitScenarios';
 import { DatabaseService } from '../lib/databaseService';
+import ProgressTracker from '../components/ProgressTracker';
 
 // Interface for tracking value frequency in explicit choices
 interface ValueFrequency {
@@ -225,6 +226,17 @@ const ValuesPage: React.FC = () => {
         );
     }
 
+    const progressSteps = [
+        { id: 'explicit', label: 'Explicit Values' },
+        { id: 'hospital', label: 'Hospital' },
+        { id: 'environment', label: 'Environment' },
+        { id: 'safety', label: 'Safety' },
+        { id: 'resources', label: 'Resources' },
+        { id: 'medical', label: 'Medical' },
+        { id: 'results', label: 'Results' },
+        { id: 'simulation', label: 'Simulation', isLarger: true }
+    ];
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm">
@@ -237,6 +249,8 @@ const ValuesPage: React.FC = () => {
                     </div>
                 </div>
             </header>
+
+            <ProgressTracker currentStep={6} steps={progressSteps} />
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Matched Stable Values Section */}
