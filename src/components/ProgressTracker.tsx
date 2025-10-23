@@ -12,10 +12,33 @@ interface ProgressTrackerProps {
 }
 
 const ProgressTracker: React.FC<ProgressTrackerProps> = ({ currentStep, steps }) => {
+  const deepValuesStartIndex = 1;
+  const deepValuesEndIndex = 5;
+  const totalSteps = steps.length;
+
+  const deepValuesStartPercent = (deepValuesStartIndex / (totalSteps - 1)) * 100;
+  const deepValuesEndPercent = (deepValuesEndIndex / (totalSteps - 1)) * 100;
+  const deepValuesWidth = deepValuesEndPercent - deepValuesStartPercent;
+
   return (
     <div className="w-full bg-gradient-to-r from-blue-50 to-green-50 py-6 mb-6">
       <div className="max-w-5xl mx-auto px-4">
         <div className="relative flex items-center justify-between">
+          <div
+            className="absolute rounded-3xl border-2 border-amber-300 bg-amber-50/30 backdrop-blur-sm shadow-lg"
+            style={{
+              left: `calc(${deepValuesStartPercent}% - 2%)`,
+              width: `calc(${deepValuesWidth}% + 4%)`,
+              top: '-20px',
+              bottom: '-10px',
+              zIndex: 0
+            }}
+          >
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-100 border-2 border-amber-300 px-4 py-1 rounded-full shadow-md">
+              <span className="text-xs font-bold text-amber-800 tracking-wide">Deep Values</span>
+            </div>
+          </div>
+
           {steps.map((step, index) => {
             const isCompleted = index < currentStep;
             const isCurrent = index === currentStep;
