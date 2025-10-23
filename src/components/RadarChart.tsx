@@ -324,9 +324,9 @@ const RadarChart: React.FC<RadarChartProps> = ({
         </div>
 
         <div className="p-4 flex-1 overflow-auto">
-          {/* Metric Selection */}
+          {/* Metric Selection - Grouped */}
           {comparisonView !== 'radar' && (
-            <div className="relative mb-6 flex flex-wrap gap-2">
+            <div className="relative mb-6">
               {showMetricTooltip && (
                 <div className="absolute -top-14 left-0 z-20 animate-bounce">
                   <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white text-sm px-4 py-2 rounded-lg shadow-lg whitespace-nowrap font-medium">
@@ -335,25 +335,59 @@ const RadarChart: React.FC<RadarChartProps> = ({
                   </div>
                 </div>
               )}
-              {metrics.map((metric, index) => (
-                <div key={metric} className="relative">
-                  <button
-                    onClick={() => handleMetricClick(metric)}
-                    className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
-                      selectedMetric === metric
-                        ? 'bg-blue-500 text-white shadow-lg scale-105'
-                        : showMetricTooltip && index === 0
-                        ? 'bg-orange-100 text-orange-700 hover:bg-orange-200 ring-2 ring-orange-300 ring-offset-2'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {metric}
-                  </button>
-                  {showMetricTooltip && index === 0 && (
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></span>
-                  )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Positive Impact Metrics Group */}
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-xl p-4 shadow-sm">
+                  <h5 className="text-sm font-bold text-emerald-800 mb-3 flex items-center">
+                    <span className="bg-emerald-200 rounded-full w-2 h-2 mr-2"></span>
+                    Positive Impact (Higher is Better)
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {['Fire Containment', 'Population Safety', 'Ethical Fairness'].map((metric, index) => (
+                      <div key={metric} className="relative">
+                        <button
+                          onClick={() => handleMetricClick(metric)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                            selectedMetric === metric
+                              ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                              : showMetricTooltip && index === 0
+                              ? 'bg-emerald-200 text-emerald-800 hover:bg-emerald-300 ring-2 ring-orange-300 ring-offset-2'
+                              : 'bg-white text-emerald-700 hover:bg-emerald-100 border border-emerald-300'
+                          }`}
+                        >
+                          {metric}
+                        </button>
+                        {showMetricTooltip && index === 0 && (
+                          <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+
+                {/* Negative Impact Metrics Group */}
+                <div className="bg-gradient-to-br from-rose-50 to-red-50 border-2 border-rose-200 rounded-xl p-4 shadow-sm">
+                  <h5 className="text-sm font-bold text-rose-800 mb-3 flex items-center">
+                    <span className="bg-rose-200 rounded-full w-2 h-2 mr-2"></span>
+                    Negative Impact (Lower is Better)
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {['Firefighter Risk', 'Resource Use', 'Infrastructure Damage', 'Biodiversity Impact'].map((metric) => (
+                      <button
+                        key={metric}
+                        onClick={() => handleMetricClick(metric)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          selectedMetric === metric
+                            ? 'bg-rose-600 text-white shadow-lg scale-105'
+                            : 'bg-white text-rose-700 hover:bg-rose-100 border border-rose-300'
+                        }`}
+                      >
+                        {metric}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -484,69 +518,25 @@ const RadarChart: React.FC<RadarChartProps> = ({
           {comparisonView === 'differences' && (
             <div className="space-y-3">
               {calculateDifferences().map((diff, index) => (
-                <div key={index} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between">
+                <div key={index} className="bg-white border-2 border-gray-200 hover:border-blue-300 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{diff.option1}</span>
-                      <span className="text-gray-500">vs</span>
-                      <span className="font-medium">{diff.option2}</span>
+                      <span className="font-semibold text-gray-800">{diff.option1}</span>
+                      <span className="text-gray-400 font-medium">vs</span>
+                      <span className="font-semibold text-gray-800">{diff.option2}</span>
                     </div>
-                    <span className="font-medium text-purple-600">
+                    <span className="font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-lg">
                       Δ {diff.difference.toFixed(1)}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
-                    <span className="font-medium text-green-600">{diff.better}</span> performs better in this metric
+                  <p className="text-sm text-gray-600 mt-2">
+                    <span className="font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded">{diff.better}</span> <span className="text-gray-500">performs better in this metric</span>
                   </p>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Metrics Legend */}
-          <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Metrics Legend</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-green-50 p-3 rounded-lg">
-                <h5 className="text-sm font-medium text-green-800 mb-2">Positive Impact Metrics (Higher is Better)</h5>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Flame size={16} className="text-red-500 mr-2" />
-                    <span className="text-sm">Fire Containment</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Shield size={16} className="text-blue-500 mr-2" />
-                    <span className="text-sm">Population Safety</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Scale size={16} className="text-purple-500 mr-2" />
-                    <span className="text-sm">Ethical Fairness</span>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-red-50 p-3 rounded-lg">
-                <h5 className="text-sm font-medium text-red-800 mb-2">Negative Impact Metrics (Lower is Better)</h5>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <AlertTriangle size={16} className="text-orange-500 mr-2" />
-                    <span className="text-sm">Firefighter Risk</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Droplets size={16} className="text-blue-500 mr-2" />
-                    <span className="text-sm">Resource Use</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Building size={16} className="text-gray-500 mr-2" />
-                    <span className="text-sm">Infrastructure Damage</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Tree size={16} className="text-green-500 mr-2" />
-                    <span className="text-sm">Biodiversity Impact</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
