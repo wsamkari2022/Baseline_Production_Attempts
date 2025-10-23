@@ -35,7 +35,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({ currentStep, steps })
             }}
           >
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-100 border-2 border-amber-300 px-4 py-1 rounded-full shadow-md">
-              <span className="text-xs font-bold text-amber-800 tracking-wide">Deep Values</span>
+              <span className="text-xs font-bold text-amber-800 tracking-wide">Implicit Values</span>
             </div>
           </div>
 

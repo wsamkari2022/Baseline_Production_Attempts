@@ -99,7 +99,7 @@ const PreferencesPage: React.FC = () => {
           <div className="flex items-center space-x-3">
             <Settings className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">
-              Preference Selection & Deep Value Revealing
+              Preference Selection & Implicit Value Revealing
             </h1>
           </div>
         </div>
