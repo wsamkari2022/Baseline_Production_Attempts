@@ -108,16 +108,6 @@ const ExpertAnalysisModal: React.FC<ExpertAnalysisModalProps> = ({
             <div className="flex flex-col">
               <h3 className="text-2xl font-bold text-gray-800">{option.title}</h3>
               <div className="flex items-center gap-3 mt-2">
-                <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
-                  Crisis Management
-                </span>
-                <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                  isAligned 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-orange-100 text-orange-700'
-                }`}>
-                  {isAligned ? '✓ Aligned with Your Values' : '⚠ Not Aligned with Your Values'}
-                </span>
                 <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-medium">
                   {accepts}/{total} Experts Recommend
                 </span>
@@ -133,87 +123,87 @@ const ExpertAnalysisModal: React.FC<ExpertAnalysisModalProps> = ({
         </div>
 
         {/* Body */}
-        <div 
+        <div
           className="p-6 flex-1 overflow-auto relative"
           ref={setScrollContainerRef}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column - Impact Summary & Key Considerations */}
-            <div className="space-y-6">
+          <div className="space-y-4">
+            {/* Impact Summary & Key Considerations - Linear Layout at Top */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Impact Summary */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   Impact Summary
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white rounded-lg p-2 border border-green-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users size={18} className="text-green-600" />
-                        <span className="text-sm font-medium text-gray-700">Lives Saved</span>
+                      <div className="flex items-center gap-1">
+                        <Users size={14} className="text-green-600" />
+                        <span className="text-xs font-medium text-gray-700">Lives Saved</span>
                       </div>
-                      <span className="text-lg font-bold text-green-600">
+                      <span className="text-sm font-bold text-green-600">
                         {formatImpactValue(option.impact.livesSaved, true)}
                       </span>
                     </div>
                   </div>
-                  
-                  <div className="bg-white rounded-lg p-4 border border-red-200">
+
+                  <div className="bg-white rounded-lg p-2 border border-red-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Skull size={18} className="text-red-600" />
-                        <span className="text-sm font-medium text-gray-700">Casualties</span>
+                      <div className="flex items-center gap-1">
+                        <Skull size={14} className="text-red-600" />
+                        <span className="text-xs font-medium text-gray-700">Casualties</span>
                       </div>
-                      <span className="text-lg font-bold text-red-600">
+                      <span className="text-sm font-bold text-red-600">
                         {formatImpactValue(option.impact.humanCasualties, false, true)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                  <div className="bg-white rounded-lg p-2 border border-blue-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Droplets size={18} className="text-blue-600" />
-                        <span className="text-sm font-medium text-gray-700">Resources</span>
+                      <div className="flex items-center gap-1">
+                        <Droplets size={14} className="text-blue-600" />
+                        <span className="text-xs font-medium text-gray-700">Resources</span>
                       </div>
-                      <span className="text-lg font-bold text-blue-600">
+                      <span className="text-sm font-bold text-blue-600">
                         {formatImpactValue(option.impact.firefightingResource)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="bg-white rounded-lg p-2 border border-gray-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Building size={18} className="text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">Infrastructure</span>
+                      <div className="flex items-center gap-1">
+                        <Building size={14} className="text-gray-600" />
+                        <span className="text-xs font-medium text-gray-700">Infrastructure</span>
                       </div>
-                      <span className="text-lg font-bold text-gray-600">
+                      <span className="text-sm font-bold text-gray-600">
                         {formatImpactValue(option.impact.infrastructureCondition)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <div className="bg-white rounded-lg p-2 border border-green-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Tree size={18} className="text-green-600" />
-                        <span className="text-sm font-medium text-gray-700">Biodiversity</span>
+                      <div className="flex items-center gap-1">
+                        <Tree size={14} className="text-green-600" />
+                        <span className="text-xs font-medium text-gray-700">Biodiversity</span>
                       </div>
-                      <span className="text-lg font-bold text-green-600">
+                      <span className="text-sm font-bold text-green-600">
                         {formatImpactValue(option.impact.biodiversityCondition)}
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg p-4 border border-purple-200">
+                  <div className="bg-white rounded-lg p-2 border border-purple-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Factory size={18} className="text-purple-600" />
-                        <span className="text-sm font-medium text-gray-700">Nuclear</span>
+                      <div className="flex items-center gap-1">
+                        <Factory size={14} className="text-purple-600" />
+                        <span className="text-xs font-medium text-gray-700">Nuclear</span>
                       </div>
-                      <span className="text-lg font-bold text-purple-600">
+                      <span className="text-sm font-bold text-purple-600">
                         {formatImpactValue(option.impact.nuclearPowerStation)}
                       </span>
                     </div>
@@ -222,42 +212,42 @@ const ExpertAnalysisModal: React.FC<ExpertAnalysisModalProps> = ({
               </div>
 
               {/* Key Considerations */}
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   Key Considerations
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {option.riskInfo.map((risk, index) => (
-                    <div key={index} className="flex items-start gap-3 bg-white rounded-lg p-3 border border-orange-200">
-                      <div className="w-2 h-2 bg-orange-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-sm text-gray-700 leading-relaxed">{risk}</p>
+                    <div key={index} className="flex items-start gap-2 bg-white rounded-lg p-2 border border-orange-200">
+                      <div className="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <p className="text-xs text-gray-700 leading-relaxed">{risk}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Expert Recommendations */}
+            {/* Expert Recommendations - Grid Layout */}
             <div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                 Expert Recommendations
               </h4>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {Object.entries(option.expertOpinions).map(([expertType, opinion]) => (
                   <div key={expertType} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                     {/* Expert Header */}
-                    <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <div className="p-3 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {getExpertIcon(expertType)}
-                          <h5 className="font-semibold text-gray-800">{getExpertTitle(expertType)}</h5>
-                        </div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-sm font-medium px-3 py-1 rounded-full ${
-                            opinion.recommendation === "Accept" 
-                              ? "bg-green-100 text-green-800" 
+                          {getExpertIcon(expertType)}
+                          <h5 className="font-semibold text-sm text-gray-800">{getExpertTitle(expertType)}</h5>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            opinion.recommendation === "Accept"
+                              ? "bg-green-100 text-green-800"
                               : opinion.recommendation === "Reject"
                               ? "bg-red-100 text-red-800"
                               : "bg-gray-100 text-gray-800"
@@ -270,20 +260,20 @@ const ExpertAnalysisModal: React.FC<ExpertAnalysisModalProps> = ({
                     </div>
 
                     {/* Expert Content */}
-                    <div className="p-4 space-y-3">
-                      <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
-                        <p className="text-sm font-medium text-blue-900 mb-1">Analysis</p>
-                        <p className="text-sm text-blue-800">{opinion.summary}</p>
+                    <div className="p-3 space-y-2">
+                      <div className="bg-blue-50 rounded-lg p-2 border-l-4 border-blue-400">
+                        <p className="text-xs font-medium text-blue-900 mb-1">Analysis</p>
+                        <p className="text-xs text-blue-800">{opinion.summary}</p>
                       </div>
 
-                      <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-400">
-                        <p className="text-sm font-medium text-purple-900 mb-1">Comparison</p>
-                        <p className="text-sm text-purple-800">{opinion.comparison}</p>
+                      <div className="bg-purple-50 rounded-lg p-2 border-l-4 border-purple-400">
+                        <p className="text-xs font-medium text-purple-900 mb-1">Comparison</p>
+                        <p className="text-xs text-purple-800">{opinion.comparison}</p>
                       </div>
 
-                      <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-gray-400">
-                        <p className="text-sm font-medium text-gray-900 mb-1">Confidence Level</p>
-                        <p className="text-sm text-gray-700">{opinion.confidence}</p>
+                      <div className="bg-gray-50 rounded-lg p-2 border-l-4 border-gray-400">
+                        <p className="text-xs font-medium text-gray-900 mb-1">Confidence Level</p>
+                        <p className="text-xs text-gray-700">{opinion.confidence}</p>
                       </div>
                     </div>
                   </div>
