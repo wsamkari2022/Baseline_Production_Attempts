@@ -36,10 +36,12 @@ const AlternativeDecisionModal: React.FC<AlternativeDecisionModalProps> = ({
     }
   };
 
-  const getRecommendationIcon = (recommendation: "Accept" | "Reject") => {
+  const getRecommendationIcon = (recommendation: "Accept" | "Reject" | "Neutral") => {
     return recommendation === "Accept" ?
       <ThumbsUp className="text-green-600" size={18} /> :
-      <ThumbsDown className="text-red-600" size={18} />;
+      recommendation === "Reject" ?
+      <ThumbsDown className="text-red-600" size={18} /> :
+      <Zap className="text-gray-600" size={18} />;
   };
 
   const getExpertTitle = (expertType: string) => {
@@ -215,7 +217,9 @@ const AlternativeDecisionModal: React.FC<AlternativeDecisionModalProps> = ({
                       className={`rounded-xl p-4 border-2 transition-all duration-200 ${
                         opinion.recommendation === "Accept"
                           ? "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg"
-                          : "bg-gradient-to-br from-red-50 to-pink-50 border-red-200 hover:shadow-lg"
+                          : opinion.recommendation === "Reject"
+                          ? "bg-gradient-to-br from-red-50 to-pink-50 border-red-200 hover:shadow-lg"
+                          : "bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200 hover:shadow-lg"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-3">
@@ -230,7 +234,9 @@ const AlternativeDecisionModal: React.FC<AlternativeDecisionModalProps> = ({
                           <span className={`text-sm font-bold px-3 py-1 rounded-full ${
                             opinion.recommendation === "Accept"
                               ? "bg-green-600 text-white"
-                              : "bg-red-600 text-white"
+                              : opinion.recommendation === "Reject"
+                              ? "bg-red-600 text-white"
+                              : "bg-gray-600 text-white"
                           }`}>
                             {opinion.recommendation}
                           </span>

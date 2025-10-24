@@ -2,7 +2,7 @@ import { SimulationMetrics } from './metrics';
 
 export interface ExpertOpinion {
   summary: string;
-  recommendation: "Accept" | "Reject";
+  recommendation: "Accept" | "Reject" | "Neutral";
   comparison: string;
   confidence: string;
 }

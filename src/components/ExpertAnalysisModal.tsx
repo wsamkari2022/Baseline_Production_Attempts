@@ -69,9 +69,9 @@ const ExpertAnalysisModal: React.FC<ExpertAnalysisModalProps> = ({
     }
   };
 
-  const getRecommendationIcon = (recommendation: "Accept" | "Reject") => {
-    return recommendation === "Accept" ? 
-      <ThumbsUp className="text-green-500" size={18} /> : 
+  const getRecommendationIcon = (recommendation: "Accept" | "Reject" | "Neutral") => {
+    return recommendation === "Accept" ?
+      <ThumbsUp className="text-green-500" size={18} /> :
       recommendation === "Reject" ?
       <ThumbsDown className="text-red-500" size={18} /> :
       <Minus className="text-gray-500" size={18} />;
