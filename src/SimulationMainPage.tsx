@@ -893,7 +893,7 @@ const SimulationMainPage: React.FC = () => {
 
     if (currentScenarioIndex < scenarios.length - 1) {
       setIsTransitioning(true);
-      
+
       let message = "";
       if (newMetrics.nuclearPowerStation < 50) {
         message = "⚠️ CRITICAL: Nuclear facility integrity compromised. Situation escalating - immediate action required!";
@@ -909,12 +909,10 @@ const SimulationMainPage: React.FC = () => {
         setTransitionMessage(null);
         setCurrentScenarioIndex(prev => prev + 1);
       }, 3000);
-      setHasExploredAlternatives(false); // Reset for next scenario
+      setHasExploredAlternatives(false);
     } else {
-      // Final scenario completed
       localStorage.setItem('finalSimulationMetrics', JSON.stringify(newMetrics));
-      
-      // Emit telemetry event for scenario completion
+
       const telemetryEvent = {
         event: 'scenario_completed',
         scenarioId: currentScenario.id,
@@ -922,12 +920,12 @@ const SimulationMainPage: React.FC = () => {
         timestamp: new Date().toISOString(),
         finalMetrics: newMetrics
       };
-      
+
       const existingLogs = JSON.parse(localStorage.getItem('sessionEventLogs') || '[]');
       existingLogs.push(telemetryEvent);
       localStorage.setItem('sessionEventLogs', JSON.stringify(existingLogs));
-      
-      navigate('/final-analysis');
+
+      navigate('/thank-you');
     }
   };
 
