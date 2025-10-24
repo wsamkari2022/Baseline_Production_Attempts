@@ -68,6 +68,11 @@ const SimulationMainPage: React.FC = () => {
 
   const currentScenario = scenarios[currentScenarioIndex];
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Reset hasExploredAlternatives when scenario changes
   useEffect(() => {
     setHasExploredAlternatives(false);
