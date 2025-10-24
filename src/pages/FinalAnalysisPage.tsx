@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   BarChart2,
   TrendingUp,
   AlertTriangle,
-  RefreshCcw,
   ArrowRight,
   Scale,
   Brain,
@@ -170,14 +169,6 @@ const FinalAnalysisPage: React.FC = () => {
     }
   }, []);
 
-  const handleRestart = () => {
-    const demographics = localStorage.getItem('userDemographics');
-    localStorage.clear();
-    if (demographics) {
-      localStorage.setItem('userDemographics', demographics);
-    }
-    navigate('/demographics');
-  };
 
   const prepareValueDistributionData = () => {
     const values = MORAL_VALUES;
@@ -273,30 +264,19 @@ const FinalAnalysisPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <BarChart2 className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">
-                Final Analysis Report
-              </h1>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate('/feedback')}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-              >
-                <ArrowRight size={16} className="mr-2 rotate-180" />
-                Back to Feedback
-              </button>
-              <button
-                onClick={handleRestart}
-                className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
-              >
-                <RefreshCcw size={16} className="mr-2" />
-                Restart
-              </button>
-            </div>
+          <div className="flex items-center space-x-3 mb-4">
+            <BarChart2 className="h-8 w-8 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              Final Analysis Report
+            </h1>
           </div>
+          <button
+            onClick={() => navigate('/feedback')}
+            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-lg py-4 px-6 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+          >
+            <ArrowRight size={20} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
+            <span>Back to Feedback</span>
+          </button>
         </div>
       </header>
 

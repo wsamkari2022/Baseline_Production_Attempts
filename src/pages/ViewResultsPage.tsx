@@ -264,21 +264,19 @@ const ViewResultsPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <BarChart3 className="h-8 w-8 text-green-600" />
-              <h1 className="text-2xl font-bold text-gray-900">
-                View Results
-              </h1>
-            </div>
-            <button
-              onClick={() => navigate('/feedback')}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            >
-              <ArrowLeft size={16} className="mr-2" />
-              Back to Feedback
-            </button>
+          <div className="flex items-center space-x-3 mb-4">
+            <BarChart3 className="h-8 w-8 text-green-600" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              View Results
+            </h1>
           </div>
+          <button
+            onClick={() => navigate('/feedback')}
+            className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold text-lg py-4 px-6 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+            <span>Back to Feedback</span>
+          </button>
         </div>
       </header>
 
