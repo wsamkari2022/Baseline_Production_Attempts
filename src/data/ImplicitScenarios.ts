@@ -15,7 +15,7 @@ export const scenarios: PreferenceScenario[] = [
                 valueIfYes: { name: 'Efficiency', type: 'Stable' },
                 valueIfNo: [
                     { name: 'Efficiency', type: 'Context-Dependent' },
-                    { name: 'Fairness', type: 'Context-Dependent' }
+                    { name: 'Nonmaleficence', type: 'Context-Dependent' }
                 ]
             },
             nonmaleficence: {
