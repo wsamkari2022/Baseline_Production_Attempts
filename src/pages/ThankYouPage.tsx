@@ -4,25 +4,11 @@ import { Heart, Award, CheckCircle, ArrowRight } from 'lucide-react';
 
 const ThankYouPage: React.FC = () => {
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(5);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate('/feedback');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [navigate]);
+  }, []);
 
   const handleContinue = () => {
     navigate('/feedback');
@@ -103,12 +89,6 @@ const ThankYouPage: React.FC = () => {
               Continue to Feedback
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
-
-            {countdown > 0 && (
-              <p className="text-center text-gray-500 text-sm mt-4">
-                Automatically continuing in {countdown} second{countdown !== 1 ? 's' : ''}...
-              </p>
-            )}
           </div>
         </div>
       </div>

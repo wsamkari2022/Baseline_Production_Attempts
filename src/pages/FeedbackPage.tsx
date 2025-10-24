@@ -571,37 +571,40 @@ const FeedbackPage: React.FC = () => {
         </div>
 
         {isSubmitted && (
-          <>
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6 border-2 border-purple-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Thank you for your feedback!
-              </h3>
-              <p className="text-gray-700">
-                You can now explore your detailed results and analysis. Use the buttons below to access different views of your simulation performance.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={() => navigate('/final-analysis')}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
-              >
-                <FileText className="h-6 w-6" />
-                <span>View Final Analysis Report</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <button
-                onClick={() => navigate('/view-results')}
-                className="bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
-              >
-                <BarChart2 className="h-6 w-6" />
-                <span>View Results</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </>
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6 border-2 border-purple-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Thank you for your feedback!
+            </h3>
+            <p className="text-gray-700">
+              You can now explore your detailed results and analysis. Use the buttons below to access different views of your simulation performance.
+            </p>
+          </div>
         )}
+
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+            Explore Your Results
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={() => navigate('/final-analysis')}
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+            >
+              <FileText className="h-6 w-6" />
+              <span>View Final Analysis Report</span>
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <button
+              onClick={() => navigate('/view-results')}
+              className="bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+            >
+              <BarChart2 className="h-6 w-6" />
+              <span>View Results</span>
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
       </main>
 
       <style>{`
