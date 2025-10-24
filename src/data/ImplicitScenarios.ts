@@ -114,8 +114,8 @@ export const scenarios: PreferenceScenario[] = [
         title: '🔬 Medical Research Ethics',
         scenario: 'A research institution must decide between fast-tracking a promising treatment with unknown long-term effects or conducting extended trials to ensure complete safety.',
         options: [
-            { text: 'Fast-track the treatment (efficiency)', value: 'efficiency' },
-            { text: 'Conduct extended trials (nonmaleficence)', value: 'nonmaleficence' }
+            { text: 'Fast-track the treatment', value: 'efficiency' },
+            { text: 'Conduct extended trials', value: 'nonmaleficence' }
         ],
         followUpQuestions: {
             efficiency: {
