@@ -85,6 +85,18 @@ export interface ValueEvolution {
 
 export interface SessionFeedback {
   session_id: string;
+  cvr_helpfulness?: number;
+  cvr_clarity?: number;
+  cvr_impact?: number;
+  cvr_comments?: string;
+  apa_comparison_usefulness?: number;
+  apa_reordering_effectiveness?: number;
+  apa_perspective_value?: number;
+  apa_comments?: string;
+  viz_expert_usefulness?: number;
+  viz_chart_clarity?: number;
+  viz_tradeoff_value?: number;
+  viz_comments?: string;
   decision_satisfaction?: number;
   process_satisfaction?: number;
   perceived_transparency?: number;

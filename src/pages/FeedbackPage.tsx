@@ -7,7 +7,12 @@ import {
   Download,
   BarChart2,
   FileText,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  RefreshCcw,
+  TrendingUp,
+  BarChart3,
+  Lightbulb
 } from 'lucide-react';
 import { SessionDVs } from '../types/tracking';
 import { SimulationMetrics } from '../types';
@@ -15,6 +20,18 @@ import { TrackingManager } from '../utils/trackingUtils';
 import { DatabaseService } from '../lib/databaseService';
 
 interface FeedbackData {
+  cvrHelpfulness: number;
+  cvrClarity: number;
+  cvrImpact: number;
+  cvrComments: string;
+  apaComparisonUsefulness: number;
+  apaReorderingEffectiveness: number;
+  apaPerspectiveValue: number;
+  apaComments: string;
+  vizExpertUsefulness: number;
+  vizChartClarity: number;
+  vizTradeoffValue: number;
+  vizComments: string;
   decisionSatisfaction: number;
   processSatisfaction: number;
   perceivedTransparency: number;
@@ -24,6 +41,18 @@ interface FeedbackData {
 const FeedbackPage: React.FC = () => {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState<FeedbackData>({
+    cvrHelpfulness: 4,
+    cvrClarity: 4,
+    cvrImpact: 4,
+    cvrComments: '',
+    apaComparisonUsefulness: 4,
+    apaReorderingEffectiveness: 4,
+    apaPerspectiveValue: 4,
+    apaComments: '',
+    vizExpertUsefulness: 4,
+    vizChartClarity: 4,
+    vizTradeoffValue: 4,
+    vizComments: '',
     decisionSatisfaction: 4,
     processSatisfaction: 4,
     perceivedTransparency: 4,
@@ -289,6 +318,18 @@ const FeedbackPage: React.FC = () => {
 
     await DatabaseService.insertSessionFeedback({
       session_id: sessionId,
+      cvr_helpfulness: feedback.cvrHelpfulness,
+      cvr_clarity: feedback.cvrClarity,
+      cvr_impact: feedback.cvrImpact,
+      cvr_comments: feedback.cvrComments,
+      apa_comparison_usefulness: feedback.apaComparisonUsefulness,
+      apa_reordering_effectiveness: feedback.apaReorderingEffectiveness,
+      apa_perspective_value: feedback.apaPerspectiveValue,
+      apa_comments: feedback.apaComments,
+      viz_expert_usefulness: feedback.vizExpertUsefulness,
+      viz_chart_clarity: feedback.vizChartClarity,
+      viz_tradeoff_value: feedback.vizTradeoffValue,
+      viz_comments: feedback.vizComments,
       decision_satisfaction: feedback.decisionSatisfaction,
       process_satisfaction: feedback.processSatisfaction,
       perceived_transparency: feedback.perceivedTransparency,
@@ -416,9 +457,345 @@ const FeedbackPage: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+              <Eye className="h-5 w-5 mr-2 text-blue-600" />
+              Value Reflection Mechanism (CVR)
+            </h3>
+            <div className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium text-blue-700">Total CVR Interactions:</span>
+              <span className="text-sm font-bold text-blue-900">{metrics.cvrArrivals}</span>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+            The CVR (Contextual Value Reflection) mechanism presented you with alternative scenarios to help understand your chosen options from different contexts and perspectives. Please rate how this feature impacted your decision-making process.
+          </p>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How helpful were CVR questions in reconsidering your decisions?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.cvrHelpfulness}
+                  onChange={(e) => handleSliderChange('cvrHelpfulness', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-blue-600">{feedback.cvrHelpfulness}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Helpful</span>
+                <span>Very Helpful</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How clear was the CVR question presentation?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.cvrClarity}
+                  onChange={(e) => handleSliderChange('cvrClarity', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-cyan-600">{feedback.cvrClarity}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Very Unclear</span>
+                <span>Very Clear</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                What was the impact of CVR scenarios on your final decisions?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.cvrImpact}
+                  onChange={(e) => handleSliderChange('cvrImpact', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-teal-600">{feedback.cvrImpact}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>No Impact</span>
+                <span>High Impact</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <MessageSquare className="h-4 w-4 mr-2 text-gray-500" />
+                Comments about CVR Experience (Optional)
+              </label>
+              <textarea
+                value={feedback.cvrComments}
+                onChange={(e) => setFeedback(prev => ({ ...prev, cvrComments: e.target.value }))}
+                rows={3}
+                disabled={isSubmitted}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="Share your thoughts about the Value Reflection mechanism..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+              <RefreshCcw className="h-5 w-5 mr-2 text-green-600" />
+              Adaptive Preference Analysis (APA)
+            </h3>
+            <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium text-green-700">Total APA Reorderings:</span>
+              <span className="text-sm font-bold text-green-900">{metrics.apaReorderings}</span>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+            The APA (Adaptive Preference Analysis) feature allowed you to compare your chosen options with CVR scenarios and reorder your values based on new insights. This helped you understand options from different perspectives and align future choices with your reordered values.
+          </p>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How useful was comparing your simulation choices with CVR scenarios?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.apaComparisonUsefulness}
+                  onChange={(e) => handleSliderChange('apaComparisonUsefulness', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-green-600">{feedback.apaComparisonUsefulness}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Useful</span>
+                <span>Very Useful</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How effective was the value reordering feature?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.apaReorderingEffectiveness}
+                  onChange={(e) => handleSliderChange('apaReorderingEffectiveness', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-emerald-600">{feedback.apaReorderingEffectiveness}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Effective</span>
+                <span>Very Effective</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How valuable was understanding options from different perspectives through APA?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.apaPerspectiveValue}
+                  onChange={(e) => handleSliderChange('apaPerspectiveValue', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-teal-600">{feedback.apaPerspectiveValue}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Valuable</span>
+                <span>Very Valuable</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <MessageSquare className="h-4 w-4 mr-2 text-gray-500" />
+                Comments about APA Experience (Optional)
+              </label>
+              <textarea
+                value={feedback.apaComments}
+                onChange={(e) => setFeedback(prev => ({ ...prev, apaComments: e.target.value }))}
+                rows={3}
+                disabled={isSubmitted}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="Share your thoughts about the Adaptive Preference Analysis feature..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2 text-orange-600" />
+              Decision Support Tools
+            </h3>
+            <div className="flex items-center gap-2 bg-orange-50 px-3 py-1 rounded-full">
+              <Lightbulb className="h-4 w-4 text-orange-600" />
+              <span className="text-xs font-medium text-orange-700">Visualization & Analysis</span>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+            Throughout the simulation, you had access to expert recommendations, trade-off visualizations (radar and bar charts), and comparison tools to help you understand the implications of different choices.
+          </p>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How useful were the expert analyses and recommendations?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.vizExpertUsefulness}
+                  onChange={(e) => handleSliderChange('vizExpertUsefulness', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-orange-600">{feedback.vizExpertUsefulness}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Useful</span>
+                <span>Very Useful</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How clear were the radar and bar chart visualizations?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.vizChartClarity}
+                  onChange={(e) => handleSliderChange('vizChartClarity', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-amber-600">{feedback.vizChartClarity}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Very Unclear</span>
+                <span>Very Clear</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                How valuable were the trade-off comparisons and differences view?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.vizTradeoffValue}
+                  onChange={(e) => handleSliderChange('vizTradeoffValue', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-yellow-600">{feedback.vizTradeoffValue}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Valuable</span>
+                <span>Very Valuable</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <MessageSquare className="h-4 w-4 mr-2 text-gray-500" />
+                Comments about Visualization Tools (Optional)
+              </label>
+              <textarea
+                value={feedback.vizComments}
+                onChange={(e) => setFeedback(prev => ({ ...prev, vizComments: e.target.value }))}
+                rows={3}
+                disabled={isSubmitted}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder="Share your thoughts about the visualization and analysis tools..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
             <Star className="h-5 w-5 mr-2 text-yellow-500" />
-            Please Rate Your Experience
+            Overall Experience Feedback
           </h3>
 
           <div className="space-y-6">
