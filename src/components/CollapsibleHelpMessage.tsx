@@ -49,7 +49,8 @@ const CollapsibleHelpMessage: React.FC<CollapsibleHelpMessageProps> = ({
       {showBubble && (
         <div className="absolute -top-12 right-8 z-20 animate-bounce">
           <div className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap font-medium">
-            To permanently hide this collapsible message, click the X below. 
+            Click the X below to hide this collapsible message permanently 
+ 
             <button
               onClick={handleDismissBubble}
               className="ml-2 hover:text-gray-200 transition-colors"
