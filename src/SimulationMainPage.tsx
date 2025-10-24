@@ -1163,7 +1163,7 @@ const SimulationMainPage: React.FC = () => {
                       <ul className="list-disc list-inside mt-2 space-y-1">
                         <li><strong>Explore Alternatives:</strong> View additional options beyond the initial two</li>
                         <li><strong>Add Alternative to Decision List:</strong> Bring alternative options into your main view</li>
-                        <li><strong>Compare visually:</strong> Use the Trade-Off Comparison tool to see differences</li>
+                        <li><strong>Compare visually:</strong> Use the Trade-Off Comparison tool to see Radar Charts, Bar Charts, and Differences</li>
                       </ul>
                       <p className="mt-2 font-medium">
                         After exploring, you can proceed with any option that best aligns with your values.
