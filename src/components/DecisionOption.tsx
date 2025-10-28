@@ -1,5 +1,6 @@
 import React from 'react';
-import { Users, Skull, Droplets, Building, Trees as Tree, Factory, ThumbsUp, Shield, Scale, Leaf, Ban, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users, Skull, Droplets, Building, Trees as Tree, Factory, ThumbsUp, Shield, Scale, Leaf, Ban, AlertTriangle, Eye } from 'lucide-react';
 import { DecisionOption as DecisionOptionType, SimulationMetrics } from '../types';
 
 interface DecisionOptionProps {
@@ -10,7 +11,12 @@ interface DecisionOptionProps {
 }
 
 const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect, currentMetrics, scenarioIndex }) => {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = React.useState(false);
+
+  const handleReviewClick = () => {
+    navigate('/review-option', { state: { option } });
+  };
 
   const formatImpactValue = (value: number, isLivesSaved: boolean = false, isCasualties: boolean = false) => {
     if (isLivesSaved) {
@@ -165,17 +171,26 @@ const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect, curre
         </div>
       </div>
 
-      <button
-        onClick={() => !isFeasible ? null : onSelect(option)}
-        disabled={!isFeasible}
-        className={`w-full py-2 px-4 rounded-md font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-          !isFeasible
-            ? 'bg-red-100 text-red-700 cursor-not-allowed border border-red-300'
-            : 'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500 shadow-md hover:shadow-lg'
-        }`}
-      >
-        {!isFeasible ? 'Not Feasible' : 'Select'}
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={handleReviewClick}
+          className="flex-1 py-2 px-4 rounded-md font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-md hover:shadow-lg flex items-center justify-center gap-1"
+        >
+          <Eye size={16} />
+          Review
+        </button>
+        <button
+          onClick={() => !isFeasible ? null : onSelect(option)}
+          disabled={!isFeasible}
+          className={`flex-1 py-2 px-4 rounded-md font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            !isFeasible
+              ? 'bg-red-100 text-red-700 cursor-not-allowed border border-red-300'
+              : 'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500 shadow-md hover:shadow-lg'
+          }`}
+        >
+          {!isFeasible ? 'Not Feasible' : 'Select'}
+        </button>
+      </div>
       </div>
 
       {!isFeasible && isHovered && insufficientResources.length > 0 && (
