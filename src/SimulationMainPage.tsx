@@ -11,6 +11,7 @@ import AlternativeDecisionModal from './components/AlternativeDecisionModal';
 import CVRQuestionModal from './components/CVRQuestionModal';
 import AdaptivePreferenceView from './components/AdaptivePreferenceView';
 import CollapsibleHelpMessage from './components/CollapsibleHelpMessage';
+import OptionReviewAnalysisModal from './components/OptionReviewAnalysisModal';
 import { SimulationMetrics, DecisionOption as DecisionOptionType, ExplicitValue } from './types';
 import { scenarios } from './data/scenarios';
 import { TrackingManager } from './utils/trackingUtils';
@@ -43,7 +44,9 @@ const SimulationMainPage: React.FC = () => {
   const [showAdaptivePreference, setShowAdaptivePreference] = useState(false);
   const [showExpertModal, setShowExpertModal] = useState(false);
   const [showDecisionSummary, setShowDecisionSummary] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [tempSelectedOption, setTempSelectedOption] = useState<DecisionOptionType | null>(null);
+  const [reviewedOption, setReviewedOption] = useState<DecisionOptionType | null>(null);
   const [addedAlternatives, setAddedAlternatives] = useState<DecisionOptionType[]>([]);
   const [toggledOptions, setToggledOptions] = useState<{[key: string]: boolean}>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -483,6 +486,11 @@ const SimulationMainPage: React.FC = () => {
 
     setTempSelectedOption(decision);
     setShowExpertModal(true);
+  };
+
+  const handleOptionReview = (option: DecisionOptionType) => {
+    setReviewedOption(option);
+    setShowReviewModal(true);
   };
 
   const handleKeepChoice = () => {
@@ -1148,6 +1156,7 @@ const SimulationMainPage: React.FC = () => {
                       key={option.id}
                       option={option}
                       onSelect={handleDecisionSelect}
+                      onReview={handleOptionReview}
                       currentMetrics={metrics}
                       scenarioIndex={currentScenarioIndex}
                     />
@@ -1282,6 +1291,15 @@ const SimulationMainPage: React.FC = () => {
           onAnswer={handleCVRAnswer}
         />
       )}
+
+      <OptionReviewAnalysisModal
+        isOpen={showReviewModal}
+        onClose={() => {
+          setShowReviewModal(false);
+          setReviewedOption(null);
+        }}
+        option={reviewedOption!}
+      />
 
       {isTransitioning && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
