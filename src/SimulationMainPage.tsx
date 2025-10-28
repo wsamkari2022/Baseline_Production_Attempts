@@ -75,7 +75,6 @@ const SimulationMainPage: React.FC = () => {
 
   // Reset hasExploredAlternatives when scenario changes
   useEffect(() => {
-    setHasExploredAlternatives(false);
     setIsFromRankedView(false);
 
     // Check if previous scenario used simulation metrics reordering
@@ -100,6 +99,13 @@ const SimulationMainPage: React.FC = () => {
     // Initialize flag for first scenario
     if (currentScenarioIndex === 0) {
       localStorage.setItem('selectedFromTop2Previous', 'false');
+    }
+
+    // Clear exploration flag for previous scenario and reset for new scenario
+    if (currentScenario) {
+      const explorationKey = `scenario_${currentScenario.id}_has_explored_alternatives`;
+      sessionStorage.removeItem(explorationKey);
+      setHasExploredAlternatives(false);
     }
 
     // Start tracking for this scenario
@@ -273,14 +279,21 @@ const SimulationMainPage: React.FC = () => {
         try {
           const parsedAlternatives = JSON.parse(storedAlternatives);
           setAddedAlternatives(parsedAlternatives);
-          return;
         } catch (error) {
           console.error('Error parsing stored alternatives:', error);
+          setAddedAlternatives([]);
         }
+      } else {
+        setAddedAlternatives([]);
       }
 
-      // Only reset if no stored alternatives found
-      setAddedAlternatives([]);
+      // Check if we have stored exploration flag for this scenario
+      const explorationKey = `scenario_${currentScenario.id}_has_explored_alternatives`;
+      const storedExplorationFlag = sessionStorage.getItem(explorationKey);
+
+      if (storedExplorationFlag === 'true') {
+        setHasExploredAlternatives(true);
+      }
     }
   }, [currentScenarioIndex, currentScenario]);
   const calculatePreferenceBasedOptions = useCallback((): DecisionOptionType[] => {
@@ -591,6 +604,13 @@ const SimulationMainPage: React.FC = () => {
     setShowExpertModal(false);
     setShowDecisionSummary(false);
     setHasExploredAlternatives(true);
+
+    // Persist exploration flag to sessionStorage
+    if (currentScenario) {
+      const explorationKey = `scenario_${currentScenario.id}_has_explored_alternatives`;
+      sessionStorage.setItem(explorationKey, 'true');
+    }
+
     setShowAlternativesModal(true);
     setTempSelectedOption(null);
   };
@@ -670,6 +690,12 @@ const SimulationMainPage: React.FC = () => {
 
   const handleExploreAlternatives = () => {
     setHasExploredAlternatives(true);
+
+    // Persist exploration flag to sessionStorage
+    if (currentScenario) {
+      const explorationKey = `scenario_${currentScenario.id}_has_explored_alternatives`;
+      sessionStorage.setItem(explorationKey, 'true');
+    }
 
     // Track alternatives explored
     if (currentScenario) {
@@ -947,7 +973,6 @@ const SimulationMainPage: React.FC = () => {
         setTransitionMessage(null);
         setCurrentScenarioIndex(prev => prev + 1);
       }, 3000);
-      setHasExploredAlternatives(false);
     } else {
       localStorage.setItem('finalSimulationMetrics', JSON.stringify(newMetrics));
 
