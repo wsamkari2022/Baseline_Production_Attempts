@@ -73,6 +73,46 @@ const SimulationMainPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Save simulation state before navigation to review page
+  const saveSimulationState = useCallback(() => {
+    const state = {
+      metrics,
+      addedAlternatives,
+      toggledOptions,
+      hasExploredAlternatives,
+      showAlternativeNotification,
+      alternativesExploredCount,
+      currentScenarioIndex,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('simulationPageState', JSON.stringify(state));
+  }, [metrics, addedAlternatives, toggledOptions, hasExploredAlternatives, showAlternativeNotification, alternativesExploredCount, currentScenarioIndex]);
+
+  // Restore simulation state when returning from review page
+  useEffect(() => {
+    const savedState = localStorage.getItem('simulationPageState');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        // Only restore if the state is from the same scenario and recent (within 5 minutes)
+        const isRecent = Date.now() - state.timestamp < 5 * 60 * 1000;
+        if (state.currentScenarioIndex === currentScenarioIndex && isRecent) {
+          setMetrics(state.metrics);
+          setAddedAlternatives(state.addedAlternatives || []);
+          setToggledOptions(state.toggledOptions || {});
+          setHasExploredAlternatives(state.hasExploredAlternatives || false);
+          setShowAlternativeNotification(state.showAlternativeNotification || false);
+          setAlternativesExploredCount(state.alternativesExploredCount || 0);
+        }
+        // Clear the saved state after restoration
+        localStorage.removeItem('simulationPageState');
+      } catch (error) {
+        console.error('Error restoring simulation state:', error);
+        localStorage.removeItem('simulationPageState');
+      }
+    }
+  }, [currentScenarioIndex]);
+
   // Reset hasExploredAlternatives when scenario changes
   useEffect(() => {
     setHasExploredAlternatives(false);
@@ -1150,6 +1190,7 @@ const SimulationMainPage: React.FC = () => {
                       onSelect={handleDecisionSelect}
                       currentMetrics={metrics}
                       scenarioIndex={currentScenarioIndex}
+                      onBeforeNavigate={saveSimulationState}
                     />
                   ))}
                 </div>

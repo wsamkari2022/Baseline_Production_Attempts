@@ -8,13 +8,17 @@ interface DecisionOptionProps {
   onSelect: (option: DecisionOptionType) => void;
   currentMetrics?: SimulationMetrics;
   scenarioIndex?: number;
+  onBeforeNavigate?: () => void;
 }
 
-const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect, currentMetrics, scenarioIndex }) => {
+const DecisionOption: React.FC<DecisionOptionProps> = ({ option, onSelect, currentMetrics, scenarioIndex, onBeforeNavigate }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = React.useState(false);
 
   const handleReviewClick = () => {
+    if (onBeforeNavigate) {
+      onBeforeNavigate();
+    }
     navigate('/review-option', { state: { option } });
   };
 
