@@ -47,8 +47,15 @@ const ExpertAnalysisModal: React.FC<ExpertAnalysisModalProps> = ({
     // Reset scroll indicator when modal opens
     if (isOpen) {
       setShowScrollIndicator(true);
+
+      // Automatically click "Keep my choice" if alternatives have been explored
+      if (hasExploredAlternatives) {
+        setTimeout(() => {
+          onKeepChoice();
+        }, 100);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, hasExploredAlternatives, onKeepChoice]);
 
   if (!isOpen) return null;
 
