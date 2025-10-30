@@ -882,7 +882,8 @@ const SimulationMainPage: React.FC = () => {
     // Save final decision to database
     const sessionId = DatabaseService.getSessionId();
     if (scenarioTracking) {
-      // Prepare infeasible options checked data (only for scenario 3)
+      // For scenario 3, collect all infeasible options and which were checked
+      let allInfeasibleOptions: any[] = [];
       const infeasibleOptionsData = currentScenario.id === 3 ?
         Object.entries(infeasibleOptionsChecked)
           .filter(([_, checked]) => checked)
@@ -895,6 +896,37 @@ const SimulationMainPage: React.FC = () => {
             } : null;
           })
           .filter(opt => opt !== null) : [];
+
+      // Collect all infeasible options for scenario 3
+      if (currentScenario.id === 3) {
+        const allOptions = [...getInitialOptions(), ...addedAlternatives];
+        allInfeasibleOptions = allOptions
+          .filter(option => {
+            const insufficientResources: any[] = [];
+            if (metrics.firefightingResource + option.impact.firefightingResource < 0) {
+              insufficientResources.push('Resources');
+            }
+            if (metrics.infrastructureCondition + option.impact.infrastructureCondition < 0) {
+              insufficientResources.push('Infrastructure');
+            }
+            if (metrics.biodiversityCondition + option.impact.biodiversityCondition < 0) {
+              insufficientResources.push('Biodiversity');
+            }
+            if (metrics.propertiesCondition + option.impact.propertiesCondition < 0) {
+              insufficientResources.push('Properties');
+            }
+            return insufficientResources.length > 0;
+          })
+          .map(option => ({
+            id: option.id,
+            label: option.label,
+            title: option.title,
+            checked: infeasibleOptionsChecked[option.id] || false
+          }));
+
+        // Save to localStorage for ViewResultsPage
+        localStorage.setItem('Scenario3_InfeasibleOptions', JSON.stringify(allInfeasibleOptions));
+      }
 
       DatabaseService.insertFinalDecision({
         session_id: sessionId,
@@ -914,7 +946,7 @@ const SimulationMainPage: React.FC = () => {
         apa_reorder_count: scenarioTracking.apaReorderCount,
         alternatives_explored: scenarioTracking.alternativesExplored,
         final_metrics: newMetrics,
-        infeasible_options_checked: infeasibleOptionsData
+        infeasible_options_checked: currentScenario.id === 3 ? allInfeasibleOptions : infeasibleOptionsData
       });
     }
 

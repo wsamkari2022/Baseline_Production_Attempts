@@ -584,6 +584,34 @@ const ViewResultsPage: React.FC = () => {
                                 }
                               </p>
                             </div>
+                            {scenarioId === 3 && scenario3InfeasibleOptions.length > 0 && (
+                              <div className="bg-red-50 p-2 rounded border-2 border-red-400">
+                                <p className="font-bold text-red-900 mb-2">Infeasible Options:</p>
+                                <div className="space-y-1.5">
+                                  {scenario3InfeasibleOptions.map((option: any, idx: number) => (
+                                    <div key={idx} className="flex items-start gap-2 bg-white px-2 py-1.5 rounded border border-red-300">
+                                      <div className={`flex-shrink-0 mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                        option.checked
+                                          ? 'bg-yellow-400 border-yellow-600'
+                                          : 'bg-white border-gray-400'
+                                      }`}>
+                                        {option.checked && (
+                                          <span className="text-yellow-900 text-xs font-bold leading-none">✓</span>
+                                        )}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-xs font-semibold text-red-900 break-words">
+                                          {option.title}
+                                        </div>
+                                        <div className="text-xs text-red-700 font-mono">
+                                          ({option.label})
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </td>
                         <td className="px-3 py-4 text-sm border-r border-yellow-200">
