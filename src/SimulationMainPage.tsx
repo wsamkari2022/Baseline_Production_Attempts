@@ -68,7 +68,6 @@ const SimulationMainPage: React.FC = () => {
   const [scenario1MoralValueReordered, setScenario1MoralValueReordered] = useState<string[]>([]);
   const [scenario2MoralValueReordered, setScenario2MoralValueReordered] = useState<string[]>([]);
   const [scenario3MoralValueReordered, setScenario3MoralValueReordered] = useState<string[]>([]);
-  const [infeasibleOptionsChecked, setInfeasibleOptionsChecked] = useState<{[key: string]: boolean}>({});
 
   const currentScenario = scenarios[currentScenarioIndex];
 
@@ -81,7 +80,6 @@ const SimulationMainPage: React.FC = () => {
   useEffect(() => {
     setHasExploredAlternatives(false);
     setIsFromRankedView(false);
-    setInfeasibleOptionsChecked({});
 
     // Check if previous scenario used simulation metrics reordering
     const prevUsedSimMetrics = localStorage.getItem('previousScenarioUsedSimulationMetrics') === 'true';
@@ -874,22 +872,6 @@ const SimulationMainPage: React.FC = () => {
 
     setSelectedDecision(null);
 
-    // Capture infeasible options that user would have selected (only for scenario 3)
-    let infeasibleOptionsUserWouldSelect: Array<{id: string, label: string, title: string}> = [];
-    if (currentScenario.id === 3) {
-      const checkedOptions = Object.entries(infeasibleOptionsChecked)
-        .filter(([_, checked]) => checked)
-        .map(([optionId]) => {
-          const option = currentScenario.options.find(opt => opt.id === optionId);
-          return option ? { id: option.id, label: option.label, title: option.title } : null;
-        })
-        .filter(opt => opt !== null) as Array<{id: string, label: string, title: string}>;
-
-      infeasibleOptionsUserWouldSelect = checkedOptions;
-      localStorage.setItem('Scenario3_InfeasibleOptionsChecked', JSON.stringify(infeasibleOptionsUserWouldSelect));
-      console.log('Captured infeasible options user would select for Scenario 3:', infeasibleOptionsUserWouldSelect);
-    }
-
     // End scenario tracking
     const scenarioTracking = TrackingManager.endScenario();
 
@@ -913,8 +895,7 @@ const SimulationMainPage: React.FC = () => {
         apa_reordered: scenarioTracking.apaReordered,
         apa_reorder_count: scenarioTracking.apaReorderCount,
         alternatives_explored: scenarioTracking.alternativesExplored,
-        final_metrics: newMetrics,
-        infeasible_options_checked: currentScenario.id === 3 ? infeasibleOptionsUserWouldSelect : undefined
+        final_metrics: newMetrics
       });
     }
 
@@ -969,13 +950,6 @@ const SimulationMainPage: React.FC = () => {
     setToggledOptions(prev => ({
       ...prev,
       [optionId]: !prev[optionId]
-    }));
-  }, []);
-
-  const handleInfeasibleCheckboxChange = useCallback((optionId: string, checked: boolean) => {
-    setInfeasibleOptionsChecked(prev => ({
-      ...prev,
-      [optionId]: checked
     }));
   }, []);
 
@@ -1186,8 +1160,6 @@ const SimulationMainPage: React.FC = () => {
                       currentMetrics={metrics}
                       scenarioIndex={currentScenarioIndex}
                       hasExploredAlternatives={hasExploredAlternatives}
-                      isInfeasibleCheckboxChecked={infeasibleOptionsChecked[option.id] || false}
-                      onInfeasibleCheckboxChange={handleInfeasibleCheckboxChange}
                     />
                   ))}
                 </div>
