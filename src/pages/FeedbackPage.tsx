@@ -12,7 +12,8 @@ import {
   RefreshCcw,
   TrendingUp,
   BarChart3,
-  Lightbulb
+  Lightbulb,
+  Info
 } from 'lucide-react';
 import { SessionDVs } from '../types/tracking';
 import { SimulationMetrics } from '../types';
@@ -20,9 +21,14 @@ import { TrackingManager } from '../utils/trackingUtils';
 import { DatabaseService } from '../lib/databaseService';
 
 interface FeedbackData {
+  cvrInitialReconsideration: boolean | null;
+  cvrFinalReconsideration: boolean | null;
+  cvrConfidenceChange: number;
   cvrHelpfulness: number;
   cvrClarity: number;
-  cvrImpact: number;
+  cvrComfortLevel: number;
+  cvrPerceivedValue: number;
+  cvrOverallImpact: number;
   cvrComments: string;
   apaComparisonUsefulness: number;
   apaReorderingEffectiveness: number;
@@ -41,9 +47,14 @@ interface FeedbackData {
 const FeedbackPage: React.FC = () => {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState<FeedbackData>({
+    cvrInitialReconsideration: null,
+    cvrFinalReconsideration: null,
+    cvrConfidenceChange: 4,
     cvrHelpfulness: 4,
     cvrClarity: 4,
-    cvrImpact: 4,
+    cvrComfortLevel: 4,
+    cvrPerceivedValue: 4,
+    cvrOverallImpact: 4,
     cvrComments: '',
     apaComparisonUsefulness: 4,
     apaReorderingEffectiveness: 4,
@@ -58,6 +69,7 @@ const FeedbackPage: React.FC = () => {
     perceivedTransparency: 4,
     notesFreeText: ''
   });
+  const [showCvrTooltip, setShowCvrTooltip] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [metrics, setMetrics] = useState<SessionDVs | null>(null);
@@ -318,9 +330,14 @@ const FeedbackPage: React.FC = () => {
 
     await DatabaseService.insertSessionFeedback({
       session_id: sessionId,
+      cvr_initial_reconsideration: feedback.cvrInitialReconsideration,
+      cvr_final_reconsideration: feedback.cvrFinalReconsideration,
+      cvr_confidence_change: feedback.cvrConfidenceChange,
       cvr_helpfulness: feedback.cvrHelpfulness,
       cvr_clarity: feedback.cvrClarity,
-      cvr_impact: feedback.cvrImpact,
+      cvr_comfort_level: feedback.cvrComfortLevel,
+      cvr_perceived_value: feedback.cvrPerceivedValue,
+      cvr_overall_impact: feedback.cvrOverallImpact,
       cvr_comments: feedback.cvrComments,
       apa_comparison_usefulness: feedback.apaComparisonUsefulness,
       apa_reordering_effectiveness: feedback.apaReorderingEffectiveness,
@@ -469,13 +486,104 @@ const FeedbackPage: React.FC = () => {
           </div>
 
           <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-            The CVR (Cognitive Value Recontextualization) mechanism presented you with alternative scenarios to help understand your chosen options from different contexts and perspectives. Please rate how this feature impacted your decision-making process.
+            The CVR (Cognitive Value Recontextualization) mechanism presented you with alternative scenarios to help understand your chosen options from different contexts and perspectives. Please share your experience with this feature.
           </p>
 
           <div className="space-y-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-gray-800 mb-4">Reconsideration</h4>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Initial Choice Reconsideration: Did any of the CVR questions lead you to reconsider your initial choice when you first faced each scenario?
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setFeedback(prev => ({ ...prev, cvrInitialReconsideration: true }))}
+                    disabled={isSubmitted}
+                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                      feedback.cvrInitialReconsideration === true
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setFeedback(prev => ({ ...prev, cvrInitialReconsideration: false }))}
+                    disabled={isSubmitted}
+                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                      feedback.cvrInitialReconsideration === false
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Final Decision Reconsideration: After reflecting on the CVR scenarios, did you reconsider your final decision before confirming it?
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setFeedback(prev => ({ ...prev, cvrFinalReconsideration: true }))}
+                    disabled={isSubmitted}
+                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                      feedback.cvrFinalReconsideration === true
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setFeedback(prev => ({ ...prev, cvrFinalReconsideration: false }))}
+                    disabled={isSubmitted}
+                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                      feedback.cvrFinalReconsideration === false
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                How helpful were CVR questions in reconsidering your decisions?
+                Confidence Change: After engaging with the CVR questions, how did your confidence in your decision change?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.cvrConfidenceChange}
+                  onChange={(e) => handleSliderChange('cvrConfidenceChange', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-blue-600">{feedback.cvrConfidenceChange}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Much Less Confident</span>
+                <span>No Change</span>
+                <span>Much More Confident</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Helpfulness: How helpful were the CVR questions in helping you rethink or refine your decisions?
               </label>
               <div className="flex items-center space-x-4">
                 <span className="text-xs text-gray-500 w-4">1</span>
@@ -489,19 +597,19 @@ const FeedbackPage: React.FC = () => {
                   disabled={isSubmitted}
                 />
                 <span className="text-xs text-gray-500 w-4">7</span>
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-base font-bold text-blue-600">{feedback.cvrHelpfulness}</span>
+                <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-cyan-600">{feedback.cvrHelpfulness}</span>
                 </div>
               </div>
               <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
-                <span>Not Helpful</span>
-                <span>Very Helpful</span>
+                <span>Not Helpful At All</span>
+                <span>Extremely Helpful</span>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                How clear was the CVR question presentation?
+                Clarity: How clear and understandable were the CVR questions and their presented perspectives?
               </label>
               <div className="flex items-center space-x-4">
                 <span className="text-xs text-gray-500 w-4">1</span>
@@ -515,8 +623,8 @@ const FeedbackPage: React.FC = () => {
                   disabled={isSubmitted}
                 />
                 <span className="text-xs text-gray-500 w-4">7</span>
-                <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
-                  <span className="text-base font-bold text-cyan-600">{feedback.cvrClarity}</span>
+                <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-teal-600">{feedback.cvrClarity}</span>
                 </div>
               </div>
               <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
@@ -527,7 +635,7 @@ const FeedbackPage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                What was the impact of CVR scenarios on your final decisions?
+                Comfort Level: How comfortable did you feel with the way CVR questions challenged or prompted you to reconsider your decisions?
               </label>
               <div className="flex items-center space-x-4">
                 <span className="text-xs text-gray-500 w-4">1</span>
@@ -535,34 +643,105 @@ const FeedbackPage: React.FC = () => {
                   type="range"
                   min="1"
                   max="7"
-                  value={feedback.cvrImpact}
-                  onChange={(e) => handleSliderChange('cvrImpact', parseInt(e.target.value))}
+                  value={feedback.cvrComfortLevel}
+                  onChange={(e) => handleSliderChange('cvrComfortLevel', parseInt(e.target.value))}
                   className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                   disabled={isSubmitted}
                 />
                 <span className="text-xs text-gray-500 w-4">7</span>
-                <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
-                  <span className="text-base font-bold text-teal-600">{feedback.cvrImpact}</span>
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-green-600">{feedback.cvrComfortLevel}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not At All Comfortable</span>
+                <span>Very Comfortable</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Perceived Value: How valuable was CVR in helping you evaluate your options in these complex decision scenarios?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.cvrPerceivedValue}
+                  onChange={(e) => handleSliderChange('cvrPerceivedValue', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-emerald-600">{feedback.cvrPerceivedValue}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
+                <span>Not Valuable</span>
+                <span>Extremely Valuable</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Overall Impact: To what extent did CVR change the way you think about balancing values in ethical or operational decisions?
+              </label>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500 w-4">1</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="7"
+                  value={feedback.cvrOverallImpact}
+                  onChange={(e) => handleSliderChange('cvrOverallImpact', parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  disabled={isSubmitted}
+                />
+                <span className="text-xs text-gray-500 w-4">7</span>
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-base font-bold text-purple-600">{feedback.cvrOverallImpact}</span>
                 </div>
               </div>
               <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
                 <span>No Impact</span>
-                <span>High Impact</span>
+                <span>Major Impact On My Thinking</span>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <MessageSquare className="h-4 w-4 mr-2 text-gray-500" />
-                Comments about CVR Experience (Optional)
+                Tell us about your CVR experience (optional)
+                <button
+                  onMouseEnter={() => setShowCvrTooltip(true)}
+                  onMouseLeave={() => setShowCvrTooltip(false)}
+                  onClick={() => setShowCvrTooltip(!showCvrTooltip)}
+                  className="ml-2 text-blue-500 hover:text-blue-700 relative"
+                >
+                  <Info className="h-4 w-4" />
+                  {showCvrTooltip && (
+                    <div className="absolute left-0 top-6 z-10 w-80 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl">
+                      <div className="space-y-2">
+                        <p>• What aspects of CVR (if any) made you reconsider your choice?</p>
+                        <p>• Which question or perspective most influenced your thinking—and how?</p>
+                        <p>• Did CVR make you more or less confident in your decision? Why?</p>
+                        <p>• Where did you find the most value in the CVR prompts?</p>
+                        <p>• How tedious (if at all) did the CVR questions feel, and what would improve them?</p>
+                      </div>
+                    </div>
+                  )}
+                </button>
               </label>
               <textarea
                 value={feedback.cvrComments}
                 onChange={(e) => setFeedback(prev => ({ ...prev, cvrComments: e.target.value }))}
-                rows={3}
+                rows={4}
                 disabled={isSubmitted}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                placeholder="Share your thoughts about the Value Reflection mechanism..."
+                placeholder="What about CVR led you to reconsider your choice? What, if anything, changed your decision? Where did you find value in CVR? How tedious did CVR feel, and why?"
               />
             </div>
           </div>

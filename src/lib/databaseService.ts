@@ -86,9 +86,14 @@ export interface ValueEvolution {
 
 export interface SessionFeedback {
   session_id: string;
+  cvr_initial_reconsideration?: boolean | null;
+  cvr_final_reconsideration?: boolean | null;
+  cvr_confidence_change?: number;
   cvr_helpfulness?: number;
   cvr_clarity?: number;
-  cvr_impact?: number;
+  cvr_comfort_level?: number;
+  cvr_perceived_value?: number;
+  cvr_overall_impact?: number;
   cvr_comments?: string;
   apa_comparison_usefulness?: number;
   apa_reordering_effectiveness?: number;
