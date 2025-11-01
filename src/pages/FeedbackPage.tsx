@@ -538,63 +538,65 @@ const FeedbackPage: React.FC = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <h4 className="text-sm font-semibold text-gray-800 mb-4">Reconsideration</h4>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Initial Choice Reconsideration: Did any of the CVR questions lead you to reconsider your initial choice when you first faced each scenario?
-                </label>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setFeedback(prev => ({ ...prev, cvrInitialReconsideration: true }))}
-                    disabled={isSubmitted}
-                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      feedback.cvrInitialReconsideration === true
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => setFeedback(prev => ({ ...prev, cvrInitialReconsideration: false }))}
-                    disabled={isSubmitted}
-                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      feedback.cvrInitialReconsideration === false
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    No
-                  </button>
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Initial Choice Reconsideration: Did any of the CVR questions lead you to reconsider your initial choice when you first faced each scenario?
+                  </label>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setFeedback(prev => ({ ...prev, cvrInitialReconsideration: true }))}
+                      disabled={isSubmitted}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                        feedback.cvrInitialReconsideration === true
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => setFeedback(prev => ({ ...prev, cvrInitialReconsideration: false }))}
+                      disabled={isSubmitted}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                        feedback.cvrInitialReconsideration === false
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      No
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Final Decision Reconsideration: After reflecting on the CVR scenarios, did you reconsider your final decision before confirming it?
-                </label>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setFeedback(prev => ({ ...prev, cvrFinalReconsideration: true }))}
-                    disabled={isSubmitted}
-                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      feedback.cvrFinalReconsideration === true
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => setFeedback(prev => ({ ...prev, cvrFinalReconsideration: false }))}
-                    disabled={isSubmitted}
-                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      feedback.cvrFinalReconsideration === false
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    No
-                  </button>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Final Decision Reconsideration: After reflecting on the CVR scenarios, did you reconsider your final decision before confirming it?
+                  </label>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setFeedback(prev => ({ ...prev, cvrFinalReconsideration: true }))}
+                      disabled={isSubmitted}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                        feedback.cvrFinalReconsideration === true
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => setFeedback(prev => ({ ...prev, cvrFinalReconsideration: false }))}
+                      disabled={isSubmitted}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                        feedback.cvrFinalReconsideration === false
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-blue-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      No
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -813,7 +815,7 @@ const FeedbackPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-gray-800 mb-4">Understanding and Usability</h4>
 
               <div className="space-y-6">
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Purpose Clarity: How clear was the purpose of the APA feature in helping you balance Simulation Metrics and Moral Values when making decisions?
                   </label>
@@ -839,7 +841,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Ease of Use: How easy was it to rank or re-order your priorities during the APA process?
                   </label>
@@ -865,7 +867,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Control and Understanding: Did you feel that the APA interface gave you enough control to shape your decisions according to your ranked preferences?
                   </label>
@@ -897,7 +899,7 @@ const FeedbackPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-gray-800 mb-4">Perceived Impact and Alignment</h4>
 
               <div className="space-y-6">
-                <div className="mb-4">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Decision Reflection: Did the APA process cause you to rethink what mattered most in your decision-making (for example, Safety vs. Efficiency)?
                   </label>
@@ -927,7 +929,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Scenario Alignment: Did the APA system help you see more aligned and relevant initial options when you arrived at the next scenarios?
                   </label>
@@ -957,7 +959,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     APA Comparison Table Usefulness: How useful was comparing your simulation choices with CVR scenarios (APA Comparison Table)?
                   </label>
@@ -983,7 +985,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Perspective Value: How valuable was understanding options from different perspectives (value-based perspectives) through APA?
                   </label>
@@ -1009,7 +1011,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Confidence After Reordering: How confident were you in your final decisions after adjusting your moral or simulation value rankings?
                   </label>
@@ -1035,7 +1037,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Perceived Value: How valuable was the APA feature overall in helping you make decisions that reflected your values and priorities?
                   </label>
@@ -1067,7 +1069,7 @@ const FeedbackPage: React.FC = () => {
               <h4 className="text-sm font-semibold text-gray-800 mb-4">Cognitive Effort and Challenge</h4>
 
               <div className="space-y-6">
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Trade-off Challenge: How challenging was it to decide which moral values or simulation metrics should take priority when ranking them?
                   </label>
@@ -1093,7 +1095,7 @@ const FeedbackPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Reflection Depth: To what extent did APA make you reflect on the trade-offs between different moral or operational values?
                   </label>
@@ -1603,28 +1605,10 @@ const FeedbackPage: React.FC = () => {
             </button>
           ) : (
             <div className="mt-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-              <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center">
                 <CheckCircle2 className="h-6 w-6 text-green-500 mr-3" />
                 <span className="text-green-800 font-semibold text-lg">Feedback submitted successfully!</span>
               </div>
-              {showExport && (
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => handleExportData('json')}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    <Download size={16} className="mr-2" />
-                    Export JSON
-                  </button>
-                  <button
-                    onClick={() => handleExportData('csv')}
-                    className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-                  >
-                    <Download size={16} className="mr-2" />
-                    Export CSV
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>
