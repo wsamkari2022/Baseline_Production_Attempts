@@ -235,25 +235,37 @@ const RadarChart: React.FC<RadarChartProps> = ({
             </button>
             <button
               onClick={() => handleViewChange('bar')}
-              className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
+              className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 relative ${
                 comparisonView === 'bar'
                   ? 'bg-green-500 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 animate-pulse'
               }`}
             >
               <BarChart size={16} className="inline mr-1" />
               Bar
+              {comparisonView !== 'bar' && (
+                <>
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-ping"></span>
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full"></span>
+                </>
+              )}
             </button>
             <button
               onClick={() => handleViewChange('differences')}
-              className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
+              className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 relative ${
                 comparisonView === 'differences'
                   ? 'bg-purple-500 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 animate-pulse'
               }`}
             >
               <GitCompare size={16} className="inline mr-1" />
               Differences
+              {comparisonView !== 'differences' && (
+                <>
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-ping"></span>
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full"></span>
+                </>
+              )}
             </button>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               <X size={20} />
@@ -351,17 +363,25 @@ const RadarChart: React.FC<RadarChartProps> = ({
               <div className="mb-4">
                 <button
                   onClick={() => handleToggleClick('ideal-outcome')}
-                  className={`w-full p-3 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                  className={`w-full p-3 rounded-lg flex items-center justify-between transition-all duration-200 relative ${
                     toggledOptions['ideal-outcome']
                       ? 'bg-purple-200 text-purple-900 shadow-lg scale-105'
-                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100 animate-pulse'
                   }`}
                 >
                   <div className="flex items-center">
                     <Star size={16} className="mr-2" />
                     <span className="font-medium">Show Ideal Outcome</span>
                   </div>
-                  {toggledOptions['ideal-outcome'] ? <Eye size={16} /> : <EyeOff size={16} />}
+                  <div className="flex items-center gap-2">
+                    {toggledOptions['ideal-outcome'] ? <Eye size={16} /> : <EyeOff size={16} />}
+                    {!toggledOptions['ideal-outcome'] && (
+                      <>
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-ping"></span>
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full"></span>
+                      </>
+                    )}
+                  </div>
                 </button>
               </div>
 
