@@ -1272,15 +1272,6 @@ const SimulationMainPage: React.FC = () => {
                       )}
                     </button>
 
-                    {!hasExploredAlternatives && availableAlternatives.length > 0 && (
-                      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
-                        <div className="bg-purple-600 text-white text-sm font-medium px-3 py-2 rounded-lg shadow-xl whitespace-nowrap animate-bounce">
-                          Exploring is Required
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-purple-600"></div>
-                        </div>
-                      </div>
-                    )}
-
                     <button
                       onClick={() => setShowRadarChart(true)}
                       className="w-full flex items-center justify-center text-center text-base font-semibold bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:from-blue-600 hover:to-cyan-700 px-6 py-3.5 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
