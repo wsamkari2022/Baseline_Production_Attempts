@@ -1117,9 +1117,10 @@ const FeedbackPage: React.FC = () => {
                       <div className="space-y-2">
                         <p>Which part of APA helped you understand your priorities better?</p>
                         <p>Did ranking your preferences change how you approached the next scenario?</p>
-                        <p>Did APA make the options feel more consistent with your values?</p>
-                        <p>How did APA influence your sense of fairness or control?</p>
-                        <p>What could make the APA interface more intuitive or engaging?</p>
+                        <p>What about APA did you find most useful or challenging?</p>
+                        <p>Did ranking your preferences change your next decisions?</p>
+                        <p>Where did APA feel most valuable?</p>
+                        <p>How could APA be improved?</p>
                       </div>
                     </div>
                   )}
