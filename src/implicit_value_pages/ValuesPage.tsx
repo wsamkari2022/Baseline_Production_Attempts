@@ -51,6 +51,7 @@ const ValuesPage: React.FC = () => {
     const [showError, setShowError] = useState(false);
     const [matchedStableValues, setMatchedStableValues] = useState<MatchedStableValue[]>([]);
     const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
+    const [implicitValueFrequencies, setImplicitValueFrequencies] = useState<ValueFrequency[]>([]);
 
     useEffect(() => {
         // Retrieve saved assessment data from localStorage
@@ -106,6 +107,21 @@ const ValuesPage: React.FC = () => {
             })).sort((a, b) => b.count - a.count);
 
             setValueFrequencies(frequencyArray);
+
+            // Calculate implicit value frequencies
+            const implicitFrequencies: { [key: string]: number } = {};
+            parsedDeepValues.forEach((value: DeepValue) => {
+                implicitFrequencies[value.name] = (implicitFrequencies[value.name] || 0) + 1;
+            });
+
+            const totalImplicitValues = parsedDeepValues.length;
+            const implicitFrequencyArray = Object.entries(implicitFrequencies).map(([value, count]) => ({
+                value,
+                count,
+                percentage: (count / totalImplicitValues) * 100
+            })).sort((a, b) => b.count - a.count);
+
+            setImplicitValueFrequencies(implicitFrequencyArray);
 
             // Get unique stable values and calculate their match percentages
             const uniqueStableValues = Array.from(new Set(
@@ -455,7 +471,7 @@ const ValuesPage: React.FC = () => {
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {/* Most Common Explicit Values */}
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold text-gray-800">Most Common Explicit Values</h3>
@@ -473,6 +489,30 @@ const ValuesPage: React.FC = () => {
                                             <div className="mt-2 bg-teal-200 rounded-full h-2">
                                                 <div
                                                     className="bg-teal-600 h-2 rounded-full"
+                                                    style={{ width: `${freq.percentage}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Most Common Implicit Values */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-gray-800">Most Common Implicit Values</h3>
+                                    <p className="text-sm text-gray-600 mb-3">
+                                        These bars show how frequently each value appeared in your implicit preferences. Higher percentages indicate values that consistently emerged from your decision patterns.
+                                    </p>
+                                    {implicitValueFrequencies.map((freq, index) => (
+                                        <div key={index} className="bg-green-50 rounded-lg p-4">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-medium text-green-900">{freq.value}</span>
+                                                <span className="text-green-700">
+                                                    {freq.percentage.toFixed(1)}% ({freq.count} times)
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 bg-green-200 rounded-full h-2">
+                                                <div
+                                                    className="bg-green-600 h-2 rounded-full"
                                                     style={{ width: `${freq.percentage}%` }}
                                                 />
                                             </div>
