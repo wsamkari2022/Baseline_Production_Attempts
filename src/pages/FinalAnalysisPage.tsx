@@ -208,30 +208,34 @@ const FinalAnalysisPage: React.FC = () => {
   };
 
   const prepareConsistencyTrendData = () => {
+    const colors = [
+      { line: 'rgb(239, 68, 68)', fill: 'rgba(239, 68, 68, 0.1)' },   // red
+      { line: 'rgb(59, 130, 246)', fill: 'rgba(59, 130, 246, 0.1)' }, // blue
+      { line: 'rgb(16, 185, 129)', fill: 'rgba(16, 185, 129, 0.1)' }, // green
+      { line: 'rgb(245, 158, 11)', fill: 'rgba(245, 158, 11, 0.1)' }, // amber
+      { line: 'rgb(139, 92, 246)', fill: 'rgba(139, 92, 246, 0.1)' }  // purple
+    ];
+
+    // Calculate totals for percentage calculations
+    const totalExplicitChoices = Object.values(explicitValueCounts).reduce((sum, count) => sum + count, 0);
+    const totalImplicitChoices = Object.values(implicitValueCounts).reduce((sum, count) => sum + count, 0);
+
     // Only include values that were actually selected in scenarios
     const selectedValues = Object.keys(valueTrends);
 
     return {
       labels: ['Explicit Choices', 'Implicit Choices', 'Scenario 1', 'Scenario 2', 'Scenario 3'],
       datasets: selectedValues.map((value, index) => {
-        const colors = [
-          { line: 'rgb(239, 68, 68)', fill: 'rgba(239, 68, 68, 0.1)' },   // red
-          { line: 'rgb(59, 130, 246)', fill: 'rgba(59, 130, 246, 0.1)' }, // blue
-          { line: 'rgb(16, 185, 129)', fill: 'rgba(16, 185, 129, 0.1)' }, // green
-          { line: 'rgb(245, 158, 11)', fill: 'rgba(245, 158, 11, 0.1)' }, // amber
-          { line: 'rgb(139, 92, 246)', fill: 'rgba(139, 92, 246, 0.1)' }  // purple
-        ];
-
-        // Calculate explicit score as percentage of times this value appeared in explicit choices
-        const totalExplicitChoices = Object.values(explicitValueCounts).reduce((sum, count) => sum + count, 0);
+        // Calculate explicit score as percentage frequency (not binary)
+        const explicitCount = explicitValueCounts[value] || 0;
         const explicitScore = totalExplicitChoices > 0
-          ? ((explicitValueCounts[value] || 0) / totalExplicitChoices) * 100
+          ? (explicitCount / totalExplicitChoices) * 100
           : 0;
 
-        // Calculate implicit score as percentage of times this value appeared in implicit choices
-        const totalImplicitChoices = Object.values(implicitValueCounts).reduce((sum, count) => sum + count, 0);
+        // Calculate implicit score as percentage frequency (not binary)
+        const implicitCount = implicitValueCounts[value] || 0;
         const implicitScore = totalImplicitChoices > 0
-          ? ((implicitValueCounts[value] || 0) / totalImplicitChoices) * 100
+          ? (implicitCount / totalImplicitChoices) * 100
           : 0;
 
         return {
