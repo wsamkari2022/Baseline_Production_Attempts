@@ -2237,35 +2237,6 @@ const FeedbackPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border-2 border-green-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                          <h4 className="text-sm font-bold text-green-800">High Consistency</h4>
-                        </div>
-                        <p className="text-xs text-gray-700 leading-relaxed">
-                          Values consistently align with both explicit and implicit preferences (75-100%)
-                        </p>
-                      </div>
-                      <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border-2 border-orange-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertTriangle className="h-4 w-4 text-orange-600" />
-                          <h4 className="text-sm font-bold text-orange-800">Medium Consistency</h4>
-                        </div>
-                        <p className="text-xs text-gray-700 leading-relaxed">
-                          Values show moderate alignment with stated preferences (50-74%)
-                        </p>
-                      </div>
-                      <div className="bg-gradient-to-br from-red-50 to-rose-50 p-4 rounded-xl border-2 border-red-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <XCircle className="h-4 w-4 text-red-600" />
-                          <h4 className="text-sm font-bold text-red-800">Low Consistency</h4>
-                        </div>
-                        <p className="text-xs text-gray-700 leading-relaxed">
-                          Values demonstrate significant deviation from preferences (0-49%)
-                        </p>
-                      </div>
-                    </div>
                   </section>
 
                   {/* Final Metrics Section */}
