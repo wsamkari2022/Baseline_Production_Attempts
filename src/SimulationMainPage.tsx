@@ -853,12 +853,13 @@ const SimulationMainPage: React.FC = () => {
     // Set flag based on whether this decision came from ranked view top 2
     localStorage.setItem('selectedFromTop2Previous', isFromRankedView.toString());
 
-    // Store the scenario outcome
+    // Store the scenario outcome with top two values at this moment
     const outcome = {
       scenarioId: currentScenario.id,
-      decision: selectedDecision
+      decision: selectedDecision,
+      topTwoValuesAtDecision: finalTopTwoValues
     };
-    
+
     const updatedOutcomes = [...simulationScenarioOutcomes, outcome];
     setSimulationScenarioOutcomes(updatedOutcomes);
     localStorage.setItem('simulationScenarioOutcomes', JSON.stringify(updatedOutcomes));
