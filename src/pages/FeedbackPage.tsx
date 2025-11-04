@@ -1479,7 +1479,7 @@ const FeedbackPage: React.FC = () => {
 
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Visualization Usefulness in Decision-Making: How helpful were the radar and bar chart visualizations in your decision-making process?
+                    Visualization Usefulness in Decision-Making: How useful were the radar and bar chart visualizations in your decision-making process?
                   </label>
                   <div className="flex items-center space-x-4">
                     <span className="text-xs text-gray-500 w-4">1</span>
@@ -1498,8 +1498,8 @@ const FeedbackPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
-                    <span>Not helpful</span>
-                    <span>Very helpful</span>
+                    <span>Not useful</span>
+                    <span>Very useful</span>
                   </div>
                 </div>
               </div>
