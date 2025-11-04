@@ -8,6 +8,8 @@ export interface UserSession {
   gender?: string;
   ai_experience?: string;
   moral_reasoning_experience?: string;
+  consent_agreed?: boolean;
+  consent_timestamp?: string;
 }
 
 export interface BaselineValue {
@@ -146,6 +148,14 @@ export class DatabaseService {
         user_id: data.user_id,
         demographics: data.demographics
       };
+
+      if (data.consent_agreed !== undefined) {
+        insertData.consent_agreed = data.consent_agreed;
+      }
+
+      if (data.consent_timestamp) {
+        insertData.consent_timestamp = data.consent_timestamp;
+      }
 
       if (data.demographics) {
         insertData.age = parseInt(data.demographics.age);

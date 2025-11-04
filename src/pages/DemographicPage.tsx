@@ -14,6 +14,9 @@ const DemographicPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
+  const [showDemographics, setShowDemographics] = useState(false);
 
   useEffect(() => {
     // Clear all localStorage data when demographics page loads to ensure fresh start
@@ -22,6 +25,23 @@ const DemographicPage: React.FC = () => {
     // Trigger entrance animation
     setTimeout(() => setIsLoaded(true), 100);
   }, []);
+
+  const handleConsentConfirm = () => {
+    if (!consentChecked) {
+      return;
+    }
+
+    const consentTimestamp = new Date().toISOString();
+    localStorage.setItem('userConsent', JSON.stringify({
+      agreed: true,
+      timestamp: consentTimestamp
+    }));
+
+    setConsentGiven(true);
+    setTimeout(() => {
+      setShowDemographics(true);
+    }, 300);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,9 +62,13 @@ const DemographicPage: React.FC = () => {
     const sessionId = DatabaseService.generateSessionId();
     localStorage.setItem('currentSessionId', sessionId);
 
+    const consentData = JSON.parse(localStorage.getItem('userConsent') || '{}');
+
     await DatabaseService.createUserSession({
       session_id: sessionId,
-      demographics: formData
+      demographics: formData,
+      consent_agreed: consentData.agreed || false,
+      consent_timestamp: consentData.timestamp
     });
 
     navigate('/explicitvaluepage');
@@ -67,11 +91,160 @@ const DemographicPage: React.FC = () => {
         <Zap className="absolute bottom-20 right-20 text-orange-300/40 animate-bounce" size={26} style={{ animationDelay: '0.5s', animationDuration: '4.5s' }} />
       </div>
 
-      <div className="relative z-10 h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
         <div className={`w-full max-w-4xl transition-all duration-1000 transform ${
           isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          {!consentGiven ? (
+            <div className={`transition-all duration-500 ${consentGiven ? 'opacity-0 translate-x-[-100%]' : 'opacity-100 translate-x-0'}`}>
+              <div className="bg-white/90 backdrop-blur-lg shadow-2xl rounded-2xl border border-white/50 overflow-hidden">
+                <div className="bg-gradient-to-r from-orange-500 to-red-600 px-8 py-6">
+                  <h1 className="text-3xl font-bold text-white text-center">Informed Consent</h1>
+                  <p className="text-orange-50 text-center mt-2">Please read this consent document carefully before you decide to participate in this study.</p>
+                </div>
+
+                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-6 text-gray-700">
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Study Title</h2>
+                      <p className="leading-relaxed">
+                        Negotiation and Cognitive Value Recontextualization for Consistency Assessment in Human-AI Collaboration: Advancing Joint Decision-Making through Adaptive Preference Alignment
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Purpose of the Study</h2>
+                      <p className="leading-relaxed mb-3">
+                        This study builds on the Moral Machine Experiment, which examined how people make ethical trade-offs in complex situations. It explores how humans collaborate with multiple AI expert agents—each representing values such as Safety, Efficiency, Fairness, Sustainability, and Non-maleficence—during simulated wildfire emergencies.
+                      </p>
+                      <p className="leading-relaxed mb-3">
+                        The experiment applies two frameworks: <strong>Cognitive Value Recontextualization (CVR)</strong>, which examines how people reinterpret their values in new contexts, and <strong>Adaptive Preference Alignment (APA)</strong>, which studies how human and AI preferences can be aligned for more ethical and transparent decisions.
+                      </p>
+                      <p className="leading-relaxed">
+                        The goal is to better understand how AI can support human moral reasoning and decision-making in high-stakes scenarios.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Procedures</h2>
+                      <p className="leading-relaxed mb-3">
+                        This experiment will be conducted entirely online through a web-based simulation platform. Participants will begin by completing a brief demographic questionnaire, followed by two value-assessment phases:
+                      </p>
+                      <ol className="list-decimal list-inside space-y-2 ml-4 mb-3">
+                        <li className="leading-relaxed"><strong>Explicit Value Questionnaire</strong> – consisting of simple, everyday scenarios designed to identify stable personal values.</li>
+                        <li className="leading-relaxed"><strong>Implicit Value Questionnaire</strong> – involving mid-level contextual scenarios to reveal how values shift across different situations.</li>
+                      </ol>
+                      <p className="leading-relaxed mb-3">
+                        Based on these responses, the system generates each participant's evaluated stable and context-dependent value profile.
+                      </p>
+                      <p className="leading-relaxed mb-3">
+                        Next, participants will engage with three interactive wildfire scenarios. In each scenario, they will receive guidance from multiple AI expert agents, each representing a distinct ethical or operational perspective (e.g., Safety, Efficiency, Fairness, Sustainability, and Non-maleficence). Participants will then decide how to allocate firefighting resources based on the agents' recommendations and their own judgment.
+                      </p>
+                      <p className="leading-relaxed mb-3">
+                        After completing the scenarios, participants will be asked to respond to brief follow-up questions that evaluate their reasoning, satisfaction, and overall experience.
+                      </p>
+                      <p className="leading-relaxed">
+                        The full session will take approximately <strong>20–35 minutes</strong> and can be completed in one sitting using a computer or tablet.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Potential Risks of Participating</h2>
+                      <p className="leading-relaxed">
+                        There are no known risks beyond what you'd normally experience using a computer. Some people might feel brief mental fatigue or mild stress when facing moral trade-offs (like choosing between difficult rescue options), but you can pause or stop at any time.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Potential Benefits of Participating</h2>
+                      <p className="leading-relaxed">
+                        By taking part, you'll help us learn how people and AI can work together to make better decisions during emergency situations like wildfires. Your participation will help researchers design future AI systems that are more ethical, transparent, and human-centered tools that could improve safety and decision support in real-world disaster response. You may also find it interesting to see how your own values and reasoning compare to the AI experts' perspectives.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Compensation</h2>
+                      <p className="leading-relaxed">
+                        Those who are taking designated undergraduate-level courses may be eligible to receive extra credit upon the completion of the study.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Confidentiality</h2>
+                      <p className="leading-relaxed">
+                        Your responses will remain completely anonymous. No names, emails, or identifiable information will be collected. Data will be stored on secure, password-protected servers accessible only to the research team. Results will be reported in aggregate form only, ensuring that no individual participant can be identified.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Voluntary Participation</h2>
+                      <p className="leading-relaxed">
+                        Your participation in this study is completely voluntary. There is no penalty for not participating. You may also refuse to answer questions that are asked in the study.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Right to Withdraw from the Study</h2>
+                      <p className="leading-relaxed">
+                        You have the right to withdraw from the study at any time without consequence.
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Whom to Contact if You Have Questions</h2>
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                        <div>
+                          <p className="font-semibold text-gray-900">About the study:</p>
+                          <p>Waseem Samkari, Ph.D. Candidate</p>
+                          <p>College of Engineering and Science</p>
+                          <p>Florida Institute of Technology</p>
+                          <p>Email: <a href="mailto:wsamkari2022@my.fit.edu" className="text-orange-600 hover:text-orange-700 underline">wsamkari2022@my.fit.edu</a></p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">About your rights as a research participant:</p>
+                          <p>Dr. Jignya Patel, IRB Chairperson</p>
+                          <p>150 West University Blvd.</p>
+                          <p>Melbourne, FL 32901</p>
+                          <p>Email: <a href="mailto:FIT_IRB@fit.edu" className="text-orange-600 hover:text-orange-700 underline">FIT_IRB@fit.edu</a></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t-2 border-orange-200 pt-6">
+                      <h2 className="text-xl font-bold text-gray-900 mb-4">Agreement</h2>
+                      <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-6">
+                        <label className="flex items-start gap-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={consentChecked}
+                            onChange={(e) => setConsentChecked(e.target.checked)}
+                            className="mt-1 w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                          />
+                          <span className="text-gray-800 leading-relaxed group-hover:text-gray-900 transition-colors">
+                            I have read the procedure described above. I voluntarily agree to participate in the procedure and I have received a copy of this description.
+                          </span>
+                        </label>
+
+                        <button
+                          onClick={handleConsentConfirm}
+                          disabled={!consentChecked}
+                          className={`mt-6 w-full py-3 px-6 rounded-xl font-semibold text-white transition-all duration-200 ${
+                            consentChecked
+                              ? 'bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 hover:shadow-lg transform hover:scale-105 cursor-pointer'
+                              : 'bg-gray-300 cursor-not-allowed opacity-60'
+                          }`}
+                        >
+                          Confirm and Continue
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className={`transition-all duration-500 ${showDemographics ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-[100%]'}`}>
+              <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
             {/* Left Side - Title and Features */}
             <div className="flex-1 text-center lg:text-left">
               <div className="flex justify-center lg:justify-start mb-6">
@@ -241,11 +414,27 @@ const DemographicPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #f97316, #dc2626);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #ea580c, #b91c1c);
+        }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(-5px); }
