@@ -1519,7 +1519,7 @@ const FeedbackPage: React.FC = () => {
                       type="range"
                       min="1"
                       max="7"
-                      value={feedback.vizTradeoffValue}
+                      value={feedback.vizTradeoffEvaluation}
                       onChange={(e) => handleSliderChange('vizTradeoffValue', parseInt(e.target.value))}
                       className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                       disabled={isSubmitted}
