@@ -626,7 +626,7 @@ const FeedbackPage: React.FC = () => {
       viz_helpfulness: feedback.vizHelpfulness,
       viz_usefulness: feedback.vizUsefulness,
       viz_tradeoff_Evaluation: feedback.vizTradeoffEvaluation,
-      viz_tradeoff_helpfulness: feedback.vizTradeoffHelpfulness,
+      viz_tradeoff_Justifcation: feedback.vizTradeoffJustifcation,
       viz_expert_usefulness: feedback.vizExpertUsefulness,
       viz_expert_confidence_impact: feedback.vizExpertConfidenceImpact,
       viz_comments: feedback.vizComments,
@@ -1545,14 +1545,14 @@ const FeedbackPage: React.FC = () => {
                       type="range"
                       min="1"
                       max="7"
-                      value={feedback.vizTradeoffHelpfulness}
+                      value={feedback.vizTradeoffJustifcation}
                       onChange={(e) => handleSliderChange('vizTradeoffHelpfulness', parseInt(e.target.value))}
                       className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                       disabled={isSubmitted}
                     />
                     <span className="text-xs text-gray-500 w-4">7</span>
                     <div className="w-10 h-10 bg-lime-100 rounded-full flex items-center justify-center">
-                      <span className="text-base font-bold text-lime-600">{feedback.vizTradeoffHelpfulness}</span>
+                      <span className="text-base font-bold text-lime-600">{feedback.vizTradeoffJustifcation}</span>
                     </div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-400 mt-1 px-8">
