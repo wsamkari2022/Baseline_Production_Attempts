@@ -1569,7 +1569,7 @@ const FeedbackPage: React.FC = () => {
               <div className="space-y-6">
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Expert Guidance Usefulness: How useful were the expert analyses and recommendations in making your decisions or increasing your confidence in them?
+                    Expert Guidance Usefulness: How useful were the expert analyses and recommendations in making your decisions?
                   </label>
                   <div className="flex items-center space-x-4">
                     <span className="text-xs text-gray-500 w-4">1</span>
