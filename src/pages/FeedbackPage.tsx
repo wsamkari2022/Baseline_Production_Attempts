@@ -1931,23 +1931,25 @@ const FeedbackPage: React.FC = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+          <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">
             Explore Your Results
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="max-w-2xl mx-auto">
             <button
               onClick={() => {
                 loadAnalysisData();
                 setShowAnalysisModal(true);
               }}
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-5 px-8 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
             >
               <FileText className="h-6 w-6" />
-              <span>View Final Analysis Report</span>
+              <span className="text-lg">View Final Analysis Report</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
 
+            {/* Hidden View Results button - kept for potential future use */}
+            {false && (
             <button
               onClick={() => navigate('/view-results')}
               className="bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
@@ -1956,6 +1958,7 @@ const FeedbackPage: React.FC = () => {
               <span>View Results</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
+            )}
           </div>
         </div>
 
