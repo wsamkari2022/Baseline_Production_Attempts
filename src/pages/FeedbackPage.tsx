@@ -1067,6 +1067,7 @@ const FeedbackPage: React.FC = () => {
           </div>
         </div>
 
+        {metrics && metrics.apaReorderings > 0 && (
         <div className="bg-gradient-to-br from-green-50 via-emerald-100 to-teal-50 rounded-lg shadow-lg border-2 border-green-300 p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-green-900 flex items-center">
@@ -1432,6 +1433,7 @@ const FeedbackPage: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
 
         <div className="bg-gradient-to-br from-orange-50 via-amber-100 to-yellow-50 rounded-lg shadow-lg border-2 border-orange-300 p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
