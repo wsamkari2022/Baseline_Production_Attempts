@@ -846,7 +846,7 @@ const FeedbackPage: React.FC = () => {
 
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                How clear was the purpose of the CVR section in helping you reconsider your decisions and reinterpret your values when faced with new or changing moral contexts?
+                Purpose Clarity: How clear was the purpose of the CVR section in helping you reconsider your decisions and reinterpret your values when faced with new or changing moral contexts?
               </label>
               <div className="flex items-center space-x-4">
                 <span className="text-xs text-gray-500 w-20 text-left">Very unclear</span>
