@@ -1935,7 +1935,7 @@ const FeedbackPage: React.FC = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">
             Explore Your Results
           </h3>
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto space-y-4">
             <button
               onClick={() => {
                 loadAnalysisData();
@@ -1947,6 +1947,17 @@ const FeedbackPage: React.FC = () => {
               <span className="text-lg">View Final Analysis Report</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
+
+            {isSubmitted && (
+              <button
+                onClick={() => navigate('/study-complete')}
+                className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold py-5 px-8 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+              >
+                <CheckCircle2 className="h-6 w-6" />
+                <span className="text-lg">Finish</span>
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
 
             {/* Hidden View Results button - kept for potential future use */}
             {false && (

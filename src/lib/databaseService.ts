@@ -185,7 +185,7 @@ export class DatabaseService {
     }
   }
 
-  static async updateUserSession(sessionId: string, updates: Partial<UserSession> & { is_completed?: boolean; completed_at?: string }) {
+  static async updateUserSession(sessionId: string, updates: Partial<UserSession> & { is_completed?: boolean; completed_at?: string; status?: string; study_fully_completed?: boolean }) {
     try {
       const { error } = await supabase
         .from('user_sessions')
@@ -203,6 +203,10 @@ export class DatabaseService {
       console.error('Exception updating user session:', error);
       this.saveToLocalStorageFallback('user_sessions_updates', { sessionId, updates });
     }
+  }
+
+  static async updateSessionStatus(sessionId: string, statusData: { status?: string; completed_at?: string; study_fully_completed?: boolean }) {
+    return this.updateUserSession(sessionId, statusData);
   }
 
   static async insertBaselineValues(values: BaselineValue[]) {

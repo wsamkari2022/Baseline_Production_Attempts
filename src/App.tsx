@@ -12,6 +12,7 @@ import FeedbackPage from './pages/FeedbackPage';
 import FinalAnalysisPage from './pages/FinalAnalysisPage';
 import ViewResultsPage from './pages/ViewResultsPage';
 import ResultsFeedbackPage from './pages/ResultsFeedbackPage';
+import StudyCompletePage from './pages/StudyCompletePage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/final-analysis" element={<FinalAnalysisPage />} />
         <Route path="/view-results" element={<ViewResultsPage />} />
         <Route path="/results-feedback" element={<ResultsFeedbackPage />} />
+        <Route path="/study-complete" element={<StudyCompletePage />} />
       </Routes>
     </Router>
   );
