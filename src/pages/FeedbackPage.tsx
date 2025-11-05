@@ -845,22 +845,22 @@ const FeedbackPage: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-lg p-4 shadow-sm">
-  <label className="block text-sm font-medium text-gray-700 mb-3">
-    Purpose Clarity: How clear was the purpose of the CVR section in helping you reconsider your decisions and reinterpret your values when faced with new or changing moral contexts?
-  </label>
-  <div className="flex items-center space-x-4">
-    <span className="text-xs text-gray-500 w-4">1</span>
-    <input
-      type="range"
-      min="1"
-      max="7"
-      value={feedback.cvrPurposeClarity}
-      onChange={(e) =>
-        handleSliderChange('cvrPurposeClarity', parseInt(e.target.value))
-      }
-      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-      disabled={isSubmitted}
-    />
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Purpose Clarity: How clear was the purpose of the CVR section in helping you reconsider your                   decisions and reinterpret your values when faced with new or changing moral contexts?
+             </label>
+              <div className="flex items-center space-x-4">
+                      <span className="text-xs text-gray-500 w-4">1</span>
+               <input
+                  type="range"
+                   min="1"
+                   max="7"
+                   value={feedback.cvrPurposeClarity}
+                   onChange={(e) =>
+                  handleSliderChange('cvrPurposeClarity', parseInt(e.target.value))
+                    }
+                   className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                    disabled={isSubmitted}
+                     />
     <span className="text-xs text-gray-500 w-4">7</span>
     <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
       <span className="text-base font-bold text-indigo-600">
