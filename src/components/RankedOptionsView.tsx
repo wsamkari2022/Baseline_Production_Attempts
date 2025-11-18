@@ -177,7 +177,7 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
             className="text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
           >
             <ArrowLeft size={20} />
-            Back to Simulation Main Page
+            Back to Simulation
           </button>
           <button
             onClick={onReorderPriorities}
