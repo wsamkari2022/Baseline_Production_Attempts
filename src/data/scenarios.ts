@@ -370,7 +370,7 @@ export const scenarios: Scenario[] = [
         cvrQuestion: {
           descriptionTile: "🏚️ Hold the Beams",
           description: "After a major earthquake, rescue teams face collapsing corridors across rich and poor districts alike. To ensure equal access, you order teams to advance in lockstep across all districts. In several buildings, 30 rescuers must physically brace failing beams so that 1,600 people can pass—those 30 will certainly die, and 400 residents still perish due to system-wide delays.",
-          question: "Would you enforce perfectly equal deployment even if it requires 30 rescuers to accept certain death and results in 370 resident deaths due to slower aid?",
+          question: "Would you enforce perfectly equal deployment even if it requires 30 rescuers to accept certain death and results in 400 resident deaths due to slower aid?",
           value: "Fairness"
         },
         comparisonTableColumnContent: {
