@@ -295,51 +295,54 @@ const RadarChart: React.FC<RadarChartProps> = ({
         <div className="p-4 flex-1 overflow-auto">
           {/* Metric Selection - Grouped */}
           {comparisonView !== 'radar' && (
-            <div className="mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Positive Impact Metrics Group */}
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-xl p-4 shadow-sm">
-                  <h5 className="text-sm font-bold text-emerald-800 mb-3 flex items-center">
-                    <span className="bg-emerald-200 rounded-full w-2 h-2 mr-2"></span>
-                    Positive Impact (Higher is Better)
-                  </h5>
-                  <div className="flex flex-wrap gap-2">
-                    {['Fire Containment', 'Population Safety', 'Ethical Fairness'].map((metric) => (
-                      <button
-                        key={metric}
-                        onClick={() => handleMetricClick(metric)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          selectedMetric === metric
-                            ? 'bg-emerald-600 text-white shadow-lg scale-105'
-                            : 'bg-white text-emerald-700 hover:bg-emerald-100 border border-emerald-300'
-                        }`}
-                      >
-                        {metric}
-                      </button>
-                    ))}
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">Metrics</h4>
+              <div className="border-2 border-gray-200 rounded-lg p-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Positive Impact Metrics Group */}
+                  <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-3 shadow-sm">
+                    <h5 className="text-xs font-bold text-emerald-800 mb-2 flex items-center">
+                      <span className="bg-emerald-200 rounded-full w-2 h-2 mr-2"></span>
+                      Positive Impact (Higher is Better)
+                    </h5>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['Fire Containment', 'Population Safety', 'Ethical Fairness'].map((metric) => (
+                        <button
+                          key={metric}
+                          onClick={() => handleMetricClick(metric)}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                            selectedMetric === metric
+                              ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                              : 'bg-white text-emerald-700 hover:bg-emerald-100 border border-emerald-300'
+                          }`}
+                        >
+                          {metric}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Negative Impact Metrics Group */}
-                <div className="bg-gradient-to-br from-rose-50 to-red-50 border-2 border-rose-200 rounded-xl p-4 shadow-sm">
-                  <h5 className="text-sm font-bold text-rose-800 mb-3 flex items-center">
-                    <span className="bg-rose-200 rounded-full w-2 h-2 mr-2"></span>
-                    Negative Impact (Lower is Better)
-                  </h5>
-                  <div className="flex flex-wrap gap-2">
-                    {['Firefighter Risk', 'Resource Use', 'Infrastructure Damage', 'Biodiversity Impact'].map((metric) => (
-                      <button
-                        key={metric}
-                        onClick={() => handleMetricClick(metric)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          selectedMetric === metric
-                            ? 'bg-rose-600 text-white shadow-lg scale-105'
-                            : 'bg-white text-rose-700 hover:bg-rose-100 border border-rose-300'
-                        }`}
-                      >
-                        {metric}
-                      </button>
-                    ))}
+                  {/* Negative Impact Metrics Group */}
+                  <div className="bg-gradient-to-br from-rose-50 to-red-50 border border-rose-200 rounded-lg p-3 shadow-sm">
+                    <h5 className="text-xs font-bold text-rose-800 mb-2 flex items-center">
+                      <span className="bg-rose-200 rounded-full w-2 h-2 mr-2"></span>
+                      Negative Impact (Lower is Better)
+                    </h5>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['Firefighter Risk', 'Resource Use', 'Infrastructure Damage', 'Biodiversity Impact'].map((metric) => (
+                        <button
+                          key={metric}
+                          onClick={() => handleMetricClick(metric)}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                            selectedMetric === metric
+                              ? 'bg-rose-600 text-white shadow-lg scale-105'
+                              : 'bg-white text-rose-700 hover:bg-rose-100 border border-rose-300'
+                          }`}
+                        >
+                          {metric}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -459,36 +462,41 @@ const RadarChart: React.FC<RadarChartProps> = ({
 
           {comparisonView === 'bar' && (
             <>
-              {/* Decision Option Toggle Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                {allOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleToggleClick(option.id)}
-                    className={`w-full p-2 rounded-lg flex items-center justify-between transition-all duration-200 ${
-                      toggledOptions[option.id]
-                        ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                        : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <span className={`w-3 h-3 rounded-full mr-2 ${
-                        toggledOptions[option.id]
-                          ? 'bg-gray-500'
-                          : 'bg-gray-300'
-                      }`}></span>
-                      <span className="text-sm font-medium">{option.title}</span>
-                    </div>
-                    {toggledOptions[option.id] ? (
-                      <Eye size={16} className="text-current" />
-                    ) : (
-                      <EyeOff size={16} className="text-current" />
-                    )}
-                  </button>
-                ))}
+              {/* Scenario Selected Options Container */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Scenario Selected Options</h4>
+                <div className="border-2 border-gray-200 rounded-lg p-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {allOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => handleToggleClick(option.id)}
+                        className={`w-full p-2 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                          toggledOptions[option.id]
+                            ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <span className={`w-3 h-3 rounded-full mr-2 ${
+                            toggledOptions[option.id]
+                              ? 'bg-gray-500'
+                              : 'bg-gray-300'
+                          }`}></span>
+                          <span className="text-sm font-medium">{option.title}</span>
+                        </div>
+                        {toggledOptions[option.id] ? (
+                          <Eye size={16} className="text-current" />
+                        ) : (
+                          <EyeOff size={16} className="text-current" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="h-[500px]">
+              <div className="h-[450px]">
                 <Bar data={prepareBarChartData()} options={{
                   responsive: true,
                   scales: {
@@ -526,33 +534,38 @@ const RadarChart: React.FC<RadarChartProps> = ({
 
           {comparisonView === 'differences' && (
             <>
-              {/* Decision Option Toggle Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                {allOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleToggleClick(option.id)}
-                    className={`w-full p-2 rounded-lg flex items-center justify-between transition-all duration-200 ${
-                      toggledOptions[option.id]
-                        ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                        : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <span className={`w-3 h-3 rounded-full mr-2 ${
-                        toggledOptions[option.id]
-                          ? 'bg-gray-500'
-                          : 'bg-gray-300'
-                      }`}></span>
-                      <span className="text-sm font-medium">{option.title}</span>
-                    </div>
-                    {toggledOptions[option.id] ? (
-                      <Eye size={16} className="text-current" />
-                    ) : (
-                      <EyeOff size={16} className="text-current" />
-                    )}
-                  </button>
-                ))}
+              {/* Scenario Selected Options Container */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Scenario Selected Options</h4>
+                <div className="border-2 border-gray-200 rounded-lg p-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {allOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => handleToggleClick(option.id)}
+                        className={`w-full p-2 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                          toggledOptions[option.id]
+                            ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <span className={`w-3 h-3 rounded-full mr-2 ${
+                            toggledOptions[option.id]
+                              ? 'bg-gray-500'
+                              : 'bg-gray-300'
+                          }`}></span>
+                          <span className="text-sm font-medium">{option.title}</span>
+                        </div>
+                        {toggledOptions[option.id] ? (
+                          <Eye size={16} className="text-current" />
+                        ) : (
+                          <EyeOff size={16} className="text-current" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">
