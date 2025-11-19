@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart2, Flame, AlertTriangle, Droplets, Building, Trees as Tree, Scale, X, Eye, EyeOff, Star, BarChart, GitCompare, Radar as RadarIcon, Shield } from 'lucide-react';
+import { BarChart2, Flame, AlertTriangle, Droplets, Building, Trees as Tree, Scale, X, Eye, EyeOff, BarChart, GitCompare, Radar as RadarIcon, Shield } from 'lucide-react';
 import { DecisionOption } from '../types';
 import {
   Chart as ChartJS,
@@ -69,7 +69,6 @@ const RadarChart: React.FC<RadarChartProps> = ({
   const [comparisonView, setComparisonView] = useState<ComparisonView>('radar');
   const [hasClickedBar, setHasClickedBar] = useState(() => localStorage.getItem('hasClickedBar') === 'true');
   const [hasClickedDifferences, setHasClickedDifferences] = useState(() => localStorage.getItem('hasClickedDifferences') === 'true');
-  const [hasClickedIdealOutcome, setHasClickedIdealOutcome] = useState(() => localStorage.getItem('hasClickedIdealOutcome') === 'true');
 
   if (!showRadarChart) return null;
 
@@ -125,25 +124,13 @@ const RadarChart: React.FC<RadarChartProps> = ({
       .filter(option => toggledOptions[option.id])
       .map((option, index) => ({
         label: option.title,
-        data: metrics.map(metric => 
+        data: metrics.map(metric =>
           option.radarData?.[metricMapping[metric as keyof typeof metricMapping]] || 0
         ),
         backgroundColor: optionColors.standard[index % optionColors.standard.length],
         borderColor: optionColors.border[index % optionColors.border.length],
         borderWidth: 2
       }));
-
-    // Add ideal outcome if toggled
-    if (toggledOptions['ideal-outcome']) {
-      datasets.push({
-        label: 'Ideal Outcome',
-        data: metrics.map(metric => bestCaseData[metricMapping[metric as keyof typeof metricMapping]]),
-        backgroundColor: 'rgba(138, 43, 226, 0.2)',
-        borderColor: 'rgba(138, 43, 226, 1)',
-        borderWidth: 2,
-        borderDash: [5, 5]
-      });
-    }
 
     return { labels: metrics, datasets };
   };
@@ -222,10 +209,6 @@ const RadarChart: React.FC<RadarChartProps> = ({
 
   const handleToggleClick = (optionId: string) => {
     toggleOption(optionId);
-    if (optionId === 'ideal-outcome' && !hasClickedIdealOutcome) {
-      setHasClickedIdealOutcome(true);
-      localStorage.setItem('hasClickedIdealOutcome', 'true');
-    }
   };
 
   return (
@@ -352,69 +335,111 @@ const RadarChart: React.FC<RadarChartProps> = ({
           {/* View Content */}
           {comparisonView === 'radar' && (
             <>
-              {/* Decision Option Toggle Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 mt-4">
-                {allOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleToggleClick(option.id)}
-                    className={`w-full p-2 rounded-lg flex items-center justify-between transition-all duration-200 ${
-                      toggledOptions[option.id]
-                        ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                        : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <span className={`w-3 h-3 rounded-full mr-2 ${
-                        toggledOptions[option.id]
-                          ? 'bg-gray-500'
-                          : 'bg-gray-300'
-                      }`}></span>
-                      <span className="text-sm font-medium">{option.title}</span>
-                    </div>
-                    {toggledOptions[option.id] ? (
-                      <Eye size={16} className="text-current" />
-                    ) : (
-                      <EyeOff size={16} className="text-current" />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Ideal Outcome Toggle */}
+              {/* Scenario Selected Options Container */}
               <div className="mb-4">
-                <button
-                  onClick={() => handleToggleClick('ideal-outcome')}
-                  className={`w-full p-3 rounded-lg flex items-center justify-between transition-all duration-200 relative ${
-                    toggledOptions['ideal-outcome']
-                      ? 'bg-purple-200 text-purple-900 shadow-lg scale-105'
-                      : hasClickedIdealOutcome
-                      ? 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100 animate-pulse'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <Star size={16} className="mr-2" />
-                    <span className="font-medium">Show Ideal Outcome</span>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Scenario Selected Options</h4>
+                <div className="border-2 border-gray-200 rounded-lg p-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {allOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => handleToggleClick(option.id)}
+                        className={`w-full p-2 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                          toggledOptions[option.id]
+                            ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <span className={`w-3 h-3 rounded-full mr-2 ${
+                            toggledOptions[option.id]
+                              ? 'bg-gray-500'
+                              : 'bg-gray-300'
+                          }`}></span>
+                          <span className="text-sm font-medium">{option.title}</span>
+                        </div>
+                        {toggledOptions[option.id] ? (
+                          <Eye size={16} className="text-current" />
+                        ) : (
+                          <EyeOff size={16} className="text-current" />
+                        )}
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    {toggledOptions['ideal-outcome'] ? <Eye size={16} /> : <EyeOff size={16} />}
-                    {!hasClickedIdealOutcome && !toggledOptions['ideal-outcome'] && (
-                      <>
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full animate-ping"></span>
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full"></span>
-                      </>
-                    )}
-                  </div>
-                </button>
+                </div>
               </div>
 
-              <div className="h-[500px]">
-                <Radar data={prepareRadarChartDataWithIdeal()} options={radarOptions} />
+              <div className="h-[450px]">
+                <Radar
+                  data={prepareRadarChartDataWithIdeal()}
+                  options={{
+                    ...radarOptions,
+                    scales: {
+                      r: {
+                        ...radarOptions?.scales?.r,
+                        pointLabels: {
+                          ...radarOptions?.scales?.r?.pointLabels,
+                          color: function(context: any) {
+                            const label = context.label;
+                            return isPositiveMetric(label) ? '#059669' : '#dc2626';
+                          },
+                          font: {
+                            size: 12,
+                            weight: 'bold' as const
+                          }
+                        }
+                      }
+                    },
+                    plugins: {
+                      ...radarOptions?.plugins,
+                      legend: {
+                        ...radarOptions?.plugins?.legend
+                      }
+                    }
+                  }}
+                  plugins={[
+                    {
+                      id: 'radarBackground',
+                      beforeDraw: (chart: any) => {
+                        const ctx = chart.ctx;
+                        const chartArea = chart.chartArea;
+                        const scale = chart.scales.r;
+
+                        if (!scale || !chartArea) return;
+
+                        ctx.save();
+
+                        const centerX = scale.xCenter;
+                        const centerY = scale.yCenter;
+                        const radius = scale.drawingArea;
+
+                        metrics.forEach((metric, index) => {
+                          const angle1 = (Math.PI * 2 * index) / metrics.length - Math.PI / 2;
+                          const angle2 = (Math.PI * 2 * (index + 1)) / metrics.length - Math.PI / 2;
+
+                          ctx.beginPath();
+                          ctx.moveTo(centerX, centerY);
+                          ctx.arc(centerX, centerY, radius, angle1, angle2);
+                          ctx.closePath();
+
+                          if (isPositiveMetric(metric)) {
+                            ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
+                          } else {
+                            ctx.fillStyle = 'rgba(239, 68, 68, 0.08)';
+                          }
+
+                          ctx.fill();
+                        });
+
+                        ctx.restore();
+                      }
+                    }
+                  ]}
+                />
               </div>
 
               {/* Metrics Legend - Radar View Only */}
-              <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+              <div className="mt-4 bg-gray-50 p-3 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Metrics Legend</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-green-50 p-3 rounded-lg">
