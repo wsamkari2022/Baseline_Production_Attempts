@@ -541,7 +541,7 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
                   }`}>
                     Prioritize ethical principles and fundamental values
                   </span>
-                   <span className={`text-xs text-center leading-relaxed ${
+                   <span className={`text-xs text-center leading-relaxed italic  ${
                     preferenceType === 'values' ? 'text-emerald-600' : 'text-gray-500'
                   }`}>
                     (Universal Morals)
