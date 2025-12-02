@@ -44,6 +44,7 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
   const [showBubbleTooltip, setShowBubbleTooltip] = useState(true);
   const [hasClickedMetric, setHasClickedMetric] = useState(false);
+  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
 
   useEffect(() => {
     // Mark that the user has accessed the RankedOptionsView
@@ -154,6 +155,9 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
   };
 
   const handleConfirm = (option: DecisionOption, index: number) => {
+    // Mark this option as selected
+    setSelectedOptionId(option.id);
+
     // Track if user selected from top 2 options
     const isTop2 = index < 2;
 
@@ -165,7 +169,10 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
     const newCount = currentCount ? parseInt(currentCount) + 1 : 1;
     localStorage.setItem('hasReorderedValuesCount', newCount.toString());
 
-    onConfirm(option, isTop2);
+    // Wait a moment to show the selection state before proceeding
+    setTimeout(() => {
+      onConfirm(option, isTop2);
+    }, 600);
   };
 
   return (
@@ -312,12 +319,22 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
                     {/* Column 3: Select Button (only for unlocked options) */}
                     <div className="flex items-center justify-center pt-1">
                       {!isLocked && (
-                        <button
-                          onClick={() => handleConfirm(option, index)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg flex items-center gap-2 transition-colors duration-200 whitespace-nowrap"
-                        >
-                          Select
-                        </button>
+                        selectedOptionId === option.id ? (
+                          <div className="flex items-center gap-2 animate-scale-in">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg transform transition-transform duration-300">
+                              <Check size={28} className="text-white" strokeWidth={3} />
+                            </div>
+                            <span className="text-green-700 font-semibold text-sm">Selected</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleConfirm(option, index)}
+                            disabled={selectedOptionId !== null}
+                            className="bg-gray-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg flex items-center gap-2 transition-all duration-300 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-400 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95"
+                          >
+                            Select
+                          </button>
+                        )
                       )}
                     </div>
                   </div>
