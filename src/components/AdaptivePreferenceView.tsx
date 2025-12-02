@@ -493,6 +493,11 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
                   }`}>
                     Prioritize quantifiable outcomes and measurable impact
                   </span>
+                  <span className={`text-xs text-center leading-relaxed ${
+                    preferenceType === 'metrics' ? 'text-blue-600' : 'text-gray-500'
+                  }`}>
+                    (The Context of the Problem)
+                  </span>
                 </div>
                 {preferenceType === 'metrics' && (
                   <span className="text-xs bg-blue-500 text-white px-3 py-1 rounded-full font-medium shadow-sm">
@@ -535,6 +540,11 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
                     preferenceType === 'values' ? 'text-emerald-600' : 'text-gray-500'
                   }`}>
                     Prioritize ethical principles and fundamental values
+                  </span>
+                  <span className={`text-xs text-center leading-relaxed ${
+                    preferenceType === 'metrics' ? 'text-blue-600' : 'text-gray-500'
+                  }`}>
+                    (Universal Morals)
                   </span>
                 </div>
                   {preferenceType === 'values' && (
