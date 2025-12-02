@@ -316,7 +316,6 @@ const RankedOptionsView: React.FC<RankedOptionsViewProps> = ({
                           onClick={() => handleConfirm(option, index)}
                           className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg flex items-center gap-2 transition-colors duration-200 whitespace-nowrap"
                         >
-                          <Check size={16} />
                           Select
                         </button>
                       )}
