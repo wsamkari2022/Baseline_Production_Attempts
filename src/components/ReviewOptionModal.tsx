@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Shield, Droplets, Leaf, Scale, Ban, Users, Skull, Building, Trees as Tree, Factory, Lightbulb, GitCompare, Target } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Shield, Droplets, Leaf, Scale, Ban, Users, Skull, Building, Trees as Tree, Factory, Lightbulb, GitCompare, Target, ChevronDown } from 'lucide-react';
 import { DecisionOption } from '../types';
 
 interface ReviewOptionModalProps {
@@ -9,6 +9,48 @@ interface ReviewOptionModalProps {
 }
 
 const ReviewOptionModal: React.FC<ReviewOptionModalProps> = ({ isOpen, onClose, option }) => {
+  const [showScrollNudge, setShowScrollNudge] = useState(true);
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const expertCount = Object.keys(option.expertOpinions).length;
+
+  useEffect(() => {
+    if (!isOpen) {
+      setShowScrollNudge(true);
+      setHasScrolled(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const container = scrollContainerRef.current;
+      if (container) {
+        const hasOverflow = container.scrollHeight > container.clientHeight;
+        setShowScrollNudge(hasOverflow);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const scrollPercentage = (container.scrollTop / (container.scrollHeight - container.clientHeight)) * 100;
+
+    if (scrollPercentage > 10) {
+      setShowScrollNudge(false);
+      setHasScrolled(true);
+    }
+  };
+
+  const handleScrollNudgeClick = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight * 0.3,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   if (!isOpen) return null;
 
   const valueMap = {
@@ -87,7 +129,11 @@ const ReviewOptionModal: React.FC<ReviewOptionModalProps> = ({ isOpen, onClose, 
           </button>
         </div>
 
-        <div className="p-6 max-h-[calc(90vh-10rem)] overflow-y-auto">
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="p-6 max-h-[calc(90vh-10rem)] overflow-y-auto relative"
+        >
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-6 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full"></div>
@@ -277,6 +323,32 @@ const ReviewOptionModal: React.FC<ReviewOptionModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
           </div>
+
+          {showScrollNudge && !hasScrolled && (
+            <div className="sticky bottom-0 left-0 right-0 pointer-events-none">
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
+
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-auto">
+                <button
+                  onClick={handleScrollNudgeClick}
+                  className="group flex flex-col items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:from-teal-600 hover:to-cyan-600 animate-bounce"
+                  style={{ animationDuration: '2s' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold whitespace-nowrap">
+                      {expertCount} Expert Recommendations Below
+                    </span>
+                    <ChevronDown size={20} className="group-hover:translate-y-0.5 transition-transform" />
+                  </div>
+                  <div className="flex gap-1">
+                    {Array.from({ length: expertCount }).map((_, i) => (
+                      <div key={i} className="w-1.5 h-1.5 bg-white rounded-full opacity-70"></div>
+                    ))}
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="sticky bottom-0 bg-gradient-to-r from-gray-50 to-white rounded-b-2xl border-t-2 border-gray-200 p-6 shadow-lg">
