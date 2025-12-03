@@ -336,7 +336,7 @@ const ReviewOptionModal: React.FC<ReviewOptionModalProps> = ({ isOpen, onClose, 
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold whitespace-nowrap">
-                      {expertCount} Expert Recommendations Below
+                      More Expert Recommendations Below
                     </span>
                     <ChevronDown size={20} className="group-hover:translate-y-0.5 transition-transform" />
                   </div>
