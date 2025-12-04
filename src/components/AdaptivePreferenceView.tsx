@@ -151,7 +151,11 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen p-6 flex-1 flex flex-col">
         <div className="max-w-5xl mx-auto w-full">
           <button
-            onClick={onBack}
+            onClick={() => {
+              localStorage.setItem('simulationMetricsReorderingFlag', 'false');
+              localStorage.setItem('moralValuesReorderingFlag', 'false');
+              onBack();
+            }}
             className="mb-4 text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
           >
             <ArrowLeft size={20} />
@@ -281,7 +285,11 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
             </div>
 
             <button
-              onClick={onBack}
+              onClick={() => {
+                localStorage.setItem('simulationMetricsReorderingFlag', 'false');
+                localStorage.setItem('moralValuesReorderingFlag', 'false');
+                onBack();
+              }}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <ArrowLeft size={20} />
@@ -298,7 +306,11 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
     <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen p-6 flex-1 flex flex-col">
       <div className="max-w-5xl mx-auto w-full">
         <button
-          onClick={onBack}
+          onClick={() => {
+            localStorage.setItem('simulationMetricsReorderingFlag', 'false');
+            localStorage.setItem('moralValuesReorderingFlag', 'false');
+            onBack();
+          }}
           className="mb-4 text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
         >
           <ArrowLeft size={20} />
