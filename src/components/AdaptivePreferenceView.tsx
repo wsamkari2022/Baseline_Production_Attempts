@@ -280,6 +280,83 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
               </div>
             </div>
 
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center shadow-md">
+                  <Eye className="text-white" size={20} />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">What We Detected</h2>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl p-6 mb-4">
+                <div className="mb-6">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                      <Target className="text-blue-600" size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                        Your recent choice emphasizes
+                      </p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {comparisonTableColumnContent.secondValue.toLowerCase()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-1">
+                      <Sparkles className="text-green-600" size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                        {(() => {
+                          try {
+                            const finalTopTwo = localStorage.getItem('FinalTopTwoValues');
+                            const finalTopTwoValues = finalTopTwo ? JSON.parse(finalTopTwo) : [];
+                            return finalTopTwoValues.length === 1
+                              ? 'Your current top value priority is'
+                              : 'Your current top value priorities are';
+                          } catch {
+                            return 'Your current top value priorities are';
+                          }
+                        })()}
+                      </p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {(() => {
+                          try {
+                            const finalTopTwo = localStorage.getItem('FinalTopTwoValues');
+                            const finalTopTwoValues = finalTopTwo ? JSON.parse(finalTopTwo) : [];
+                            if (finalTopTwoValues.length === 1) {
+                              return finalTopTwoValues[0].charAt(0).toUpperCase() + finalTopTwoValues[0].slice(1);
+                            } else if (finalTopTwoValues.length === 2) {
+                              const value1 = finalTopTwoValues[0].charAt(0).toUpperCase() + finalTopTwoValues[0].slice(1);
+                              const value2 = finalTopTwoValues[1].charAt(0).toUpperCase() + finalTopTwoValues[1].slice(1);
+                              return `${value1} and ${value2}`;
+                            }
+                            return 'Not yet determined';
+                          } catch {
+                            return 'Not yet determined';
+                          }
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-gray-700 leading-relaxed text-sm">
+                  This suggests that your decision in this scenario is not fully aligned with your previously expressed preferences.
+                </p>
+                <p className="text-gray-600 leading-relaxed text-sm italic bg-gray-50 p-3 rounded-lg">
+                  You might genuinely want to act differently than your earlier ranking suggested — or you might want your preferences to better match how you're actually choosing in these situations.
+                </p>
+              </div>
+            </div>
+
             <button
               onClick={onBack}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all duration-200 shadow-md hover:shadow-lg"
