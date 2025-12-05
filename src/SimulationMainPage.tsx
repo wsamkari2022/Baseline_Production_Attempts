@@ -640,16 +640,9 @@ const SimulationMainPage: React.FC = () => {
       console.log('Updated MoralValuesReorderList for aligned choice:', newMoralValuesReorderList);
     }
     
-    if (!isAligned && tempSelectedOption.cvrQuestion) {
-      setSelectedDecision(tempSelectedOption);
-      setShowCVRModal(true);
-
-      // Track CVR visit
-      TrackingManager.recordCVRVisit(currentScenario.id, tempSelectedOption.id);
-    } else {
-      setSelectedDecision(tempSelectedOption);
-      setShowDecisionSummary(true);
-    }
+    // Always go to Decision Summary modal (no CVR modal interruption)
+    setSelectedDecision(tempSelectedOption);
+    setShowDecisionSummary(true);
     setTempSelectedOption(null);
   };
 
@@ -1397,6 +1390,9 @@ const SimulationMainPage: React.FC = () => {
         onConfirmDecision={handleConfirmDecision}
         canConfirm={hasExploredAlternatives}
         onReviewAlternatives={handleExploreAlternatives}
+        isAligned={selectedDecision ? matchedStableValues.includes(selectedDecision.label.toLowerCase()) : true}
+        selectedOptionValue={selectedDecision?.label || ''}
+        userTopValues={matchedStableValues}
       />
 
       <RadarChart
