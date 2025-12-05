@@ -97,6 +97,8 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
     "Nonmaleficence"
   ]);
   const [preferenceType, setPreferenceType] = useState<'metrics' | 'values' | null>(null);
+  const [metricsRankingItems, setMetricsRankingItems] = useState<Array<{ id: string; label: string }>>(simulationMetrics);
+  const [valuesRankingItems, setValuesRankingItems] = useState<Array<{ id: string; label: string }>>(moralValues);
   const [rankingItems, setRankingItems] = useState<Array<{ id: string; label: string }>>(simulationMetrics);
   const [showRankedOptions, setShowRankedOptions] = useState(false);
   const [showMetricTooltip, setShowMetricTooltip] = useState(true);
@@ -113,6 +115,12 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
     items.splice(result.destination.index, 0, reorderedItem);
 
     setRankingItems(items);
+
+    if (preferenceType === 'metrics') {
+      setMetricsRankingItems(items);
+    } else if (preferenceType === 'values') {
+      setValuesRankingItems(items);
+    }
   };
 
   const handleContinue = () => {
@@ -657,7 +665,7 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
               <button
                 onClick={() => {
                   setPreferenceType('metrics');
-                  setRankingItems(simulationMetrics);
+                  setRankingItems(metricsRankingItems);
                   if (!hasClickedButton) {
                     setHasClickedButton(true);
                     setShowButtonTooltip(false);
@@ -712,14 +720,16 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
                         const stableValues = finalTopTwoRaw ? JSON.parse(finalTopTwoRaw) : [];
                         const selectedValue = selectedOption?.comparisonTableColumnContent?.secondValue;
                         const customOrderedList = getCustomMoralValuesOrder(selectedValue, stableValues);
+                        setValuesRankingItems(customOrderedList);
                         setRankingItems(customOrderedList);
                         setHasAppliedInitialOrder(true);
                       } catch (error) {
                         console.error('Error applying custom order:', error);
+                        setValuesRankingItems(moralValues);
                         setRankingItems(moralValues);
                       }
                     } else {
-                      setRankingItems(moralValues);
+                      setRankingItems(valuesRankingItems);
                     }
 
                     if (!hasClickedButton) {
