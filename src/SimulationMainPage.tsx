@@ -585,62 +585,10 @@ const SimulationMainPage: React.FC = () => {
 
   const handleKeepChoice = () => {
     if (!tempSelectedOption) return;
-    
+
     setShowExpertModal(false);
-    
-    // Check if the selected option's value matches user's stable values
-    const optionValue = tempSelectedOption.label.toLowerCase();
-    const isAligned = matchedStableValues.includes(optionValue);
-    
-    // If the option is aligned with user's values, update the MoralValuesReorderList
-    if (isAligned) {
-      // Get current matched stable values and moral values reorder list
-      const savedMatchedValues = localStorage.getItem('finalValues');
-      const existingMoralValuesReorder = localStorage.getItem('MoralValuesReorderList');
-      let allAvailableValues: Array<{id: string, label: string}> = [];
-      
-      // First, try to get from existing reorder list
-      if (existingMoralValuesReorder) {
-        try {
-          allAvailableValues = JSON.parse(existingMoralValuesReorder);
-        } catch (error) {
-          console.error('Error parsing existing MoralValuesReorderList:', error);
-        }
-      }
-      
-      // If no existing reorder list, get from matched stable values
-      if (savedMatchedValues && allAvailableValues.length === 0) {
-        try {
-          const parsedValues = JSON.parse(savedMatchedValues);
-          allAvailableValues = parsedValues.map((v: any) => ({
-            id: v.name.toLowerCase(),
-            label: v.name
-          }));
-        } catch (error) {
-          console.error('Error parsing matched stable values:', error);
-        }
-      }
-      
-      // Remove the selected value from its current position and add it to the top
-      const filteredValues = allAvailableValues.filter(v => v.id !== optionValue);
-      const newMoralValuesReorderList = [
-        { id: optionValue, label: tempSelectedOption.label },
-        ...filteredValues
-      ];
-      
-      // Save to localStorage
-      localStorage.setItem('MoralValuesReorderList', JSON.stringify(newMoralValuesReorderList));
-      
-      // Update the matched stable values to reflect the new priority
-      setMatchedStableValues(prev => {
-        const updated = [optionValue, ...prev.filter(v => v !== optionValue)];
-        return updated;
-      });
-      
-      console.log('Updated MoralValuesReorderList for aligned choice:', newMoralValuesReorderList);
-    }
-    
-    // Always go to Decision Summary modal (no CVR modal interruption)
+
+    // Go to Decision Summary modal (no CVR modal interruption)
     setSelectedDecision(tempSelectedOption);
     setShowDecisionSummary(true);
     setTempSelectedOption(null);
@@ -757,27 +705,39 @@ const SimulationMainPage: React.FC = () => {
 
     const flagsAtConfirmation = {
       hasReorderedValues: localStorage.getItem('hasReorderedValues') === 'true',
-      cvrYesClicked: localStorage.getItem('cvrYesClicked') === 'true',
-      cvrNoClicked: localStorage.getItem('cvrNoClicked') === 'true',
-      simulationMetricsReorderingFlag: localStorage.getItem('simulationMetricsReorderingFlag') === 'true',
-      moralValuesReorderingFlag: localStorage.getItem('moralValuesReorderingFlag') === 'true'
+      cvrYesClicked: false,
+      cvrNoClicked: false,
+      simulationMetricsReorderingFlag: false,
+      moralValuesReorderingFlag: false
     };
 
     const finalTopTwoValuesBeforeUpdate = [...finalTopTwoValues];
+    const finalDecisionValue = selectedDecision.label.toLowerCase();
 
-    console.log(`[Scenario ${currentScenario.id}] Flags at confirmation:`, flagsAtConfirmation);
-    console.log(`[Scenario ${currentScenario.id}] FinalTopTwoValues before update:`, finalTopTwoValuesBeforeUpdate);
+    // 1. Add to ScenariosFinalDecisionLabels list
+    const updatedDecisionLabels = [...scenariosFinalDecisionLabels, finalDecisionValue];
+    setScenariosFinalDecisionLabels(updatedDecisionLabels);
+    localStorage.setItem('ScenariosFinalDecisionLabels', JSON.stringify(updatedDecisionLabels));
 
-    // If user answered "Yes" to CVR question, update MoralValuesReorderList now
-    if (flagsAtConfirmation.cvrYesClicked && !isAligned) {
+    // 2. Check alignment BEFORE updating FinalTopTwoValues
+    const alignmentStatus = finalTopTwoValuesBeforeUpdate.includes(finalDecisionValue) ? 'Aligned' : 'Misaligned';
+    const updatedAlignmentList = [...checkingAlignmentList, alignmentStatus];
+    setCheckingAlignmentList(updatedAlignmentList);
+    localStorage.setItem('CheckingAlignmentList', JSON.stringify(updatedAlignmentList));
+
+    console.log(`Scenario ${currentScenario.id} - Final Decision: ${finalDecisionValue}, Alignment: ${alignmentStatus}`);
+    console.log('Current FinalTopTwoValues (before update):', finalTopTwoValuesBeforeUpdate);
+
+    // 3. If option is non-aligned, promote the value to the top of all lists
+    if (!isAligned) {
       const selectedValue = selectedDecision.label.toLowerCase();
 
-      // Get current matched stable values and moral values reorder list
+      // Update MoralValuesReorderList
       const savedMatchedValues = localStorage.getItem('finalValues');
       const existingMoralValuesReorder = localStorage.getItem('MoralValuesReorderList');
       let allAvailableValues: Array<{id: string, label: string}> = [];
 
-      // First, try to get from existing reorder list
+      // Get all available values
       if (existingMoralValuesReorder) {
         try {
           allAvailableValues = JSON.parse(existingMoralValuesReorder);
@@ -809,13 +769,27 @@ const SimulationMainPage: React.FC = () => {
       // Save to localStorage
       localStorage.setItem('MoralValuesReorderList', JSON.stringify(newMoralValuesReorderList));
 
-      // Update the matched stable values to reflect the new priority
+      // Update matchedStableValues state
       setMatchedStableValues(prev => {
         const updated = [selectedValue, ...prev.filter(v => v !== selectedValue)];
         return updated;
       });
 
-      console.log('Updated MoralValuesReorderList at confirmation:', newMoralValuesReorderList);
+      // Update FinalTopTwoValues by placing confirmed value at top
+      const updatedTopTwoValues = [
+        selectedValue,
+        ...finalTopTwoValuesBeforeUpdate.filter(v => v !== selectedValue)
+      ].slice(0, 2);
+
+      setFinalTopTwoValues(updatedTopTwoValues);
+      localStorage.setItem('FinalTopTwoValues', JSON.stringify(updatedTopTwoValues));
+
+      console.log('Non-aligned option confirmed. Updated value lists:');
+      console.log('- MoralValuesReorderList:', newMoralValuesReorderList);
+      console.log('- matchedStableValues:', [selectedValue, ...matchedStableValues.filter(v => v !== selectedValue)]);
+      console.log('- FinalTopTwoValues:', updatedTopTwoValues);
+    } else {
+      console.log('Aligned option confirmed. FinalTopTwoValues remains unchanged:', finalTopTwoValuesBeforeUpdate);
     }
 
     TrackingManager.confirmOption(
@@ -827,106 +801,16 @@ const SimulationMainPage: React.FC = () => {
       finalTopTwoValuesBeforeUpdate
     );
 
-    // BEFORE updating FinalTopTwoValues, track the final decision value and check alignment
-    const finalDecisionValue = selectedDecision.label.toLowerCase();
-
-    // 1. Add to ScenariosFinalDecisionLabels list
-    const updatedDecisionLabels = [...scenariosFinalDecisionLabels, finalDecisionValue];
-    setScenariosFinalDecisionLabels(updatedDecisionLabels);
-    localStorage.setItem('ScenariosFinalDecisionLabels', JSON.stringify(updatedDecisionLabels));
-
-    // 2. Check alignment BEFORE updating FinalTopTwoValues
-    const alignmentStatus = finalTopTwoValues.includes(finalDecisionValue) ? 'Aligned' : 'Misaligned';
-    const updatedAlignmentList = [...checkingAlignmentList, alignmentStatus];
-    setCheckingAlignmentList(updatedAlignmentList);
-    localStorage.setItem('CheckingAlignmentList', JSON.stringify(updatedAlignmentList));
-
-    console.log(`Scenario ${currentScenario.id} - Final Decision: ${finalDecisionValue}, Alignment: ${alignmentStatus}`);
-    console.log('Current FinalTopTwoValues (before update):', finalTopTwoValues);
-    console.log('Updated ScenariosFinalDecisionLabels:', updatedDecisionLabels);
-    console.log('Updated CheckingAlignmentList:', updatedAlignmentList);
-
-    // Capture MoralValuesReorderList for this scenario if moralValuesReorderingFlag is true
-    if (flagsAtConfirmation.moralValuesReorderingFlag) {
-      const moralValuesReorderList = localStorage.getItem('MoralValuesReorderList');
-      if (moralValuesReorderList) {
-        try {
-          const parsedList = JSON.parse(moralValuesReorderList);
-          const valuesList = parsedList.map((item: any) => item.id || item.label || item);
-
-          if (currentScenario.id === 1) {
-            setScenario1MoralValueReordered(valuesList);
-            localStorage.setItem('Scenario1_MoralValueReordered', JSON.stringify(valuesList));
-            console.log('Captured Scenario1_MoralValueReordered:', valuesList);
-          } else if (currentScenario.id === 2) {
-            setScenario2MoralValueReordered(valuesList);
-            localStorage.setItem('Scenario2_MoralValueReordered', JSON.stringify(valuesList));
-            console.log('Captured Scenario2_MoralValueReordered:', valuesList);
-          } else if (currentScenario.id === 3) {
-            setScenario3MoralValueReordered(valuesList);
-            localStorage.setItem('Scenario3_MoralValueReordered', JSON.stringify(valuesList));
-            console.log('Captured Scenario3_MoralValueReordered:', valuesList);
-          }
-        } catch (error) {
-          console.error('Error capturing MoralValuesReorderList for scenario:', error);
-        }
-      }
-    } else {
-      // If flag is false, store empty list for this scenario
-      if (currentScenario.id === 1) {
-        setScenario1MoralValueReordered([]);
-        localStorage.setItem('Scenario1_MoralValueReordered', JSON.stringify([]));
-        console.log('Scenario1_MoralValueReordered set to empty (flag is false)');
-      } else if (currentScenario.id === 2) {
-        setScenario2MoralValueReordered([]);
-        localStorage.setItem('Scenario2_MoralValueReordered', JSON.stringify([]));
-        console.log('Scenario2_MoralValueReordered set to empty (flag is false)');
-      } else if (currentScenario.id === 3) {
-        setScenario3MoralValueReordered([]);
-        localStorage.setItem('Scenario3_MoralValueReordered', JSON.stringify([]));
-        console.log('Scenario3_MoralValueReordered set to empty (flag is false)');
-      }
-    }
-
-    // Update FinalTopTwoValues after confirming decision
-    // Logic depends on which reordering flag is active
-    if (flagsAtConfirmation.simulationMetricsReorderingFlag) {
-      // If Simulation Metrics was used, don't update FinalTopTwoValues
-      console.log('Skipping FinalTopTwoValues update because simulationMetricsReorderingFlag is true');
-      console.log('FinalTopTwoValues remains:', finalTopTwoValues);
-
-      // Set flag for next scenario to use FinalTopTwoValues for initial options
-      localStorage.setItem('previousScenarioUsedSimulationMetrics', 'true');
-    } else if (flagsAtConfirmation.moralValuesReorderingFlag) {
-      // If Moral Values was used, replace FinalTopTwoValues with top 2 from MoralValuesReorderList
-      const moralValuesReorderList = localStorage.getItem('MoralValuesReorderList');
-      if (moralValuesReorderList) {
-        try {
-          const parsedList = JSON.parse(moralValuesReorderList);
-          const topTwoMoralValues = parsedList.slice(0, 2).map((item: any) => item.id || item.label || item);
-
-          setFinalTopTwoValues(topTwoMoralValues);
-          localStorage.setItem('FinalTopTwoValues', JSON.stringify(topTwoMoralValues));
-          console.log('Updated FinalTopTwoValues with top 2 from MoralValuesReorderList:', topTwoMoralValues);
-        } catch (error) {
-          console.error('Error parsing MoralValuesReorderList:', error);
-        }
-      } else {
-        console.log('MoralValuesReorderList not found in localStorage');
-      }
-    } else {
-      // Default behavior: add the decision value to the top
-      const updatedTopTwoValues = [
-        finalDecisionValue,
-        ...finalTopTwoValues.filter(v => v !== finalDecisionValue)
-      ].slice(0, 2); // Keep only top 2
-
-      setFinalTopTwoValues(updatedTopTwoValues);
-      localStorage.setItem('FinalTopTwoValues', JSON.stringify(updatedTopTwoValues));
-      console.log('Updated FinalTopTwoValues with final decision:', updatedTopTwoValues);
-
-      // Clear the flag since we're not using simulation metrics
-      localStorage.setItem('previousScenarioUsedSimulationMetrics', 'false');
+    // Store empty MoralValueReordered lists for all scenarios (no reordering flags used)
+    if (currentScenario.id === 1) {
+      setScenario1MoralValueReordered([]);
+      localStorage.setItem('Scenario1_MoralValueReordered', JSON.stringify([]));
+    } else if (currentScenario.id === 2) {
+      setScenario2MoralValueReordered([]);
+      localStorage.setItem('Scenario2_MoralValueReordered', JSON.stringify([]));
+    } else if (currentScenario.id === 3) {
+      setScenario3MoralValueReordered([]);
+      localStorage.setItem('Scenario3_MoralValueReordered', JSON.stringify([]));
     }
 
     // Set flag based on whether this decision came from ranked view top 2
