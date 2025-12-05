@@ -718,6 +718,8 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
                         console.error('Error applying custom order:', error);
                         setRankingItems(moralValues);
                       }
+                    } else {
+                      setRankingItems(moralValues);
                     }
 
                     if (!hasClickedButton) {
