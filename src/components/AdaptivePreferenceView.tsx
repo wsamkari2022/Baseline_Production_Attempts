@@ -40,6 +40,46 @@ const moralValues = [
   { id: 'nonmaleficence', label: 'Nonmaleficence' }
 ];
 
+function getCustomMoralValuesOrder(
+  selectedValue: string | undefined,
+  stableValues: string[]
+): Array<{ id: string; label: string }> {
+  const allMoralValues = [
+    { id: 'safety', label: 'Safety' },
+    { id: 'efficiency', label: 'Efficiency' },
+    { id: 'sustainability', label: 'Sustainability' },
+    { id: 'fairness', label: 'Fairness' },
+    { id: 'nonmaleficence', label: 'Nonmaleficence' }
+  ];
+
+  const selectedValueLower = selectedValue?.toLowerCase();
+  const orderedValues: Array<{ id: string; label: string }> = [];
+  const usedIds = new Set<string>();
+
+  if (selectedValueLower) {
+    const selectedItem = allMoralValues.find(v => v.id === selectedValueLower);
+    if (selectedItem) {
+      orderedValues.push(selectedItem);
+      usedIds.add(selectedItem.id);
+    }
+  }
+
+  stableValues.forEach(stableValue => {
+    if (!usedIds.has(stableValue)) {
+      const stableItem = allMoralValues.find(v => v.id === stableValue);
+      if (stableItem) {
+        orderedValues.push(stableItem);
+        usedIds.add(stableItem.id);
+      }
+    }
+  });
+
+  const remainingValues = allMoralValues.filter(v => !usedIds.has(v.id));
+  orderedValues.push(...remainingValues);
+
+  return orderedValues;
+}
+
 const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
   onBack,
   selectedOption,
@@ -63,6 +103,7 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
   const [isWhyCollapsed, setIsWhyCollapsed] = useState(true);
   const [hasClickedButton, setHasClickedButton] = useState(() => localStorage.getItem('hasClickedPreferenceButton') === 'true');
   const [showButtonTooltip, setShowButtonTooltip] = useState(() => localStorage.getItem('hasClickedPreferenceButton') !== 'true');
+  const [hasAppliedInitialOrder, setHasAppliedInitialOrder] = useState(false);
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -664,7 +705,21 @@ const AdaptivePreferenceView: React.FC<AdaptivePreferenceViewProps> = ({
                 <button
                   onClick={() => {
                     setPreferenceType('values');
-                    setRankingItems(moralValues);
+
+                    if (!hasAppliedInitialOrder) {
+                      try {
+                        const finalTopTwoRaw = localStorage.getItem('FinalTopTwoValues');
+                        const stableValues = finalTopTwoRaw ? JSON.parse(finalTopTwoRaw) : [];
+                        const selectedValue = selectedOption?.comparisonTableColumnContent?.secondValue;
+                        const customOrderedList = getCustomMoralValuesOrder(selectedValue, stableValues);
+                        setRankingItems(customOrderedList);
+                        setHasAppliedInitialOrder(true);
+                      } catch (error) {
+                        console.error('Error applying custom order:', error);
+                        setRankingItems(moralValues);
+                      }
+                    }
+
                     if (!hasClickedButton) {
                       setHasClickedButton(true);
                       setShowButtonTooltip(false);
