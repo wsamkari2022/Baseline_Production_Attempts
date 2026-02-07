@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API = import.meta.env.VITE_API_URL || "/VRDS_BASELINE";
 
 // ---- Session Manager (single source of truth) ----
 let cachedSessionId: string | null = null;
