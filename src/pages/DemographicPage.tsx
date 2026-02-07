@@ -111,7 +111,7 @@ const DemographicPage: React.FC = () => {
 
     const consentData = JSON.parse(localStorage.getItem('userConsent') || '{}');
 
-    const ExperimentCondition = "DefaultCondition"; // Fixed string value for ExperimentCondition
+    const ExperimentCondition = "4"; // Fixed string value for ExperimentCondition
 
     await MongoService.createUserSession({
       session_id: session_id,
