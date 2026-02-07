@@ -49,6 +49,8 @@ const StudyCompletePage: React.FC = () => {
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const initCompletion = async () => {
       setIsVisible(true);
       setTimeout(() => setShowContent(true), 300);
