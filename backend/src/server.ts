@@ -6,10 +6,6 @@ import { fileURLToPath } from "url";
 import { connectDatabase } from "./config/database.js";
 import userSessionsRouter from "./routes/userSessions.js";
 import valueEvolutionRouter from "./routes/valueEvolution.js";
-import cvrResponsesRouter from "./routes/cvrResponses.js";
-import apaReorderingsRouter from "./routes/apaReorderings.js";
-import scenarioInteractionsRouter from "./routes/scenarioInteractions.js";
-import baselineValuesRouter from "./routes/baselineValues.js";
 import finalDecisionsRouter from "./routes/finalDecisions.js";
 import sessionMetricsRouter from "./routes/sessionMetrics.js";
 import sessionFeedbackRouter from "./routes/sessionFeedback.js";
@@ -52,10 +48,6 @@ app.get(`${BASE_PATH}/api/health`, (_req, res) => {
 // API routes
 app.use(`${BASE_PATH}/api/user-sessions`, userSessionsRouter);
 app.use(`${BASE_PATH}/api/value-evolution`, valueEvolutionRouter);
-app.use(`${BASE_PATH}/api/cvr-responses`, cvrResponsesRouter);
-app.use(`${BASE_PATH}/api/apa-reorderings`, apaReorderingsRouter);
-app.use(`${BASE_PATH}/api/scenario-interactions`, scenarioInteractionsRouter);
-app.use(`${BASE_PATH}/api/baseline-values`, baselineValuesRouter);
 app.use(`${BASE_PATH}/api/final-decisions`, finalDecisionsRouter);
 app.use(`${BASE_PATH}/api/session-metrics`, sessionMetricsRouter);
 app.use(`${BASE_PATH}/api/session-feedback`, sessionFeedbackRouter);
